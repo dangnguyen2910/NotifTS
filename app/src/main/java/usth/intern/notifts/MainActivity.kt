@@ -39,17 +39,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // TODO: check if app has access to notification listener
-    private fun hasAccessToListenNotification(): Boolean {
-        return true
-    }
-
-    // TODO: Open notification access window
     private fun askForPermission() {
         try {
-            val settingsIntent =
-                Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            startActivity(settingsIntent)
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
