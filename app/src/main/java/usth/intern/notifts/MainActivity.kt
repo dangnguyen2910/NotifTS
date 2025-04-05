@@ -1,5 +1,10 @@
 package usth.intern.notifts
 
+import android.app.NotificationManager
+import android.content.ActivityNotFoundException
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,8 +29,30 @@ class MainActivity : ComponentActivity() {
                         NotifTSApp()
                 }
             }
-        }
 
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (!notificationManager.isNotificationListenerAccessGranted(
+                ComponentName(this, NotificationToSpeechService::class.java)
+            )) {
+                askForPermission()
+            }
+        }
+    }
+
+    // TODO: check if app has access to notification listener
+    private fun hasAccessToListenNotification(): Boolean {
+        return true
+    }
+
+    // TODO: Open notification access window
+    private fun askForPermission() {
+        try {
+            val settingsIntent =
+                Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(settingsIntent)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+        }
     }
 }
 

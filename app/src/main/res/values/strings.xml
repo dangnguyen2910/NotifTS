@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NotifTS</string>
+    <string name="nts_service">NotificationToSpeechService</string>
 </resources>
