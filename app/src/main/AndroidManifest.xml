@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".NotificationToSpeechService"
+        <service android:name=".data.NotificationToSpeechService"
             android:label="@string/nts_service"
             android:exported="false"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
