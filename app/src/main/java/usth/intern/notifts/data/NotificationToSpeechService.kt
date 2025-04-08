@@ -1,6 +1,5 @@
 package usth.intern.notifts.data
 
-import android.content.pm.PackageManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
@@ -11,7 +10,6 @@ private const val TAG = "NotificationToSpeechService"
 class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
     private var serviceIsEnabled = true
-//    private var pm = applicationContext.packageManager
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -28,8 +26,6 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
         super.onNotificationPosted(sbn)
 
         val packageName = sbn.packageName ?: ""
-//        val appInfo = baseContext.packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-//        val appName = baseContext.packageManager.getApplicationLabel(appInfo).toString()
         val notification = sbn.notification
         val category = notification.category
         val extras = notification.extras
@@ -41,8 +37,8 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
         val textLines = extras?.getCharSequence("android.textLines")?: ""
         val messages = extras?.getCharSequence("android.messages") ?: ""
 
+        Log.d(TAG, "-----------------------------------------------------")
         Log.d(TAG, packageName)
-//        Log.d(TAG, "App: $appName")
         Log.d(TAG, "Category: $category")
         Log.d(TAG, "Title: $title")
         Log.d(TAG, "Text: $text")
@@ -50,10 +46,9 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
         Log.d(TAG, "Big Text: $bigText")
         Log.d(TAG, "Text Lines: $textLines")
         Log.d(TAG, "Messages: $messages")
-        Log.d(TAG, "-----------------------------------------------------")
 
         if (serviceIsEnabled){
-            tts.speak("$text $messages", TextToSpeech.QUEUE_FLUSH, null, null)
+            tts.speak("$title $text", TextToSpeech.QUEUE_FLUSH, null, null)
         }
     }
 
