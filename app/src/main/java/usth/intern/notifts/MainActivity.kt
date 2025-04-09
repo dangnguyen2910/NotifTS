@@ -11,10 +11,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import dagger.hilt.android.AndroidEntryPoint
 import usth.intern.notifts.data.NotificationToSpeechService
 import usth.intern.notifts.ui.HomeScreen
 import usth.intern.notifts.ui.theme.NotifTSTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,20 +24,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             NotifTSTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                        HomeScreen()
+                    HomeScreen()
                 }
             }
 
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+        }
 
-            val notificationIsAccessed = notificationManager.isNotificationListenerAccessGranted(
-                ComponentName(this, NotificationToSpeechService::class.java)
-            )
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
 
-            if (!notificationIsAccessed) {
-                startActivity(intent)
-            }
+        val notificationIsAccessed = notificationManager.isNotificationListenerAccessGranted(
+            ComponentName(this, NotificationToSpeechService::class.java)
+        )
+
+        if (!notificationIsAccessed) {
+            startActivity(intent)
         }
     }
 }

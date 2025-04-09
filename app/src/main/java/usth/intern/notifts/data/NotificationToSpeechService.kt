@@ -4,17 +4,27 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 private const val TAG = "NotificationToSpeechService"
 
+@AndroidEntryPoint
 class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.OnInitListener {
+    @Inject
+    lateinit var preferenceRepository: PreferenceRepository
+
     private lateinit var tts: TextToSpeech
-    private var serviceIsEnabled = true
+    private lateinit var engine: Engine
+
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        tts = TextToSpeech(this, this)
         Log.d(TAG, "Connected to notification to speech service")
+        tts = TextToSpeech(this, this)
+        engine = Engine(tts, preferenceRepository)
     }
 
     override fun onListenerDisconnected() {
@@ -32,23 +42,17 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
 
         val title = extras?.getCharSequence("android.title") ?: ""
         val text = extras?.getCharSequence("android.text") ?: ""
-        val subText = extras?.getCharSequence("android.subText") ?: ""
         val bigText = extras?.getCharSequence("android.bigText")?: ""
-        val textLines = extras?.getCharSequence("android.textLines")?: ""
-        val messages = extras?.getCharSequence("android.messages") ?: ""
 
         Log.d(TAG, "-----------------------------------------------------")
         Log.d(TAG, packageName)
         Log.d(TAG, "Category: $category")
         Log.d(TAG, "Title: $title")
         Log.d(TAG, "Text: $text")
-        Log.d(TAG, "SubText: $subText")
         Log.d(TAG, "Big Text: $bigText")
-        Log.d(TAG, "Text Lines: $textLines")
-        Log.d(TAG, "Messages: $messages")
 
-        if (serviceIsEnabled){
-            tts.speak("$title $text", TextToSpeech.QUEUE_FLUSH, null, null)
+        if (!tts.isSpeaking){
+            engine.run("$title $text")
         }
     }
 
@@ -56,12 +60,11 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
         if (status == TextToSpeech.SUCCESS) {
             Log.d(TAG, "Initializing text to speech: Success")
 
-            tts.speak(
-                "Hello",
-                TextToSpeech.QUEUE_FLUSH,
-                null,
-                null
-            )
+            runBlocking {
+                launch {
+                    engine.run("Hello")
+                }
+            }
         }
     }
 
