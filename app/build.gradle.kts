@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.lingua)
     ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
