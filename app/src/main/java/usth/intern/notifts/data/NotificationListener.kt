@@ -2,40 +2,21 @@ package usth.intern.notifts.data
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.speech.tts.TextToSpeech
 import android.util.Log
-import com.github.pemistahl.lingua.api.Language
-import com.github.pemistahl.lingua.api.LanguageDetector
-import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.util.Locale
 import javax.inject.Inject
 
 private const val TAG = "NotificationToSpeechService"
 
 @AndroidEntryPoint
-class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.OnInitListener {
+class NotificationListener : NotificationListenerService() {
+
     @Inject
-    lateinit var preferenceRepository: PreferenceRepository
-
-    private lateinit var tts: TextToSpeech
-    private lateinit var engine: Engine
-    private val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(
-        Language.ENGLISH,
-        Language.VIETNAMESE
-    ).build()
-
+    lateinit var engine: Engine
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.d(TAG, "Connected to notification to speech service")
-
-        // Initialize tts model and engine
-        // TODO: Check if there is a way to separate tts to engine file.
-        tts = TextToSpeech(this, this, "com.google.android.tts")
-        engine = Engine(tts, preferenceRepository)
     }
 
     override fun onListenerDisconnected() {
@@ -68,25 +49,6 @@ class NotificationToSpeechService : NotificationListenerService(), TextToSpeech.
             "$title $text $bigText"
         }
 
-        val detectedLanguage = detector.detectLanguageOf(title.toString())
-        Log.d(TAG, detectedLanguage.name)
-        Log.d(TAG, "isSpeaking = ${tts.isSpeaking}")
-
-        if (!tts.isSpeaking){
-            engine.run(prompt)
-        }
+        engine.run(prompt)
     }
-
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            Log.d(TAG, "Initializing text to speech: Success")
-
-            runBlocking {
-                launch {
-                    engine.run("Hello")
-                }
-            }
-        }
-    }
-
 }

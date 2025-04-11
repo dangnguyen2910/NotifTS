@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import usth.intern.notifts.data.NotificationToSpeechService
+import usth.intern.notifts.data.NotificationListener
 import usth.intern.notifts.ui.HomeScreen
 import usth.intern.notifts.ui.theme.NotifTSTheme
 
@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
 
         val notificationIsAccessed = notificationManager.isNotificationListenerAccessGranted(
-            ComponentName(this, NotificationToSpeechService::class.java)
+            ComponentName(this, NotificationListener::class.java)
         )
 
         if (!notificationIsAccessed) {
