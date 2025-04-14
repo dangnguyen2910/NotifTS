@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -22,6 +24,7 @@ private const val TAG = "MyCustomEngine"
 class Engine @Inject constructor(
     @ApplicationContext context: Context,
     private val preferenceRepository: PreferenceRepository,
+    private val databaseRepository: DatabaseRepository,
 ) : TextToSpeech.OnInitListener{
 
     private val tts = TextToSpeech(context, this, "com.google.android.tts")
@@ -58,46 +61,62 @@ class Engine @Inject constructor(
     }
 
    fun run(sbn: StatusBarNotification) {
-       val packageName = sbn.packageName ?: ""
-       val notification = sbn.notification
-       val category = notification.category
-       val extras = notification.extras
+        val packageName = sbn.packageName ?: ""
+        val notification = sbn.notification
+        val extras = notification.extras
 
-       val title = extras?.getCharSequence("android.title") ?: ""
-       val text = extras?.getCharSequence("android.text") ?: ""
-       val bigText = extras?.getCharSequence("android.bigText")?: ""
+        val category = notification.category
 
-       Log.d(TAG, "-----------------------------------------------------")
-       Log.d(TAG, packageName)
-       Log.d(TAG, "Category: $category")
-       Log.d(TAG, "Title: $title")
-       Log.d(TAG, "Text: $text")
-       Log.d(TAG, "Big Text: $bigText")
 
-       runBlocking {
-           launch {
-               val isActivatedFlow: Flow<Boolean> =  preferenceRepository.isActivatedFlow
+        val title = extras?.getCharSequence("android.title") ?: ""
+        val text = extras?.getCharSequence("android.text") ?: ""
+        val bigText = extras?.getCharSequence("android.bigText")?: ""
 
-               if (isActivatedFlow.first()) {
-                   engineSpeak(title.toString())
-                   engineSpeak(text.toString())
+        val timestamp: Long = System.currentTimeMillis()
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val dateString = formatter.format(Date(timestamp))
 
-                   if (bigText != text) {
-                       engineSpeak(bigText.toString())
-                  }
-               }
+        Log.d(TAG, "-----------------------------------------------------")
+        Log.d(TAG, packageName)
+        Log.d(TAG, "Category: $category")
+        Log.d(TAG, "Title: $title")
+        Log.d(TAG, "Text: $text")
+        Log.d(TAG, "Big Text: $bigText")
+        Log.d(TAG, "Date: $dateString")
+
+        runBlocking {
+            launch {
+                // Insert notification to database
+                databaseRepository.insertNotification(
+                    packageName = packageName,
+                    title = title.toString(),
+                    text = text.toString(),
+                    bigText = bigText.toString(),
+                    category = category.toString(),
+                    date = dateString
+                )
+
+                val isActivatedFlow: Flow<Boolean> =  preferenceRepository.isActivatedFlow
+
+                if (isActivatedFlow.first()) {
+                    engineSpeak(title.toString())
+                    engineSpeak(text.toString())
+
+                    if (bigText != text) {
+                        engineSpeak(bigText.toString())
+                   }
+                }
            }
        }
    }
 
-   private fun engineSpeak(text: String) {
-       val detectedLanguageOfText: Language = detector.detectLanguageOf(text)
-       val result = tts.setLanguage(localeMap[detectedLanguageOfText.name])
+    private fun engineSpeak(text: String) {
+        val detectedLanguageOfText: Language = detector.detectLanguageOf(text)
+        val result = tts.setLanguage(localeMap[detectedLanguageOfText.name])
 
-       if (result == LANG_MISSING_DATA || result == LANG_NOT_SUPPORTED)
-           Log.e("TTS", "Language is not supported or missing data")
+        if (result == LANG_MISSING_DATA || result == LANG_NOT_SUPPORTED)
+            Log.e("TTS", "Language is not supported or missing data")
 
-       tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
-
-   }
+        tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
+    }
 }

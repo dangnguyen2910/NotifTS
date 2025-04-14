@@ -7,13 +7,13 @@ import androidx.room.Query
 @Dao
 interface NotificationDao {
     @Insert
-    suspend fun insertNotification(notification: Notification)
+    suspend fun insertNotification(notification: Notification): Long
 
     @Query(
         "select * " +
         "from notification " +
         "order by rowid desc " +
-        "limit :num"
+        "limit 1"
     )
-    suspend fun loadNewestNotifications(num: Int = 1): Notification
+    suspend fun loadNewestNotification(): Notification
 }
