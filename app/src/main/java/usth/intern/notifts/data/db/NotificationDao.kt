@@ -3,6 +3,7 @@ package usth.intern.notifts.data.db
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
@@ -15,5 +16,5 @@ interface NotificationDao {
         "order by rowid desc " +
         "limit 1"
     )
-    suspend fun loadNewestNotification(): Notification
+    fun loadNewestNotification(): Flow<Notification?>
 }

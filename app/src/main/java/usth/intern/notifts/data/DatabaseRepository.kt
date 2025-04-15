@@ -17,6 +17,7 @@ class DatabaseRepository @Inject constructor(
     ).build()
 
     private val notificationDao = db.notificationDao()
+    val newestNotification = notificationDao.loadNewestNotification()
 
     suspend fun insertNotification(
         packageName: String,

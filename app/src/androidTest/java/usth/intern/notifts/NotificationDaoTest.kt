@@ -3,10 +3,12 @@ package usth.intern.notifts
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import usth.intern.notifts.data.db.AppDatabase
@@ -52,7 +54,7 @@ class NotificationDaoTest {
         runBlocking {
             launch {
                 notificationDao.insertNotification(notification)
-                val newestNotification = notificationDao.loadNewestNotification()
+                val newestNotification = notificationDao.loadNewestNotification().first()
                 assertEquals(newestNotification, expected)
             }
         }
@@ -85,8 +87,18 @@ class NotificationDaoTest {
             launch {
                 notificationDao.insertNotification(notification1)
                 notificationDao.insertNotification(notification2)
-                val newestNotification = notificationDao.loadNewestNotification()
+                val newestNotification = notificationDao.loadNewestNotification().first()
                 assertEquals(newestNotification, expected)
+            }
+        }
+    }
+
+    @Test
+    fun loadNewestNotificationWithEmptyDatabase() {
+        runBlocking {
+            launch {
+                val newestNotification = notificationDao.loadNewestNotification().first()
+                assertNull(newestNotification)
             }
         }
     }

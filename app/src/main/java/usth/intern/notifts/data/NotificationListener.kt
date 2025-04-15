@@ -6,7 +6,7 @@ import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-private const val TAG = "NotificationToSpeechService"
+private const val TAG = "NotificationListener"
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
