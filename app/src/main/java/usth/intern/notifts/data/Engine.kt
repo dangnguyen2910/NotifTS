@@ -42,12 +42,12 @@ class Engine @Inject constructor(
 
     override fun onInit(status: Int) {
         Log.d(TAG, "Initializing text to speech: Success")
-        tts.speak(
-            "Thanks for using my app",
-            TextToSpeech.QUEUE_ADD,
-            null,
-            null
-        )
+//        tts.speak(
+//            "Thanks for using my app",
+//            TextToSpeech.QUEUE_ADD,
+//            null,
+//            null
+//        )
 
         val availableLocale = tts.availableLanguages
         for (locale in availableLocale) {
