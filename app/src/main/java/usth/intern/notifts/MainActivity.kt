@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import usth.intern.notifts.data.NotificationListener
+import usth.intern.notifts.domain.NotificationListener
 import usth.intern.notifts.ui.HomeScreen
 import usth.intern.notifts.ui.theme.NotifTSTheme
 

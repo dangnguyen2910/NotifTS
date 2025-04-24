@@ -1,18 +1,18 @@
-package usth.intern.notifts.data
+package usth.intern.notifts.domain
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
+import usth.intern.notifts.data.TAG
+import usth.intern.notifts.domain.tts.TtsEngine
 import javax.inject.Inject
-
-private const val TAG = "NotificationListener"
 
 @AndroidEntryPoint
 class NotificationListener : NotificationListenerService() {
 
     @Inject
-    lateinit var engine: Engine
+    lateinit var engine: TtsEngine
 
     override fun onListenerConnected() {
         super.onListenerConnected()

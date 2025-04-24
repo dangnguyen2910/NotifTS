@@ -1,10 +1,8 @@
-package usth.intern.notifts.data
+package usth.intern.notifts.domain.tts
 
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
-import android.speech.tts.TextToSpeech.LANG_MISSING_DATA
-import android.speech.tts.TextToSpeech.LANG_NOT_SUPPORTED
 import android.util.Log
 import com.github.pemistahl.lingua.api.Language
 import com.github.pemistahl.lingua.api.LanguageDetector
@@ -14,6 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import usth.intern.notifts.data.DatabaseRepository
+import usth.intern.notifts.data.PreferenceRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,11 +21,11 @@ import javax.inject.Inject
 
 private const val TAG = "MyCustomEngine"
 
-class Engine @Inject constructor(
+class TtsEngine @Inject constructor(
     @ApplicationContext context: Context,
     private val preferenceRepository: PreferenceRepository,
     private val databaseRepository: DatabaseRepository,
-) : TextToSpeech.OnInitListener{
+) : TextToSpeech.OnInitListener {
 
     private val tts = TextToSpeech(context, this, "com.google.android.tts")
 
@@ -67,7 +67,6 @@ class Engine @Inject constructor(
 
         val category = notification.category
 
-
         val title = extras?.getCharSequence("android.title") ?: ""
         val text = extras?.getCharSequence("android.text") ?: ""
         val bigText = extras?.getCharSequence("android.bigText")?: ""
@@ -76,36 +75,36 @@ class Engine @Inject constructor(
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val dateString = formatter.format(Date(timestamp))
 
-        Log.d(TAG, "-----------------------------------------------------")
-        Log.d(TAG, packageName)
-        Log.d(TAG, "Category: $category")
-        Log.d(TAG, "Title: $title")
-        Log.d(TAG, "Text: $text")
-        Log.d(TAG, "Big Text: $bigText")
-        Log.d(TAG, "Date: $dateString")
+       Log.d(TAG, "-----------------------------------------------------")
+       Log.d(TAG, packageName)
+       Log.d(TAG, "Category: $category")
+       Log.d(TAG, "Title: $title")
+       Log.d(TAG, "Text: $text")
+       Log.d(TAG, "Big Text: $bigText")
+       Log.d(TAG, "Date: $dateString")
 
-        runBlocking {
-            launch {
-                // Insert notification to database
-                databaseRepository.insertNotification(
-                    packageName = packageName,
-                    title = title.toString(),
-                    text = text.toString(),
-                    bigText = bigText.toString(),
-                    category = category.toString(),
-                    date = dateString
-                )
+       runBlocking {
+           launch {
+               // Insert notification to database
+               databaseRepository.insertNotification(
+                   packageName = packageName,
+                   title = title.toString(),
+                   text = text.toString(),
+                   bigText = bigText.toString(),
+                   category = category.toString(),
+                   date = dateString
+               )
 
-                val isActivatedFlow: Flow<Boolean> =  preferenceRepository.isActivatedFlow
+               val isActivatedFlow: Flow<Boolean> = preferenceRepository.isActivatedFlow
 
-                if (isActivatedFlow.first()) {
-                    engineSpeak(title.toString())
-                    engineSpeak(text.toString())
+               if (isActivatedFlow.first()) {
+                   engineSpeak(title.toString())
+                   engineSpeak(text.toString())
 
-                    if (bigText != text) {
-                        engineSpeak(bigText.toString())
+                   if (bigText != text) {
+                       engineSpeak(bigText.toString())
                    }
-                }
+               }
            }
        }
    }
@@ -114,7 +113,7 @@ class Engine @Inject constructor(
         val detectedLanguageOfText: Language = detector.detectLanguageOf(text)
         val result = tts.setLanguage(localeMap[detectedLanguageOfText.name])
 
-        if (result == LANG_MISSING_DATA || result == LANG_NOT_SUPPORTED)
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
             Log.e("TTS", "Language is not supported or missing data")
 
         tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
