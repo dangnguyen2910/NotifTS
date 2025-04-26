@@ -40,7 +40,6 @@ class HomeViewModel @Inject constructor(
     // Create the UI state
     private val homeUiState: HomeUiState = HomeUiState(
         isActivated = isActivated,
-        notification = notification
     )
     private val _uiState = MutableStateFlow(homeUiState)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
