@@ -18,7 +18,7 @@ import javax.inject.Inject
 private const val TAG = "HomeViewModel"
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class SettingsViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel(){
@@ -38,11 +38,11 @@ class HomeViewModel @Inject constructor(
     }
 
     // Create the UI state
-    private val homeUiState: HomeUiState = HomeUiState(
+    private val homeUiState: SettingsUiState = SettingsUiState(
         isActivated = isActivated,
     )
     private val _uiState = MutableStateFlow(homeUiState)
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     /**
      * Change the value of switch and update to the data store.
