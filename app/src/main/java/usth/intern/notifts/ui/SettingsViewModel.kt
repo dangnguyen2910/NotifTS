@@ -24,6 +24,9 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel(){
 
     private var isActivated: Boolean = false
+    private var speakerIsEnabledWhenScreenOn: Boolean = false
+    private var speakerIsEnabledWhenDndOn: Boolean = false
+    private var notificationIsShown: Boolean = false
     private var notification: Notification? = null
 
     // Use the old data in dataStore
@@ -32,7 +35,15 @@ class SettingsViewModel @Inject constructor(
             launch {
                 notification = databaseRepository.newestNotification.first()
                 isActivated = preferenceRepository.isActivatedFlow.first()
-                preferenceRepository.updateActivationState(isActivated)
+                speakerIsEnabledWhenScreenOn = preferenceRepository
+                    .speakerIsEnabledWhenScreenOnFlow
+                    .first()
+                speakerIsEnabledWhenDndOn = preferenceRepository
+                    .speakerIsEnabledWhenDndOnFlow
+                    .first()
+                notificationIsShown = preferenceRepository
+                    .notificationIsShownFlow
+                    .first()
             }
         }
     }
@@ -40,14 +51,17 @@ class SettingsViewModel @Inject constructor(
     // Create the UI state
     private val homeUiState: SettingsUiState = SettingsUiState(
         isActivated = isActivated,
+        speakerIsEnabledWhenScreenOn = speakerIsEnabledWhenScreenOn,
+        speakerIsEnabledWhenDndOn = speakerIsEnabledWhenDndOn,
+        notificationIsShown = notificationIsShown,
     )
     private val _uiState = MutableStateFlow(homeUiState)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     /**
-     * Change the value of switch and update to the data store.
+     * Change the value of "Enable Speaker" switch and update to the data store.
      */
-    fun onSwitchClicked() {
+    fun onIsActivatedSwitchClicked() {
         _uiState.update { currentState ->
             currentState.copy(isActivated = !_uiState.value.isActivated)
         }
@@ -59,4 +73,62 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Change the value on the "Screen On" switch and update the value to dataStore
+     */
+    fun onScreenOnSwitchClicked() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                speakerIsEnabledWhenScreenOn = !_uiState.value.speakerIsEnabledWhenScreenOn
+            )
+        }
+
+        runBlocking {
+            launch {
+                preferenceRepository.updateScreenOnActivationState(
+                    _uiState.value.speakerIsEnabledWhenScreenOn
+                )
+            }
+        }
+    }
+
+    /**
+     * Change the value on the "DND on" switch and update the value to dataStore
+     */
+    fun onDndOnSwitchClicked() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                speakerIsEnabledWhenDndOn = !_uiState.value.speakerIsEnabledWhenDndOn
+            )
+        }
+
+        runBlocking {
+            launch {
+                preferenceRepository.updateDndOnActivationState(
+                    _uiState.value.speakerIsEnabledWhenDndOn
+                )
+            }
+        }
+    }
+
+    /**
+     * Change the value on the "Display notification" switch and update the value to dataStore
+     */
+    fun onNotificationOnSwitchClicked() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                notificationIsShown = !_uiState.value.notificationIsShown
+            )
+        }
+
+        runBlocking {
+            launch {
+                preferenceRepository.updateNotificationOnActivationState(
+                    _uiState.value.notificationIsShown
+                )
+            }
+        }
+    }
+
 }

@@ -29,9 +29,23 @@ fun SettingsScreen(
     val settingsViewModel: SettingsViewModel = hiltViewModel<SettingsViewModel>()
     val uiState by settingsViewModel.uiState.collectAsState()
 
-    SettingsContent(
+    val activationStateList: List<Boolean> = listOf(
         uiState.isActivated,
-        { settingsViewModel.onSwitchClicked() }, 
+        uiState.speakerIsEnabledWhenScreenOn,
+        uiState.speakerIsEnabledWhenDndOn,
+        uiState.notificationIsShown,
+    )
+
+    val activateFunctionList: List<(Boolean) -> Unit> = listOf(
+        { settingsViewModel.onIsActivatedSwitchClicked() },
+        { settingsViewModel.onScreenOnSwitchClicked() },
+        { settingsViewModel.onDndOnSwitchClicked() },
+        { settingsViewModel.onNotificationOnSwitchClicked() }
+    )
+
+    SettingsContent(
+        activationStateList,
+        activateFunctionList,
         modifier
     )
 
@@ -39,8 +53,8 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsContent(
-    isActivated: Boolean,
-    activateFunction: (Boolean) -> Unit,
+    activationStateList: List<Boolean>,
+    activateFunction: List<(Boolean) -> Unit>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -51,31 +65,28 @@ fun SettingsContent(
 
         Option(
             optionText = "Enable speaker",
-            isActivated = isActivated,
-            activateFunction = activateFunction,
+            isActivated = activationStateList[0],
+            activateFunction = activateFunction[0],
         )
 
         Option(
             optionText = "Enable speaker when screen is on",
-            isActivated = isActivated,
-            activateFunction = activateFunction,
+            isActivated = activationStateList[1],
+            activateFunction = activateFunction[1],
         )
 
         Option(
             optionText = "Enable speaker when Do Not Disturb\nmode is on",
-            isActivated = isActivated,
-            activateFunction = activateFunction,
+            isActivated = activationStateList[2],
+            activateFunction = activateFunction[2],
         )
 
         Option(
             optionText = "Display a non-swipeable notification\nwhen the speaker is enabled",
-            isActivated = isActivated,
-            activateFunction = activateFunction,
+            isActivated = activationStateList[3],
+            activateFunction = activateFunction[3],
         )
     }
-    Column {
-    }
-
 }
 
 @Composable
@@ -129,7 +140,7 @@ fun Title(
 @Composable
 fun SettingsScreenPreview() {
     SettingsContent(
-        isActivated = true,
-        activateFunction = {}
+        activationStateList = listOf(true, true, true, true),
+        activateFunction = listOf()
     )
 }
