@@ -1,21 +1,32 @@
 package usth.intern.notifts.domain
 
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner::class)
+@Config(application = HiltTestApplication::class)
 class NotificationListenerTest {
-
-    private lateinit var notificationListener: NotificationListener
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
 
     @Before
     fun setup() {
-        notificationListener = NotificationListener()
+        hiltRule.inject()
     }
 
     @Test
-    fun isAllowedToSpeak_NotActivated_ttsEngineNotRun() {
+    fun isAllowedToSpeak_NotActivated_ReturnFalse() {
+        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
         val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
             isActivated = false,
             isDuplicated = false,
@@ -26,7 +37,8 @@ class NotificationListenerTest {
     }
 
     @Test
-    fun isAllowedToSpeak_Duplicated_ttsEngineNotRun() {
+    fun isAllowedToSpeak_Duplicated_ReturnFalse() {
+        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
         val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
             isActivated = true,
             isDuplicated = true,
@@ -36,9 +48,9 @@ class NotificationListenerTest {
         assertEquals(isAllowedToSpeak, false)
     }
 
-    @Ignore("Not implemented")
     @Test
-    fun isAllowedToSpeak_IsActivatedAndNotDuplicatedAnd_ttsEngineNotRun() {
+    fun isAllowedToSpeak_IsActivatedAndNotDuplicatedAndScreenNotMatter_ReturnTrue() {
+        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
         val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
             isActivated = true,
             isDuplicated = false,
