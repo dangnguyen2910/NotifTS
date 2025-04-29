@@ -21,8 +21,7 @@ class TtsEngine @Inject constructor(
         "VIETNAMESE" to null,
     )
 
-    fun run(sbn: StatusBarNotification) {
-        val notificationMap = getNotificationMapInfo(sbn)
+    fun run(notificationMap: Map<String, String>) {
         val title = notificationMap["title"] ?: ""
         val text = notificationMap["text"] ?: ""
 
@@ -47,23 +46,6 @@ class TtsEngine @Inject constructor(
                 Log.e(TAG, "Initialize TTS engine fail")
             }
         }, "com.google.android.tts")
-
-    }
-
-    private fun getNotificationMapInfo(sbn: StatusBarNotification) : Map<String, String> {
-        val extras = sbn.notification.extras
-
-        val title = extras.getCharSequence("android.title") ?: ""
-        val text = extras.getCharSequence("android.text") ?: ""
-        val bigText = extras.getCharSequence("android.bigText")?: ""
-
-        val notificationMap = mapOf(
-            "title" to title.toString(),
-            "text" to text.toString(),
-            "bigText" to bigText.toString()
-        )
-
-        return notificationMap
 
     }
 

@@ -35,38 +35,26 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
 
-        Log.d(TAG, "-----------------------------------------------------")
-        Log.d(TAG, sbn.packageName)
-
         val category = sbn.notification.category
-        Log.d(TAG, "Category: $category")
-
         val title = sbn.notification.extras.getCharSequence("android.title") ?: ""
-        Log.d(TAG, "Title: $title")
-
         val text = sbn.notification.extras.getCharSequence("android.text") ?: ""
-        Log.d(TAG, "Text: $text")
-        Log.d(TAG, "Previous text: $previousText")
-
         val bigText = sbn.notification.extras.getCharSequence("android.bigText")?: ""
-        Log.d(TAG, "Big Text: $bigText")
-
         val dateString = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             .format(Date(sbn.postTime))
-        Log.d(TAG, "Date: $dateString")
 
-        //todo: refactor me
-//        val notificationMap = mapOf(
-//            "packageName" to sbn.packageName,
-//            "category" to category,
-//            "title" to title,
-//            "text" to text,
-//            "bigText" to bigText,
-//            "dateString" to dateString
-//        )
+        val notificationMap = mapOf(
+            "packageName" to sbn.packageName,
+            "category" to category.toString(),
+            "title" to title.toString(),
+            "text" to text.toString(),
+            "bigText" to bigText.toString(),
+            "dateString" to dateString
+        )
+
+        logNewNotification(notificationMap)
+
         runBlocking {
             launch {
-
                 /**
                  * If this value is false -> Notifications will not be spoken
                  */
@@ -88,7 +76,7 @@ class NotificationListener : NotificationListenerService() {
                     speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
                 )
                 if (isAllowedToSpeak) {
-                    ttsEngine.run(sbn)
+                    ttsEngine.run(notificationMap)
                 }
                 previousText = text.toString()
             }
@@ -111,5 +99,16 @@ class NotificationListener : NotificationListenerService() {
         }
 
         return false
+    }
+
+    private fun logNewNotification(notificationMap: Map<String, String>) {
+        Log.d(TAG, "-----------------------------------------------------")
+        Log.d(TAG, "Package name ${notificationMap["packageName"]} ")
+        Log.d(TAG, "Category: ${notificationMap["category"]}")
+        Log.d(TAG, "Title: ${notificationMap["title"]}")
+        Log.d(TAG, "Text: ${notificationMap["text"]}")
+        Log.d(TAG, "Big Text: ${notificationMap["bigText"]}")
+        Log.d(TAG, "Date: ${notificationMap["dateString"]}")
+
     }
 }
