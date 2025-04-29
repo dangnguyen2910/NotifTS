@@ -25,17 +25,12 @@ class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var preferenceRepository: PreferenceRepository
 
+    @Inject
+    lateinit var settings: Settings
+
+    // This is to track the content of the newest notification
+    // Initially used to know whether a notification is duplicated multiple times.
     private var previousText: String = ""
-
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-        Log.d(TAG, "Connected to notification to speech service")
-    }
-
-    override fun onListenerDisconnected() {
-        super.onListenerDisconnected()
-        Log.d(TAG, "Disconnect to notification to speech service")
-    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
@@ -60,16 +55,61 @@ class NotificationListener : NotificationListenerService() {
             .format(Date(sbn.postTime))
         Log.d(TAG, "Date: $dateString")
 
+        //todo: refactor me
+//        val notificationMap = mapOf(
+//            "packageName" to sbn.packageName,
+//            "category" to category,
+//            "title" to title,
+//            "text" to text,
+//            "bigText" to bigText,
+//            "dateString" to dateString
+//        )
         runBlocking {
             launch {
+
+                /**
+                 * If this value is false -> Notifications will not be spoken
+                 */
                 val isActivated = preferenceRepository.isActivatedFlow.first()
 
-                if (isActivated && text != previousText) {
-                    previousText = text.toString()
+                /**
+                 * If this value is true then whenever screen is on, the notification is spoken.
+                 * Else the notification is spoken only when screen is off.
+                 */
+                val speakerIsActivatedWhenScreenOn = preferenceRepository
+                    .speakerIsEnabledWhenScreenOnFlow
+                    .first()
+
+                val isDuplicated = text == previousText
+
+                val isAllowedToSpeak = isAllowedToSpeak(
+                    isActivated = isActivated,
+                    isDuplicated = isDuplicated,
+                    speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
+                )
+                if (isAllowedToSpeak) {
                     ttsEngine.run(sbn)
                 }
+                previousText = text.toString()
             }
         }
 
+    }
+
+    fun isAllowedToSpeak(
+        isActivated: Boolean,
+        isDuplicated: Boolean,
+        speakerIsActivatedWhenScreenOn: Boolean
+    ) : Boolean {
+
+        if (!isActivated || isDuplicated) {
+            return false
+        }
+
+        if (!settings.isScreenOn() || speakerIsActivatedWhenScreenOn) {
+            return true
+        }
+
+        return false
     }
 }
