@@ -1,4 +1,6 @@
 package usth.intern.notifts.domain.manager
 
-class SearchEngine {
+import javax.inject.Inject
+
+class SearchEngine @Inject constructor() {
 }

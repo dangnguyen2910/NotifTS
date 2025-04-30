@@ -65,14 +65,3 @@ class TtsEngine @Inject constructor(
     }
 }
 
-//TODO: Move this to correct place
-
-//                Insert notification to database
-//               databaseRepository.insertNotification(
-//                   packageName = packageName,
-//                   title = title.toString(),
-//                   text = text.toString(),
-//                   bigText = bigText.toString(),
-//                   category = category.toString(),
-//                   date = dateString
-//               )

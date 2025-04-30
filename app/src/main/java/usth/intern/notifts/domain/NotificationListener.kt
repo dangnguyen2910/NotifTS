@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import usth.intern.notifts.data.PreferenceRepository
+import usth.intern.notifts.domain.manager.ManagerSystem
 import usth.intern.notifts.domain.tts.TtsEngine
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,6 +29,9 @@ class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var settings: Settings
 
+    @Inject
+    lateinit var managerSystem: ManagerSystem
+
     private var isActivated: Boolean = false
 
     // This is to track the content of the newest notification
@@ -35,21 +39,6 @@ class NotificationListener : NotificationListenerService() {
     private var previousText: String = ""
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        runBlocking {
-            launch {
-                /**
-                 * If this value is false -> Notifications will not be spoken
-                 */
-                isActivated = preferenceRepository.isActivatedFlow.first()
-            }
-        }
-
-        if (!isActivated) {
-            return
-        }
-
-        super.onNotificationPosted(sbn)
-
         val category = sbn.notification.category
         val title = sbn.notification.extras.getCharSequence("android.title") ?: ""
         val text = sbn.notification.extras.getCharSequence("android.text") ?: ""
@@ -65,6 +54,25 @@ class NotificationListener : NotificationListenerService() {
             "bigText" to bigText.toString(),
             "dateString" to dateString
         )
+
+        runBlocking {
+            launch {
+                /**
+                 * If this value is false -> Notifications will not be spoken
+                 */
+                isActivated = preferenceRepository.isActivatedFlow.first()
+            }
+            launch {
+                managerSystem.saveNotification(notificationMap)
+                Log.d(TAG, "Save notification complete")
+            }
+        }
+
+        if (!isActivated) {
+            return
+        }
+
+        super.onNotificationPosted(sbn)
 
         logNewNotification(notificationMap)
 
