@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NotifTSTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    SettingsScreen()
+                    NotiftsScreen()
                 }
             }
 

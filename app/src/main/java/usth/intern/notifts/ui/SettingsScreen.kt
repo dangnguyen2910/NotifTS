@@ -1,6 +1,5 @@
 package usth.intern.notifts.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,14 +15,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+
 @Composable
 fun SettingsScreen(
+    onPressButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -46,6 +47,7 @@ fun SettingsScreen(
     SettingsContent(
         activationStateList,
         activateFunctionList,
+        onPressButtonClicked,
         modifier
     )
 
@@ -55,13 +57,13 @@ fun SettingsScreen(
 fun SettingsContent(
     activationStateList: List<Boolean>,
     activateFunction: List<(Boolean) -> Unit>,
+    onPressButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-        Title("Settings")
 
         Option(
             optionText = "Enable speaker",
@@ -86,6 +88,18 @@ fun SettingsContent(
             isActivated = activationStateList[3],
             activateFunction = activateFunction[3],
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onPressButtonClicked
+            ) {
+                Text("Press")
+            }
+        }
     }
 }
 
@@ -115,32 +129,12 @@ fun Option(
     }
 }
 
-@Composable
-fun Title(
-    title: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(top = 3.dp, bottom = 3.dp)
-
-    ) {
-        Text(
-            text = title,
-            fontSize = 26.sp,
-            modifier = modifier.padding(start = 15.dp)
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
     SettingsContent(
         activationStateList = listOf(true, true, true, true),
-        activateFunction = listOf()
+        activateFunction = listOf({}, {}, {}, {}),
+        onPressButtonClicked = {}
     )
 }
