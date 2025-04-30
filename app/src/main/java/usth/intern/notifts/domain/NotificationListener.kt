@@ -28,11 +28,26 @@ class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var settings: Settings
 
+    private var isActivated: Boolean = false
+
     // This is to track the content of the newest notification
     // Initially used to know whether a notification is duplicated multiple times.
     private var previousText: String = ""
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        runBlocking {
+            launch {
+                /**
+                 * If this value is false -> Notifications will not be spoken
+                 */
+                isActivated = preferenceRepository.isActivatedFlow.first()
+            }
+        }
+
+        if (!isActivated) {
+            return
+        }
+
         super.onNotificationPosted(sbn)
 
         val category = sbn.notification.category
@@ -55,10 +70,6 @@ class NotificationListener : NotificationListenerService() {
 
         runBlocking {
             launch {
-                /**
-                 * If this value is false -> Notifications will not be spoken
-                 */
-                val isActivated = preferenceRepository.isActivatedFlow.first()
 
                 /**
                  * If this value is true then whenever screen is on, the notification is spoken.
