@@ -32,11 +32,17 @@ class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var managerSystem: ManagerSystem
 
+    /**
+     * If this value is false -> Notifications will not be spoken
+     */
     private var isActivated: Boolean = false
 
-    // This is to track the content of the newest notification
-    // Initially used to know whether a notification is duplicated multiple times.
+    /**
+     * To track the content of the newest notification.
+     * Initially used to know whether a notification is duplicated multiple times.
+     */
     private var previousText: String = ""
+
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) {
@@ -51,6 +57,14 @@ class NotificationListener : NotificationListenerService() {
         val dateString = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             .format(Date(sbn.postTime))
 
+        // Some apps push multiple same notifications for no reason, so we need to ignore them
+        val isDuplicated = (text.toString() == previousText)
+        if (isDuplicated) {
+            return
+        }
+
+        previousText = text.toString()
+
         val notificationMap = mapOf(
             "packageName" to sbn.packageName,
             "category" to category,
@@ -61,12 +75,7 @@ class NotificationListener : NotificationListenerService() {
         )
 
         runBlocking {
-            launch {
-                /**
-                 * If this value is false -> Notifications will not be spoken
-                 */
-                isActivated = preferenceRepository.isActivatedFlow.first()
-            }
+            launch { isActivated = preferenceRepository.isActivatedFlow.first() }
             launch {
                 managerSystem.saveNotification(notificationMap)
                 Log.d(TAG, "Save notification complete")
@@ -91,8 +100,6 @@ class NotificationListener : NotificationListenerService() {
                     .speakerIsEnabledWhenScreenOnFlow
                     .first()
 
-                val isDuplicated = text == previousText
-
                 val isAllowedToSpeak = isAllowedToSpeak(
                     isActivated = isActivated,
                     isDuplicated = isDuplicated,
@@ -101,7 +108,6 @@ class NotificationListener : NotificationListenerService() {
                 if (isAllowedToSpeak) {
                     ttsEngine.run(notificationMap)
                 }
-                previousText = text.toString()
             }
         }
 
