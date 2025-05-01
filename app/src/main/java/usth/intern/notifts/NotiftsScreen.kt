@@ -1,5 +1,7 @@
 package usth.intern.notifts
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -40,6 +42,8 @@ fun NotiftsScreen(
         NavHost(
             navController = navController,
             startDestination = NotiftsScreen.Settings.name,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
             modifier = modifier
         ) {
             composable(route = NotiftsScreen.Settings.name) {
