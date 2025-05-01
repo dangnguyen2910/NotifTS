@@ -20,7 +20,8 @@ interface NotificationDao {
 
     @Query(
         "select * " +
-        "from notification"
+        "from notification " +
+        "order by rowid desc"
     )
     fun loadAllNotifications(): Flow<List<Notification>>
 }

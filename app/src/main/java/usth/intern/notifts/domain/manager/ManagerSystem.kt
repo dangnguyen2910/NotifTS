@@ -18,7 +18,7 @@ class ManagerSystem @Inject constructor(
         databaseRepository.insertNotification(
             packageName = notificationMap["packageName"] ?: "",
             title = notificationMap["title"] ?: "",
-            text = notificationMap["text"],
+            text = notificationMap["text"] ?: "",
             bigText = notificationMap["bigText"],
             category = notificationMap["category"],
             date = notificationMap["dateString"] ?: ""

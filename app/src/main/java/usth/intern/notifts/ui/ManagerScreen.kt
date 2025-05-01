@@ -28,12 +28,13 @@ import usth.intern.notifts.data.db.Notification
 @Composable
 fun ManagerScreen(
     modifier: Modifier = Modifier,
-    managerViewModel: ManagerViewModel = hiltViewModel<ManagerViewModel>()
 ) {
+    val managerViewModel: ManagerViewModel = hiltViewModel<ManagerViewModel>()
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
         notificationList = uiState.notificationList,
+        onReload = { managerViewModel.onReload() },
         modifier = modifier
     )
 }
@@ -41,15 +42,16 @@ fun ManagerScreen(
 @Composable
 fun ManagerContent(
     notificationList: List<Notification>,
+    onReload: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column (modifier = modifier) {
         Button(
-            onClick = {}
+            onClick = onReload,
         ) {
             Text("Reload")
         }
-        NotificationCardList(notificationList, modifier)
+        NotificationCardList(notificationList)
     }
 }
 
@@ -122,31 +124,34 @@ fun NotificationCardPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ManagerScreenPreview() {
-    ManagerContent(notificationList = listOf(
-        Notification(
-            rowid = 0,
-            packageName = "com.preview.whatever",
-            title = "This is a title",
-            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                    "using the Divider composable, which is part of the Material design components. " +
-                    "The Divider composable allows you to draw a simple line that spans across the " +
-                    "width" + " of its parent container.",
-            bigText = null,
-            category = null,
-            date = "30/30/3030 11h30"
-        ),
+    ManagerContent(
+        notificationList = listOf(
+            Notification(
+                rowid = 0,
+                packageName = "com.preview.whatever",
+                title = "This is a title",
+                text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
+                        "using the Divider composable, which is part of the Material design components. " +
+                        "The Divider composable allows you to draw a simple line that spans across the " +
+                        "width" + " of its parent container.",
+                bigText = null,
+                category = null,
+                date = "30/30/3030 11h30"
+            ),
 
-        Notification(
-            rowid = 0,
-            packageName = "com.preview.whatever",
-            title = "This is a title",
-            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                    "using the Divider composable, which is part of the Material design components. " +
-                    "The Divider composable allows you to draw a simple line that spans across the " +
-                    "width" + " of its parent container.",
-            bigText = null,
-            category = null,
-            date = "30/30/3030 11h30"
+            Notification(
+                rowid = 0,
+                packageName = "com.preview.whatever",
+                title = "This is a title",
+                text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
+                        "using the Divider composable, which is part of the Material design components. " +
+                        "The Divider composable allows you to draw a simple line that spans across the " +
+                        "width" + " of its parent container.",
+                bigText = null,
+                category = null,
+                date = "30/30/3030 11h30"
+            ),
         ),
-    ))
+        onReload = {}
+    )
 }

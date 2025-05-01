@@ -18,7 +18,7 @@ data class Notification(
     val title: String,
 
     @ColumnInfo(name = "text")
-    val text: String?,
+    val text: String,
 
     @ColumnInfo(name = "big_text")
     val bigText: String?,

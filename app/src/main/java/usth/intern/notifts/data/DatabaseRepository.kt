@@ -15,7 +15,7 @@ class DatabaseRepository @Inject constructor(
         context = context,
         klass = AppDatabase::class.java,
         name = "notification-database"
-    ).build()
+    ).fallbackToDestructiveMigration(dropAllTables = true).build()
 
     private val notificationDao = db.notificationDao()
     val newestNotification = notificationDao.loadNewestNotification()
@@ -23,7 +23,7 @@ class DatabaseRepository @Inject constructor(
     suspend fun insertNotification(
         packageName: String,
         title: String,
-        text: String?,
+        text: String,
         bigText: String?,
         category: String?,
         date: String
