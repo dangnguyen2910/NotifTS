@@ -1,6 +1,8 @@
 package usth.intern.notifts.domain.manager
 
+import kotlinx.coroutines.flow.Flow
 import usth.intern.notifts.data.DatabaseRepository
+import usth.intern.notifts.data.db.Notification
 import javax.inject.Inject
 
 class ManagerSystem @Inject constructor(
@@ -23,7 +25,11 @@ class ManagerSystem @Inject constructor(
         )
     }
 
-    //TODO
+    fun loadAllNotification() : Flow<List<Notification>> {
+        return databaseRepository.loadAllNotification()
+    }
+
+    //todo
     fun search(type: String) {
 //        when (type) {
 //            "keyword" -> searchEngine.searchByKeyword()

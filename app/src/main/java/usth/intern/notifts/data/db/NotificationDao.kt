@@ -17,4 +17,10 @@ interface NotificationDao {
         "limit 1"
     )
     fun loadNewestNotification(): Flow<Notification?>
+
+    @Query(
+        "select * " +
+        "from notification"
+    )
+    fun loadAllNotifications(): Flow<List<Notification>>
 }

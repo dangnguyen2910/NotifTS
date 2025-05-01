@@ -3,6 +3,7 @@ package usth.intern.notifts.data
 import android.content.Context
 import androidx.room.Room
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
 import javax.inject.Inject
@@ -38,5 +39,9 @@ class DatabaseRepository @Inject constructor(
 
         val id = notificationDao.insertNotification(notification)
         return id
+    }
+
+    fun loadAllNotification() : Flow<List<Notification>> {
+        return notificationDao.loadAllNotifications()
     }
 }
