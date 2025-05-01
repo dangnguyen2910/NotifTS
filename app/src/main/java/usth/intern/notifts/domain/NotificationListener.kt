@@ -38,8 +38,13 @@ class NotificationListener : NotificationListenerService() {
     // Initially used to know whether a notification is duplicated multiple times.
     private var previousText: String = ""
 
-    override fun onNotificationPosted(sbn: StatusBarNotification) {
-        val category = sbn.notification.category
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        if (sbn == null) {
+            return
+        }
+        super.onNotificationPosted(sbn)
+
+        val category = sbn.notification.category ?: ""
         val title = sbn.notification.extras.getCharSequence("android.title") ?: ""
         val text = sbn.notification.extras.getCharSequence("android.text") ?: ""
         val bigText = sbn.notification.extras.getCharSequence("android.bigText")?: ""
@@ -48,7 +53,7 @@ class NotificationListener : NotificationListenerService() {
 
         val notificationMap = mapOf(
             "packageName" to sbn.packageName,
-            "category" to category.toString(),
+            "category" to category,
             "title" to title.toString(),
             "text" to text.toString(),
             "bigText" to bigText.toString(),
@@ -72,7 +77,6 @@ class NotificationListener : NotificationListenerService() {
             return
         }
 
-        super.onNotificationPosted(sbn)
 
         logNewNotification(notificationMap)
 
