@@ -3,6 +3,8 @@ package usth.intern.notifts.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -45,7 +47,13 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onEnterSearch() {
-        TODO("Not yet implemented")
+    fun onEnterSearch(query: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            _uiState.update {currentState ->
+                currentState.copy(
+                    notificationList = databaseRepository.loadNotificationWithKeywords(query)
+                )
+            }
+        }
     }
 }

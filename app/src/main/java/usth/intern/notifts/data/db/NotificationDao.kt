@@ -11,7 +11,7 @@ interface NotificationDao {
     suspend fun insertNotification(notification: Notification): Long
 
     @Query(
-        "select * " +
+        "select rowid, *  " +
         "from notification " +
         "order by rowid desc " +
         "limit 1"
@@ -19,9 +19,17 @@ interface NotificationDao {
     fun loadNewestNotification(): Flow<Notification?>
 
     @Query(
-        "select * " +
+        "select rowid, * " +
         "from notification " +
         "order by rowid desc"
     )
     fun loadAllNotifications(): Flow<List<Notification>>
+
+    @Query(
+        "select rowid, * " +
+        "from notification " +
+        "where notification match :query " +
+        "order by rowid desc"
+    )
+    fun loadNotificationsWithKeywords(query: String): List<Notification>
 }

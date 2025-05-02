@@ -111,11 +111,10 @@ class NotificationDaoTest {
     }
 
     @Test
-//    @Ignore("Skip this for now")
     fun insertMultipleAndLoadAllNotifications() {
         val expect1 = notification1.copy(rowid = 1)
         val expect2 = notification2.copy(rowid = 2)
-        val expectList = listOf(expect1, expect2)
+        val expectList = listOf(expect2, expect1)
         runBlocking {
             launch {
                 notificationDao.insertNotification(notification1)
@@ -126,4 +125,35 @@ class NotificationDaoTest {
         }
     }
 
+    @Test
+    fun queryNotificationGivenKeywords_Return1Notification() {
+        val expect1 = notification1.copy(rowid = 1)
+        val expect2 = notification2.copy(rowid = 2)
+        val expectList = listOf(expect1)
+
+        runBlocking {
+            launch {
+                notificationDao.insertNotification(notification1)
+                notificationDao.insertNotification(notification2)
+                val notificationList = notificationDao.loadNotificationsWithKeywords("title this")
+                assertEquals(notificationList, expectList)
+            }
+        }
+    }
+
+    @Test
+    fun queryNotificationGivenKeywords_Return2Notification() {
+        val expect1 = notification1.copy(rowid = 1)
+        val expect2 = notification2.copy(rowid = 2)
+        val expectList = listOf(expect1, expect2)
+
+        runBlocking {
+            launch {
+                notificationDao.insertNotification(notification1)
+                notificationDao.insertNotification(notification2)
+                val notificationList = notificationDao.loadNotificationsWithKeywords("content ")
+                assertEquals(expectList, notificationList)
+            }
+        }
+    }
 }

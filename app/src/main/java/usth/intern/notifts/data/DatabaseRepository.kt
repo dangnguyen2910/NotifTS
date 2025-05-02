@@ -44,4 +44,8 @@ class DatabaseRepository @Inject constructor(
     fun loadAllNotification() : Flow<List<Notification>> {
         return notificationDao.loadAllNotifications()
     }
+
+    fun loadNotificationWithKeywords(query: String) : List<Notification> {
+        return notificationDao.loadNotificationsWithKeywords(query)
+    }
 }

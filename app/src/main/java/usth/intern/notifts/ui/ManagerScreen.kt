@@ -44,7 +44,7 @@ fun ManagerScreen(
         notificationList = uiState.notificationList,
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
         onReload = { managerViewModel.onReload() },
-        onEnterSearch = { managerViewModel.onEnterSearch() },
+        onEnterSearch = { managerViewModel.onEnterSearch(it) },
         modifier = modifier
     )
 }
@@ -61,7 +61,7 @@ fun ManagerContent(
     modifier: Modifier = Modifier,
 ) {
     Column (modifier = modifier) {
-        SearchBar(
+        KeywordsSearchBar(
             query = query,
             onQueryChange = onTypingSearch,
             onSearch = onEnterSearch,
@@ -81,7 +81,7 @@ fun ManagerContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(
+fun KeywordsSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
