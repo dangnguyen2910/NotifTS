@@ -11,13 +11,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,25 +40,92 @@ fun ManagerScreen(
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
+        query = uiState.query,
         notificationList = uiState.notificationList,
+        onTypingSearch = { managerViewModel.onTypingSearch(it) },
         onReload = { managerViewModel.onReload() },
+        onEnterSearch = { managerViewModel.onEnterSearch() },
         modifier = modifier
     )
 }
 
 @Composable
 fun ManagerContent(
+    // Search bar
+    query: String,
+    onTypingSearch: (String) -> Unit,
+    onEnterSearch: (String) -> Unit,
+    // Notification list
     notificationList: List<Notification>,
     onReload: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column (modifier = modifier) {
+        SearchBar(
+            query = query,
+            onQueryChange = onTypingSearch,
+            onSearch = onEnterSearch,
+            searchResults = listOf(),
+            onResultClick = { _: String -> }
+        )
+
         Button(
             onClick = onReload,
         ) {
             Text("Reload")
         }
+
         NotificationCardList(notificationList)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    searchResults: List<String>,
+    onResultClick: (String) -> Unit,
+//     Customization options
+    modifier: Modifier = Modifier,
+    placeholder: @Composable () -> Unit = { Text("Search") },
+    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
+    trailingIcon: @Composable (() -> Unit)? = null,
+//    supportingContent: (@Composable (String) -> Unit)? = null,
+//    leadingContent: (@Composable () -> Unit)? = null,
+) {
+//    var expanded by rememberSaveable { mutableStateOf(false) }
+    val expanded = false
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SearchBar(
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = query,
+                    onQueryChange = onQueryChange,
+                    onSearch = {
+                        onSearch(query)
+                        //                    expanded = false
+                    },
+                    expanded = expanded,
+                    onExpandedChange = {/*todo*/ },
+                    placeholder = placeholder,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                )
+            },
+            expanded = expanded,
+            onExpandedChange = {/*todo*/ },
+            shape = RoundedCornerShape(8.dp),
+            modifier = modifier
+                .fillMaxWidth(0.98f)
+        ) {
+
+        }
     }
 }
 
@@ -152,6 +226,9 @@ fun ManagerScreenPreview() {
                 date = "30/30/3030 11h30"
             ),
         ),
-        onReload = {}
+        onReload = {},
+        onTypingSearch = { _: String -> },
+        onEnterSearch = { _: String -> },
+        query = ""
     )
 }

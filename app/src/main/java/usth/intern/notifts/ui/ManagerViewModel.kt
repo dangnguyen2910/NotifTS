@@ -20,7 +20,6 @@ class ManagerViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ManagerUiState())
     val uiState = _uiState.asStateFlow()
 
-    //todo
     fun onReload() {
         runBlocking {
             launch {
@@ -32,5 +31,21 @@ class ManagerViewModel @Inject constructor(
                 Log.d("ManagerViewModel", "On reload is called")
             }
         }
+    }
+
+    fun onTypingSearch(query: String) {
+        runBlocking {
+            launch {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        query = query
+                    )
+                }
+            }
+        }
+    }
+
+    fun onEnterSearch() {
+        TODO("Not yet implemented")
     }
 }
