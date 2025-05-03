@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,8 +71,6 @@ fun ManagerScreen(
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
         onReload = { managerViewModel.onReload() },
         onEnterSearch = { managerViewModel.onEnterSearch(it) },
-//        onClickFilter = { managerViewModel.onClickFilter() },
-        onClickFilter = {},
         modifier = modifier
     )
 }
@@ -84,12 +86,12 @@ fun ManagerContent(
     onReload: () -> Unit,
     modifier: Modifier = Modifier,
     // Filter button
-    onClickFilter: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val focusState = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     Column (
         modifier = modifier
@@ -119,19 +121,44 @@ fun ManagerContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                IconButton(
-                    onClick = onClickFilter,
-                    modifier = Modifier
-                        .height(55.dp)
-                        .clip(RoundedCornerShape(10.dp))
-
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.filter_icon),
-                        contentDescription = "Favorite",
+                Box(modifier = Modifier.padding(16.dp)) {
+                    IconButton(
+                        onClick = { expanded = !expanded },
                         modifier = Modifier
-                            .size(35.dp)
-                    )
+                            .height(55.dp)
+                            .clip(RoundedCornerShape(10.dp))
+
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.filter_icon),
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(35.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("App") },
+                            onClick = {/*todo*/}
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Category") },
+                            onClick = {/*todo*/}
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Date") },
+                            onClick = {/*todo*/}
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Clear") },
+                            onClick = {/*todo*/}
+                        )
+                    }
                 }
             }
         }
@@ -144,6 +171,11 @@ fun ManagerContent(
 
         NotificationCardList(notificationList)
     }
+}
+
+@Composable
+fun FilterMenu() {
+
 }
 
 @Composable
@@ -160,6 +192,7 @@ fun KeywordsSearchBar(
     focusState: MutableState<Boolean> = mutableStateOf(false)
 
 ) {
+    //todo: Fix height
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -240,6 +273,7 @@ fun NotificationCardList(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun NotificationCardPreview() {
@@ -288,7 +322,6 @@ fun ManagerScreenPreview() {
         onReload = {},
         onTypingSearch = { _: String -> },
         onEnterSearch = { _: String -> },
-        onClickFilter = {},
         query = ""
     )
 }
