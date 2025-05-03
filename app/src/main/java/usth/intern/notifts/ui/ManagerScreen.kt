@@ -2,6 +2,9 @@ package usth.intern.notifts.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,29 +22,37 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import usth.intern.notifts.R
 import usth.intern.notifts.data.db.Notification
@@ -60,6 +70,8 @@ fun ManagerScreen(
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
         onReload = { managerViewModel.onReload() },
         onEnterSearch = { managerViewModel.onEnterSearch(it) },
+//        onClickFilter = { managerViewModel.onClickFilter() },
+        onClickFilter = {},
         modifier = modifier
     )
 }
@@ -74,37 +86,47 @@ fun ManagerContent(
     notificationList: List<Notification>,
     onReload: () -> Unit,
     modifier: Modifier = Modifier,
+    // Filter button
+    onClickFilter: () -> Unit
 ) {
-    Column (modifier = modifier) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val focusState = remember { mutableStateOf(false) }
+
+    Column (
+        modifier = modifier
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                focusManager.clearFocus()
+            }
+    ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             KeywordsSearchBar(
                 query = query,
                 onQueryChange = onTypingSearch,
                 onSearch = onEnterSearch,
-//            searchResults = listOf(),
-//            onResultClick = { _: String -> }
+                keyboardController = keyboardController,
+                focusRequester = focusRequester,
+                focusManager = focusManager,
+                focusState = focusState,
             )
 
-//            Icon(
-//                imageVector = Icons.Default.Delete,
-//                contentDescription = "Filter",
-//                modifier = modifier
-//                    .size(30.dp)
-//            )
             Column (
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-//                modifier = Modifier.padding(top = 8.dp)
             ) {
-                IconButton(
-                    onClick = {/*todo*/},
+                Button(
+                    onClick = onClickFilter,
 //                    colors = ButtonDefaults.buttonColors(
 //                        containerColor = Color(0xFFCCC2DC)
 //                    ),
                     modifier = Modifier
                         .height(55.dp)
                         .background(MaterialTheme.colorScheme.tertiaryContainer)
-                        .clip(RoundedCornerShape(40.dp))
+                        .clip(RoundedCornerShape(10.dp))
 
                 ) {
                     Icon(
@@ -127,30 +149,20 @@ fun ManagerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KeywordsSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-//    searchResults: List<String>,
-//    onResultClick: (String) -> Unit,
-//     Customization options
     modifier: Modifier = Modifier,
     placeholder: @Composable () -> Unit = { Text("Search") },
     leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
-    trailingIcon: @Composable (() -> Unit)? = null,
-//    supportingContent: (@Composable (String) -> Unit)? = null,
-//    leadingContent: (@Composable () -> Unit)? = null,
+    keyboardController:SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
+    focusRequester: FocusRequester = FocusRequester(),
+    focusManager: FocusManager = LocalFocusManager.current,
+    focusState: MutableState<Boolean> = mutableStateOf(false)
+
 ) {
-//    var expanded by rememberSaveable { mutableStateOf(false) }
-
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = modifier.padding(start = 8.dp)
-//    ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -160,15 +172,23 @@ fun KeywordsSearchBar(
         keyboardActions = KeyboardActions(
             onSearch = {
                 onSearch(query)
+                focusManager.clearFocus()
                 keyboardController?.hide()
             }
         ),
         shape = RoundedCornerShape(10.dp),
         leadingIcon = leadingIcon,
         placeholder = placeholder,
-        modifier = modifier.padding(start = 8.dp, end = 8.dp).fillMaxWidth(0.85f)
+        singleLine = true,
+        textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
+        modifier = modifier
+            .padding(start = 8.dp, end = 8.dp)
+            .fillMaxWidth(0.85f)
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState.value = it.isFocused }
+            .focusable()
+            .height(50.dp)
         )
-//    }
 }
 
 @Composable
@@ -271,6 +291,7 @@ fun ManagerScreenPreview() {
         onReload = {},
         onTypingSearch = { _: String -> },
         onEnterSearch = { _: String -> },
+        onClickFilter = {},
         query = ""
     )
 }

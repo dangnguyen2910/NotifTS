@@ -56,4 +56,8 @@ class ManagerViewModel @Inject constructor(
             }
         }
     }
+
+    fun onClickFilter() {
+        TODO("Not yet implemented")
+    }
 }
