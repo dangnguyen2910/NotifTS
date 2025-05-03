@@ -55,17 +55,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import usth.intern.notifts.NotiftsScreen
 import usth.intern.notifts.R
 import usth.intern.notifts.data.db.Notification
 
 @Composable
 fun ManagerScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val managerViewModel: ManagerViewModel = hiltViewModel<ManagerViewModel>()
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
+        navController = navController,
         query = uiState.query,
         notificationList = uiState.notificationList,
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
@@ -77,6 +82,7 @@ fun ManagerScreen(
 
 @Composable
 fun ManagerContent(
+    navController: NavController,
     // Search bar
     query: String,
     onTypingSearch: (String) -> Unit,
@@ -292,6 +298,7 @@ fun NotificationCardPreview() {
 @Composable
 fun ManagerScreenPreview() {
     ManagerContent(
+        navController = rememberNavController(),
         notificationList = listOf(
             Notification(
                 rowid = 0,

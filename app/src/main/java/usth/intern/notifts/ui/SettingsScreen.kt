@@ -19,11 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import usth.intern.notifts.NotiftsScreen
 
 
 @Composable
 fun SettingsScreen(
-    onPressButtonClicked: () -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
 
@@ -45,10 +47,10 @@ fun SettingsScreen(
     )
 
     SettingsContent(
-        activationStateList,
-        activateFunctionList,
-        onPressButtonClicked,
-        modifier
+        activationStateList = activationStateList,
+        activateFunction = activateFunctionList,
+        onPressButtonClicked = { navController.navigate(NotiftsScreen.Manager.name)},
+        modifier = modifier
     )
 
 }

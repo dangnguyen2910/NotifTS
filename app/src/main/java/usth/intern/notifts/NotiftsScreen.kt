@@ -48,12 +48,13 @@ fun NotiftsScreen(
         ) {
             composable(route = NotiftsScreen.Settings.name) {
                 SettingsScreen(
-                    onPressButtonClicked = { navController.navigate(NotiftsScreen.Manager.name)},
+                    navController = navController,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
             composable(route = NotiftsScreen.Manager.name) {
                 ManagerScreen(
+                    navController = navController,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
