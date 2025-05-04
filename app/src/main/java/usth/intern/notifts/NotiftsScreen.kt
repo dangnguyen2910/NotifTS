@@ -14,17 +14,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import usth.intern.notifts.ui.SettingsScreen
 import usth.intern.notifts.ui.components.Title
-import usth.intern.notifts.ui.manager.Apps
-import usth.intern.notifts.ui.manager.Category
-import usth.intern.notifts.ui.manager.Date
 import usth.intern.notifts.ui.manager.ManagerScreen
 
 enum class NotiftsScreen(val title: String) {
     Settings(title = "Settings"),
     Manager(title = "Notification Manager"),
-    Apps(title = "Apps"),
-    Category(title = "Category"),
-    Date(title = "Date"),
 }
 
 @Composable
@@ -60,29 +54,7 @@ fun NotiftsScreen(
             }
             composable(route = NotiftsScreen.Manager.name) {
                 ManagerScreen(
-                    navController = navController,
                     modifier = Modifier.padding(innerPadding)
-                )
-            }
-            //todo: Declare composable of app, category, date filter screen
-            composable(route = NotiftsScreen.Apps.name) {
-
-                Apps(
-                    appList = listOf(/*TODO: fix me*/),
-                    onDismissRequest = {/*TODO: fix me*/}
-                )
-            }
-            composable(route = NotiftsScreen.Category.name) {
-                //TODO: fix me
-                Category(
-                    categoryList = listOf(/*TODO: fix me*/),
-                    onDismissRequest = {/*TODO: fix me*/}
-                )
-            }
-            composable(route = NotiftsScreen.Date.name) {
-                Date(
-                    onDateRangeSelected = {/*TODO: fix me*/},
-                    onDismiss = {/*TODO: fix me*/}
                 )
             }
         }

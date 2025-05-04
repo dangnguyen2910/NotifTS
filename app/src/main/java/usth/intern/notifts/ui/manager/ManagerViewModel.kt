@@ -57,7 +57,23 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onClickFilter() {
-        TODO("Not yet implemented")
+    fun onClickAppFilter() {
+        runBlocking {
+            launch {
+                _uiState.update { currentState ->
+                    currentState.copy(isAppDialogShown = true)
+                }
+            }
+        }
+    }
+
+    fun onDismissAppDialog() {
+        runBlocking {
+            launch {
+                _uiState.update { currentState ->
+                    currentState.copy(isAppDialogShown = false)
+                }
+            }
+        }
     }
 }

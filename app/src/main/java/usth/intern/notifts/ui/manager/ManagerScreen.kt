@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,35 +20,20 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -59,29 +42,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import usth.intern.notifts.NotiftsScreen
-import usth.intern.notifts.R
 import usth.intern.notifts.data.db.Notification
 
 @Composable
 fun ManagerScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val managerViewModel: ManagerViewModel = hiltViewModel<ManagerViewModel>()
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
-        navController = navController,
         query = uiState.query,
         notificationList = uiState.notificationList,
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
@@ -93,7 +68,6 @@ fun ManagerScreen(
 
 @Composable
 fun ManagerContent(
-    navController: NavController,
     // Search bar
     query: String,
     onTypingSearch: (String) -> Unit,
@@ -101,14 +75,13 @@ fun ManagerContent(
     // Notification list
     notificationList: List<Notification>,
     onReload: () -> Unit,
+    // App Filter button
     modifier: Modifier = Modifier,
-    // Filter button
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val focusState = remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
 
     Column (
         modifier = modifier
@@ -134,50 +107,7 @@ fun ManagerContent(
                 focusState = focusState,
             )
 
-            Column (
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Box(modifier = Modifier.padding(16.dp)) {
-                    IconButton(
-                        onClick = { expanded = !expanded },
-                        modifier = Modifier
-                            .height(55.dp)
-                            .clip(RoundedCornerShape(10.dp))
-
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.filter_icon),
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(35.dp)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.clip(RoundedCornerShape(10.dp))
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Apps") },
-                            onClick = { navController.navigate(NotiftsScreen.Apps.name)}
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Category") },
-                            onClick = { navController.navigate(NotiftsScreen.Category.name) }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Date") },
-                            onClick = { navController.navigate(NotiftsScreen.Date.name)}
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Clear") },
-                            onClick = {/*todo*/}
-                        )
-                    }
-                }
-            }
+            FilterScreen()
         }
 
         Button(
@@ -190,134 +120,6 @@ fun ManagerContent(
     }
 }
 
-@Composable
-fun Apps(
-    appList: List<String>,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    //TODO: fix me
-    var checked by remember { mutableStateOf(false) }
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(475.dp),
-            shape = RoundedCornerShape(7.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(appList) { app ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(app)
-                        Spacer(modifier = modifier.weight(1f))
-                        Checkbox(
-                            checked = checked,
-                            onCheckedChange = { checked = it }
-                        )
-                    }
-                    HorizontalDivider()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Category(
-    categoryList: List<String>,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    //TODO: Fix me
-    var checked by remember { mutableStateOf(false) }
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(475.dp),
-            shape = RoundedCornerShape(7.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(categoryList) { category ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(category)
-                        Spacer(modifier = modifier.weight(1f))
-                        Checkbox(
-                            checked = checked,
-                            onCheckedChange = { checked = it }
-                        )
-                    }
-                    HorizontalDivider()
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Date(
-    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val dateRangePickerState = rememberDateRangePickerState()
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onDateRangeSelected(
-                        Pair(
-                            dateRangePickerState.selectedStartDateMillis,
-                            dateRangePickerState.selectedEndDateMillis
-                        )
-                    )
-                    onDismiss()
-                }
-            ) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    ) {
-        DateRangePicker(
-            state = dateRangePickerState,
-            title = {
-                Text(
-                    text = "Select date range"
-                )
-            },
-            showModeToggle = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-                .padding(16.dp)
-        )
-    }
-}
 
 @Composable
 fun KeywordsSearchBar(
@@ -415,33 +217,6 @@ fun NotificationCardList(
 
 @Preview(showBackground = true)
 @Composable
-fun DatePreview() {
-    Date(
-        onDateRangeSelected = {},
-        onDismiss = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CategoryPreview() {
-    Category(
-        categoryList = listOf("alarm", "msg"),
-        onDismissRequest = {},
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppPreview() {
-    Apps(
-        appList = listOf("App1", "App2", "App3", "App4"),
-        onDismissRequest = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
 fun NotificationCardPreview() {
     NotificationCard(
         packageName = "com.preview.whatever",
@@ -458,7 +233,6 @@ fun NotificationCardPreview() {
 @Composable
 fun ManagerScreenPreview() {
     ManagerContent(
-        navController = rememberNavController(),
         notificationList = listOf(
             Notification(
                 rowid = 0,
