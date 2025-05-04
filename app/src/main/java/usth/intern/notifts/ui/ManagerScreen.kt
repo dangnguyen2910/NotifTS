@@ -22,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -149,16 +152,16 @@ fun ManagerContent(
                         modifier = Modifier.clip(RoundedCornerShape(10.dp))
                     ) {
                         DropdownMenuItem(
-                            text = { Text("App") },
-                            onClick = {/*todo*/}
+                            text = { Text("Apps") },
+                            onClick = { navController.navigate(NotiftsScreen.Apps.name)}
                         )
                         DropdownMenuItem(
                             text = { Text("Category") },
-                            onClick = {/*todo*/}
+                            onClick = { navController.navigate(NotiftsScreen.Category.name) }
                         )
                         DropdownMenuItem(
                             text = { Text("Date") },
-                            onClick = {/*todo*/}
+                            onClick = { navController.navigate(NotiftsScreen.Date.name)}
                         )
                         DropdownMenuItem(
                             text = { Text("Clear") },
@@ -180,8 +183,43 @@ fun ManagerContent(
 }
 
 @Composable
-fun FilterMenu() {
-
+fun Apps(
+    appList: List<String>,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var checked by remember { mutableStateOf(false) }
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(475.dp),
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(appList) { app ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(app)
+                        Spacer(modifier = modifier.weight(1f))
+                        Checkbox(
+                            checked = checked,
+                            onCheckedChange = { checked = it }
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -196,7 +234,6 @@ fun KeywordsSearchBar(
     focusRequester: FocusRequester = FocusRequester(),
     focusManager: FocusManager = LocalFocusManager.current,
     focusState: MutableState<Boolean> = mutableStateOf(false)
-
 ) {
     //todo: Fix height
     OutlinedTextField(
@@ -279,6 +316,14 @@ fun NotificationCardList(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AppPreview() {
+    Apps(
+        appList = listOf("App1", "App2", "App3", "App4"),
+        onDismissRequest = {}
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
