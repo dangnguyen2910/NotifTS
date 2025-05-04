@@ -1,4 +1,4 @@
-package usth.intern.notifts.ui
+package usth.intern.notifts.ui.manager
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

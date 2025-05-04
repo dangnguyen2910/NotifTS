@@ -1,4 +1,4 @@
-package usth.intern.notifts.ui
+package usth.intern.notifts.ui.manager
 
 import usth.intern.notifts.data.db.Notification
 

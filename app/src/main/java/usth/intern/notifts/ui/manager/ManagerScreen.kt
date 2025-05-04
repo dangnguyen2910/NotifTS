@@ -1,4 +1,4 @@
-package usth.intern.notifts.ui
+package usth.intern.notifts.ui.manager
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -188,6 +191,7 @@ fun Apps(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    //TODO: fix me
     var checked by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -220,6 +224,51 @@ fun Apps(
             }
         }
     }
+}
+
+@Composable
+fun Category(
+    categoryList: List<String>,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    //TODO: Fix me
+    var checked by remember { mutableStateOf(false) }
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(475.dp),
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(categoryList) { category ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(category)
+                        Spacer(modifier = modifier.weight(1f))
+                        Checkbox(
+                            checked = checked,
+                            onCheckedChange = { checked = it }
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+fun Date() {
+    
 }
 
 @Composable
@@ -314,6 +363,15 @@ fun NotificationCardList(
             Spacer(modifier = modifier.height(0.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CategoryPreview() {
+    Category(
+        categoryList = listOf("alarm", "msg"),
+        onDismissRequest = {},
+    )
 }
 
 @Preview(showBackground = true)
