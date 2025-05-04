@@ -12,11 +12,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import usth.intern.notifts.ui.manager.Apps
-import usth.intern.notifts.ui.manager.ManagerScreen
 import usth.intern.notifts.ui.SettingsScreen
 import usth.intern.notifts.ui.components.Title
+import usth.intern.notifts.ui.manager.Apps
 import usth.intern.notifts.ui.manager.Category
+import usth.intern.notifts.ui.manager.Date
+import usth.intern.notifts.ui.manager.ManagerScreen
 
 enum class NotiftsScreen(val title: String) {
     Settings(title = "Settings"),
@@ -76,6 +77,12 @@ fun NotiftsScreen(
                 Category(
                     categoryList = listOf(/*TODO: fix me*/),
                     onDismissRequest = {/*TODO: fix me*/}
+                )
+            }
+            composable(route = NotiftsScreen.Date.name) {
+                Date(
+                    onDateRangeSelected = {/*TODO: fix me*/},
+                    onDismiss = {/*TODO: fix me*/}
                 )
             }
         }
