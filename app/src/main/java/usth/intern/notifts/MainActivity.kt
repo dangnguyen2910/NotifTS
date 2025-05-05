@@ -42,8 +42,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        finish()
-    }
 }
