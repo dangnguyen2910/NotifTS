@@ -96,7 +96,7 @@ fun FilterScreen() {
                     onDismissRequest = {filterViewModel.onDismissAppFilterDialog()}
                 )
                 uiState.categoryFilterDialogShown -> Category(
-                    categoryList = listOf(),
+                    categoryList = uiState.categoryList,
                     onDismissRequest = { filterViewModel.onDismissCategoryFilterDialog() }
                 )
                 uiState.dateFilterDialogShown -> Date(
@@ -154,7 +154,7 @@ fun Apps(
 
 @Composable
 fun Category(
-    categoryList: List<String>,
+    categoryList: List<String?>,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -179,7 +179,11 @@ fun Category(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(category)
+                        if (category != null) {
+                            Text(category)
+                        } else {
+                            Text("Unknown")
+                        }
                         Spacer(modifier = modifier.weight(1f))
                         Checkbox(
                             checked = checked,

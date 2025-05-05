@@ -32,4 +32,7 @@ interface NotificationDao {
         "order by rowid desc"
     )
     fun loadNotificationsWithKeywords(query: String): List<Notification>
+
+    @Query("select distinct category from notification order by category")
+    fun loadUniqueCategories(): List<String?>
 }

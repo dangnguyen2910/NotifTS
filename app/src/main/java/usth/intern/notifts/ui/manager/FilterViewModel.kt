@@ -2,13 +2,20 @@ package usth.intern.notifts.ui.manager
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import usth.intern.notifts.data.DatabaseRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class FilterViewModel @Inject constructor() : ViewModel() {
+class FilterViewModel @Inject constructor(
+    private val databaseRepository: DatabaseRepository
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(FilterUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -25,8 +32,13 @@ class FilterViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onClickCategoryFilterButton() {
-        _uiState.update { currentState ->
-            currentState.copy(categoryFilterDialogShown = true)
+        CoroutineScope(Dispatchers.IO).launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    categoryFilterDialogShown = true,
+                    categoryList = databaseRepository.loadUniqueCategories()
+                )
+            }
         }
     }
 
@@ -47,4 +59,5 @@ class FilterViewModel @Inject constructor() : ViewModel() {
             currentState.copy(dateFilterDialogShown = false)
         }
     }
+
 }

@@ -25,6 +25,7 @@ class NotificationDaoTest {
     private lateinit var notificationDao: NotificationDao
     private lateinit var notification1: Notification
     private lateinit var notification2: Notification
+    private lateinit var notification3: Notification
 
     @Before
     fun createDb() {
@@ -49,6 +50,15 @@ class NotificationDaoTest {
             packageName = "com.google.whatever",
             title = "New email",
             text = "This is a new email",
+            bigText = "More content of the new email",
+            category = "mail",
+            date = "Tomorrow"
+        )
+
+        notification3 = Notification(
+            packageName = "com.google.whatever",
+            title = "Another new email",
+            text = "This is a new email from whatever",
             bigText = "More content of the new email",
             category = "mail",
             date = "Tomorrow"
@@ -145,7 +155,7 @@ class NotificationDaoTest {
     fun queryNotificationGivenKeywords_Return2Notification() {
         val expect1 = notification1.copy(rowid = 1)
         val expect2 = notification2.copy(rowid = 2)
-        val expectList = listOf(expect1, expect2)
+        val expectList = listOf(expect2, expect1)
 
         runBlocking {
             launch {
@@ -153,6 +163,20 @@ class NotificationDaoTest {
                 notificationDao.insertNotification(notification2)
                 val notificationList = notificationDao.loadNotificationsWithKeywords("content ")
                 assertEquals(expectList, notificationList)
+            }
+        }
+    }
+
+    @Test
+    fun loadUniqueCategory_Return2Strings() {
+        val expectList = listOf(null, "mail")
+        runBlocking {
+            launch {
+                notificationDao.insertNotification(notification1)
+                notificationDao.insertNotification(notification2)
+                notificationDao.insertNotification(notification3)
+                val categoryList = notificationDao.loadUniqueCategories()
+                assertEquals(expectList, categoryList)
             }
         }
     }

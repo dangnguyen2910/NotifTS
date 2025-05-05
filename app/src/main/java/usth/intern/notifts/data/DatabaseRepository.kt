@@ -48,4 +48,8 @@ class DatabaseRepository @Inject constructor(
     fun loadNotificationWithKeywords(query: String) : List<Notification> {
         return notificationDao.loadNotificationsWithKeywords(query)
     }
+
+    fun loadUniqueCategories() : List<String?>{
+        return notificationDao.loadUniqueCategories()
+    }
 }
