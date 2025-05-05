@@ -35,4 +35,7 @@ interface NotificationDao {
 
     @Query("select distinct category from notification order by category")
     fun loadUniqueCategories(): List<String?>
+
+    @Query("select distinct package_name from notification order by package_name")
+    fun loadUniquePackages(): List<String>
 }

@@ -92,7 +92,7 @@ fun FilterScreen() {
 
             when {
                 uiState.appFilterDialogShown -> Apps(
-                    appList = listOf(),
+                    appList = uiState.appList,
                     onDismissRequest = {filterViewModel.onDismissAppFilterDialog()}
                 )
                 uiState.categoryFilterDialogShown -> Category(
@@ -179,10 +179,10 @@ fun Category(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (category != null) {
-                            Text(category)
-                        } else {
+                        if (category == null || category == "") {
                             Text("Unknown")
+                        } else {
+                            Text(category)
                         }
                         Spacer(modifier = modifier.weight(1f))
                         Checkbox(

@@ -20,8 +20,13 @@ class FilterViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun onClickAppFilterButton() {
-        _uiState.update { currentState ->
-            currentState.copy(appFilterDialogShown = true)
+        CoroutineScope(Dispatchers.IO).launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    appFilterDialogShown = true,
+                    appList = databaseRepository.loadUniquePackages()
+                )
+            }
         }
     }
 

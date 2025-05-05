@@ -180,4 +180,18 @@ class NotificationDaoTest {
             }
         }
     }
+
+    @Test
+    fun loadUniquePackages_Return2Strings() {
+        val expectList = listOf("com.google.gm", "com.google.whatever")
+        runBlocking {
+            launch {
+                notificationDao.insertNotification(notification1)
+                notificationDao.insertNotification(notification2)
+                notificationDao.insertNotification(notification3)
+                val packageList = notificationDao.loadUniquePackages()
+                assertEquals(expectList, packageList)
+            }
+        }
+    }
 }
