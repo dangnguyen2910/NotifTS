@@ -1,6 +1,8 @@
 package usth.intern.notifts.ui.manager
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +22,7 @@ class FilterViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun onClickAppFilterButton() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { currentState ->
                 currentState.copy(
                     appFilterDialogShown = true,
@@ -37,7 +39,7 @@ class FilterViewModel @Inject constructor(
     }
 
     fun onClickCategoryFilterButton() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { currentState ->
                 currentState.copy(
                     categoryFilterDialogShown = true,
