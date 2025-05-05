@@ -117,7 +117,7 @@ fun Apps(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val checkedList = remember { List(appList.size) { mutableStateOf(false) } }
+    val checkedList = remember(appList) { List(appList.size) { mutableStateOf(false) } }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -158,7 +158,7 @@ fun Category(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val checkedList = remember { List(categoryList.size) { mutableStateOf(false) } }
+    val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
