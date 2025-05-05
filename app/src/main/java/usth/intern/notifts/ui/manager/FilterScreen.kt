@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -116,8 +117,7 @@ fun Apps(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    //TODO: checked is for box, in case there is more than 1 box then this will break
-    var checked by remember { mutableStateOf(false) }
+    val checkedList = remember { List(appList.size) { mutableStateOf(false) } }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -133,7 +133,7 @@ fun Apps(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(appList) { app ->
+                itemsIndexed(appList) { index, app ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -141,8 +141,8 @@ fun Apps(
                         Text(app)
                         Spacer(modifier = modifier.weight(1f))
                         Checkbox(
-                            checked = checked,
-                            onCheckedChange = { checked = it }
+                            checked = checkedList[index].value,
+                            onCheckedChange = { checkedList[index].value = it }
                         )
                     }
                     HorizontalDivider()
@@ -158,8 +158,8 @@ fun Category(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    //TODO: checked is for box, in case there is more than 1 box then this will break
-    var checked by remember { mutableStateOf(false) }
+    val checkedList = remember { List(categoryList.size) { mutableStateOf(false) } }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier
@@ -174,7 +174,7 @@ fun Category(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(categoryList) { category ->
+                itemsIndexed(categoryList) { index, category ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -186,8 +186,8 @@ fun Category(
                         }
                         Spacer(modifier = modifier.weight(1f))
                         Checkbox(
-                            checked = checked,
-                            onCheckedChange = { checked = it }
+                            checked = checkedList[index].value,
+                            onCheckedChange = { checkedList[index].value = it }
                         )
                     }
                     HorizontalDivider()
