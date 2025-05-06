@@ -2,9 +2,7 @@ package usth.intern.notifts.ui.manager
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,6 +62,30 @@ class FilterViewModel @Inject constructor(
     fun onDismissDateFilterDialog() {
         _uiState.update { currentState ->
             currentState.copy(dateFilterDialogShown = false)
+        }
+    }
+
+    /**
+     * This function is called when a checkbox is checked. It append the input category to the
+     * ui state.
+     * @param category: The name of category whose checkbox is checked
+     */
+    fun updateCategoryFilterSelections(category: String?) {
+        // Dealing with null category
+        if (category == null || category == "") {
+            val newCategory = "Unknown"
+            if (newCategory !in _uiState.value.categorySelectionList) {
+                _uiState.value.categorySelectionList.add(newCategory)
+            } else {
+                _uiState.value.categorySelectionList.remove(newCategory)
+            }
+            return
+        }
+
+        if (category !in _uiState.value.categorySelectionList) {
+            _uiState.value.categorySelectionList.add(category)
+        } else {
+            _uiState.value.categorySelectionList.remove(category)
         }
     }
 

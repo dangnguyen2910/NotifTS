@@ -6,4 +6,5 @@ data class FilterUiState(
     val dateFilterDialogShown: Boolean = false,
     val appList: List<String> = listOf(),
     val categoryList: List<String?> = listOf(),
+    val categorySelectionList: MutableList<String> = mutableListOf()
 )

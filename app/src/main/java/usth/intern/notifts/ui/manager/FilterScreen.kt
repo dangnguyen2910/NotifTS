@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -98,7 +97,8 @@ fun FilterScreen() {
                 )
                 uiState.categoryFilterDialogShown -> Category(
                     categoryList = uiState.categoryList,
-                    onDismissRequest = { filterViewModel.onDismissCategoryFilterDialog() }
+                    onDismissRequest = { filterViewModel.onDismissCategoryFilterDialog() },
+                    updateCategoryFilterSelections = { filterViewModel.updateCategoryFilterSelections(it) }
                 )
                 uiState.dateFilterDialogShown -> Date(
                     //TODO: here lies a function that input is a pair of date. It will change the
@@ -156,6 +156,7 @@ fun Apps(
 fun Category(
     categoryList: List<String?>,
     onDismissRequest: () -> Unit,
+    updateCategoryFilterSelections: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
@@ -187,7 +188,10 @@ fun Category(
                         Spacer(modifier = modifier.weight(1f))
                         Checkbox(
                             checked = checkedList[index].value,
-                            onCheckedChange = { checkedList[index].value = it }
+                            onCheckedChange = {
+                                updateCategoryFilterSelections(category)
+                                checkedList[index].value = it
+                            }
                         )
                     }
                     HorizontalDivider()
@@ -259,6 +263,7 @@ fun CategoryPreview() {
     Category(
         categoryList = listOf("alarm", "msg"),
         onDismissRequest = {},
+        updateCategoryFilterSelections = {}
     )
 }
 
