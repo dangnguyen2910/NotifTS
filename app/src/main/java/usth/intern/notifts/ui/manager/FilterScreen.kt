@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -98,7 +99,9 @@ fun FilterScreen() {
                 uiState.categoryFilterDialogShown -> Category(
                     categoryList = uiState.categoryList,
                     onDismissRequest = { filterViewModel.onDismissCategoryFilterDialog() },
-                    updateCategoryFilterSelections = { filterViewModel.updateCategoryFilterSelections(it) }
+                    updateCategoryFilterSelections = { filterViewModel.updateCategoryFilterSelections(it) },
+                    onCancel = {filterViewModel.onCancelCategoryFilter() },
+                    onConfirm = { filterViewModel.onConfirmCategoryFilter() }
                 )
                 uiState.dateFilterDialogShown -> Date(
                     //TODO: here lies a function that input is a pair of date. It will change the
@@ -157,11 +160,15 @@ fun Category(
     categoryList: List<String?>,
     onDismissRequest: () -> Unit,
     updateCategoryFilterSelections: (String?) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
 
-    Dialog(onDismissRequest = { onDismissRequest() }) {
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+    ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -169,34 +176,70 @@ fun Category(
                 .height(475.dp),
             shape = RoundedCornerShape(7.dp)
         ) {
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxSize(),
+//                    .weight(1f)
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                itemsIndexed(categoryList) { index, category ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (category == null || category == "") {
-                            Text("Unknown")
-                        } else {
-                            Text(category)
-                        }
-                        Spacer(modifier = modifier.weight(1f))
-                        Checkbox(
-                            checked = checkedList[index].value,
-                            onCheckedChange = {
-                                updateCategoryFilterSelections(category)
-                                checkedList[index].value = it
+                // Option list
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    itemsIndexed(categoryList) { index, category ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (category == null || category == "") {
+                                Text("Unknown")
+                            } else {
+                                Text(category)
                             }
-                        )
+                            Spacer(modifier = modifier.weight(1f))
+                            Checkbox(
+                                checked = checkedList[index].value,
+                                onCheckedChange = {
+                                    updateCategoryFilterSelections(category)
+                                    checkedList[index].value = it
+                                }
+                            )
+                        }
+                        HorizontalDivider()
                     }
-                    HorizontalDivider()
                 }
+                // Confirm and Cancel buttons.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    TextButton(
+                        onClick = {
+                            onCancel()
+                            onDismissRequest()
+                          },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onConfirm()
+                            onDismissRequest()
+                          },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+
             }
+
         }
     }
 }
@@ -261,9 +304,11 @@ fun AppPreview() {
 @Composable
 fun CategoryPreview() {
     Category(
-        categoryList = listOf("alarm", "msg"),
+        categoryList = listOf("alarm", "msg","", "", "", "", "", "", ""),
         onDismissRequest = {},
-        updateCategoryFilterSelections = {}
+        updateCategoryFilterSelections = {},
+        onCancel = {},
+        onConfirm = {},
     )
 }
 
