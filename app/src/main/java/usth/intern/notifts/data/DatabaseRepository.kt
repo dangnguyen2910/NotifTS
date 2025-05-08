@@ -45,7 +45,7 @@ class DatabaseRepository @Inject constructor(
         return notificationDao.loadAllNotifications()
     }
 
-    fun loadNotificationWithKeywords(query: String) : List<Notification> {
+    fun loadNotificationByKeywords(query: String) : List<Notification> {
         return notificationDao.loadNotificationsWithKeywords(query)
     }
 
@@ -55,5 +55,15 @@ class DatabaseRepository @Inject constructor(
 
     fun loadUniquePackages() : List<String> {
         return notificationDao.loadUniquePackages()
+    }
+
+    fun loadNotificationByCategories(
+        categorySelectionList: List<String?>,
+        containNull: Boolean
+    ) : Flow<List<Notification>> {
+        return notificationDao.loadNotificationsByCategories(
+            categorySelectionList,
+            containNull = containNull
+        )
     }
 }

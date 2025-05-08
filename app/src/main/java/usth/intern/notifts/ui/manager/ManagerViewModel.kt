@@ -3,6 +3,7 @@ package usth.intern.notifts.ui.manager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +47,7 @@ class ManagerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {currentState ->
                 currentState.copy(
-                    notificationList = databaseRepository.loadNotificationWithKeywords(query)
+                    notificationList = databaseRepository.loadNotificationByKeywords(query)
                 )
             }
         }
@@ -134,13 +135,27 @@ class ManagerViewModel @Inject constructor(
 
     /**
      * This function is called when user click the Confirm button
-     * in Category filter dialog.
+     * in Category filter dialog. It will update the notification
+     * list in manager screen that correspond to the categories user
+     * chooses.
      */
     fun onConfirmCategoryFilter() {
-        // TODO: implement me 
         // Do nothing if no option is selected
         if (_uiState.value.categorySelectionList.isEmpty()) {
             return
+        }
+
+        val containNull = _uiState.value.categorySelectionList.contains(null)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val notificationList = databaseRepository.loadNotificationByCategories(
+                categorySelectionList = _uiState.value.categorySelectionList.toList(),
+                containNull = containNull
+            ).first()
+            _uiState.update { currentState ->
+                currentState.copy(notificationList = notificationList)
+            }
+            Log.d("ManagerViewModel", "onConfirmCategoryFilter is done")
         }
     }
 }

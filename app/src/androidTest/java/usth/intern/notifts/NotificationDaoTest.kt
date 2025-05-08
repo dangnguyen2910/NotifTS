@@ -3,15 +3,11 @@ package usth.intern.notifts
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -166,6 +162,41 @@ class NotificationDaoTest {
             launch {
                 val packageList = notificationDao.loadUniquePackages()
                 assertEquals(expectList, packageList)
+            }
+        }
+    }
+
+    @Test
+    fun loadNotificationsByCategories_ContainNull() {
+        val expect1 = notification1.copy(rowid = 1)
+        val expect2 = notification2.copy(rowid = 2)
+        val expect3 = notification3.copy(rowid = 3)
+        val expectList = listOf(expect1, expect2, expect3)
+
+        runBlocking {
+            launch {
+                val categoryList = listOf(null, "mail")
+                val notificationList = notificationDao
+                    .loadNotificationsByCategories(categoryList, true)
+                    .first()
+                assertEquals(expectList, notificationList)
+            }
+        }
+    }
+
+    @Test
+    fun loadNotificationsByCategories_NoNull() {
+        val expect2 = notification2.copy(rowid = 2)
+        val expect3 = notification3.copy(rowid = 3)
+        val expectList = listOf(expect2, expect3)
+
+        runBlocking {
+            launch {
+                val categoryList = listOf(null, "mail")
+                val notificationList = notificationDao
+                    .loadNotificationsByCategories(categoryList, false)
+                    .first()
+                assertEquals(expectList, notificationList)
             }
         }
     }

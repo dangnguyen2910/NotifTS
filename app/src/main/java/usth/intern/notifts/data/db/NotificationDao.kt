@@ -38,4 +38,15 @@ interface NotificationDao {
 
     @Query("select distinct package_name from notification order by package_name")
     fun loadUniquePackages(): List<String>
+
+    @Query(
+        "select rowid, * " +
+        "from notification " +
+        "where category in (:categorySelectionList)" +
+            "or category is null and :containNull = 1"
+    )
+    fun loadNotificationsByCategories(
+        categorySelectionList: List<String?>,
+        containNull: Boolean
+    ) : Flow<List<Notification>>
 }
