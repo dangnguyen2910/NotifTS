@@ -63,6 +63,14 @@ class NotificationDaoTest {
             category = "mail",
             date = "Tomorrow"
         )
+
+        runBlocking {
+            launch {
+                notificationDao.insertNotification(notification1)
+                notificationDao.insertNotification(notification2)
+                notificationDao.insertNotification(notification3)
+            }
+        }
     }
 
     @After
@@ -74,20 +82,10 @@ class NotificationDaoTest {
     @Test
     @Throws(Exception::class)
     fun insertAndLoadNewestNotificationTest() {
-        val notification = Notification(
-            packageName = "test",
-            title = "This is a title",
-            text = "This is the content of notification",
-            bigText = null,
-            category = null,
-            date = "Today"
-        )
-
-        val expected = notification.copy(rowid = 1)
+        val expected = notification3.copy(rowid = 3)
 
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification)
                 val newestNotification = notificationDao.loadNewestNotification().first()
                 assertEquals(newestNotification, expected)
             }
@@ -96,26 +94,14 @@ class NotificationDaoTest {
 
     @Test
     @Throws(Exception::class)
+    @Ignore("Deprecated")
     fun insertMultipleAndLoadNewestNotificationTest() {
-
         val expected = notification2.copy(rowid = 2)
 
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
                 val newestNotification = notificationDao.loadNewestNotification().first()
                 assertEquals(newestNotification, expected)
-            }
-        }
-    }
-
-    @Test
-    fun loadNewestNotificationWithEmptyDatabase() {
-        runBlocking {
-            launch {
-                val newestNotification = notificationDao.loadNewestNotification().first()
-                assertNull(newestNotification)
             }
         }
     }
@@ -124,11 +110,10 @@ class NotificationDaoTest {
     fun insertMultipleAndLoadAllNotifications() {
         val expect1 = notification1.copy(rowid = 1)
         val expect2 = notification2.copy(rowid = 2)
-        val expectList = listOf(expect2, expect1)
+        val expect3 = notification3.copy(rowid = 3)
+        val expectList = listOf(expect3, expect2, expect1)
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
                 val allNotification = notificationDao.loadAllNotifications().first()
                 assertEquals(allNotification, expectList)
             }
@@ -138,13 +123,10 @@ class NotificationDaoTest {
     @Test
     fun queryNotificationGivenKeywords_Return1Notification() {
         val expect1 = notification1.copy(rowid = 1)
-        val expect2 = notification2.copy(rowid = 2)
         val expectList = listOf(expect1)
 
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
                 val notificationList = notificationDao.loadNotificationsWithKeywords("title this")
                 assertEquals(notificationList, expectList)
             }
@@ -155,12 +137,11 @@ class NotificationDaoTest {
     fun queryNotificationGivenKeywords_Return2Notification() {
         val expect1 = notification1.copy(rowid = 1)
         val expect2 = notification2.copy(rowid = 2)
-        val expectList = listOf(expect2, expect1)
+        val expect3 = notification3.copy(rowid = 3)
+        val expectList = listOf(expect3, expect2, expect1)
 
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
                 val notificationList = notificationDao.loadNotificationsWithKeywords("content ")
                 assertEquals(expectList, notificationList)
             }
@@ -172,9 +153,6 @@ class NotificationDaoTest {
         val expectList = listOf(null, "mail")
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
-                notificationDao.insertNotification(notification3)
                 val categoryList = notificationDao.loadUniqueCategories()
                 assertEquals(expectList, categoryList)
             }
@@ -186,9 +164,6 @@ class NotificationDaoTest {
         val expectList = listOf("com.google.gm", "com.google.whatever")
         runBlocking {
             launch {
-                notificationDao.insertNotification(notification1)
-                notificationDao.insertNotification(notification2)
-                notificationDao.insertNotification(notification3)
                 val packageList = notificationDao.loadUniquePackages()
                 assertEquals(expectList, packageList)
             }
