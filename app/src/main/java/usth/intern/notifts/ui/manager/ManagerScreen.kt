@@ -1,10 +1,10 @@
 package usth.intern.notifts.ui.manager
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,42 +12,58 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import usth.intern.notifts.R
 import usth.intern.notifts.data.db.Notification
+import usth.intern.notifts.ui.components.NotificationCard
 
 @Composable
 fun ManagerScreen(
@@ -57,11 +73,30 @@ fun ManagerScreen(
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
+        // Search related
         query = uiState.query,
         notificationList = uiState.notificationList,
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
         onReload = { managerViewModel.onReload() },
         onEnterSearch = { managerViewModel.onEnterSearch(it) },
+        // Filter related
+        // App filter
+        onClickAppFilterButton = { managerViewModel.onClickAppFilterButton() },
+        appList = uiState.appList,
+        appFilterDialogIsShown = uiState.appFilterDialogIsShown,
+        onDismissAppFilterDialog = { managerViewModel.onDismissAppFilterDialog() },
+        // Category filter
+        onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
+        categoryList = uiState.categoryList,
+        categoryFilterDialogIsShown = uiState.categoryFilterDialogIsShown,
+        onDismissCategoryFilterDialog = { managerViewModel.onDismissCategoryFilterDialog() },
+        updateCategoryFilterSelections = { managerViewModel.updateCategoryFilterSelections(it) },
+        onConfirmCategoryFilter = { managerViewModel.onConfirmCategoryFilter() },
+        onCancelCategoryFilter = { managerViewModel.onCancelCategoryFilter() },
+        // Date filter
+        onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
+        dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
+        onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
         modifier = modifier
     )
 }
@@ -75,7 +110,23 @@ fun ManagerContent(
     // Notification list
     notificationList: List<Notification>,
     onReload: () -> Unit,
-    // App Filter button
+    // Apps filter
+    onClickAppFilterButton: () -> Unit,
+    appList: List<String>,
+    appFilterDialogIsShown: Boolean,
+    onDismissAppFilterDialog: () -> Unit,
+    // Category filter
+    onClickCategoryFilterButton: () -> Unit,
+    categoryList: List<String?>,
+    categoryFilterDialogIsShown: Boolean,
+    onDismissCategoryFilterDialog: () -> Unit,
+    updateCategoryFilterSelections: (String?) -> Unit,
+    onConfirmCategoryFilter: () -> Unit,
+    onCancelCategoryFilter: () -> Unit,
+    // Date filter
+    onClickDateFilterButton: () -> Unit,
+    dateFilterDialogIsShown: Boolean,
+    onDismissDateFilterDialog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -107,7 +158,25 @@ fun ManagerContent(
                 focusState = focusState,
             )
 
-            FilterScreen()
+            FilterOptions(
+                // Apps filter
+                onClickAppFilterButton = onClickAppFilterButton,
+                appList = appList,
+                appFilterDialogIsShown = appFilterDialogIsShown,
+                onDismissAppFilterDialog = onDismissAppFilterDialog,
+                // Category filter
+                onClickCategoryFilterButton = onClickCategoryFilterButton,
+                categoryList = categoryList,
+                categoryFilterDialogIsShown = categoryFilterDialogIsShown,
+                onDismissCategoryFilterDialog = onDismissCategoryFilterDialog,
+                updateCategoryFilterSelections = updateCategoryFilterSelections,
+                onConfirmCategoryFilter = onConfirmCategoryFilter,
+                onCancelCategoryFilter = onCancelCategoryFilter,
+                // Date filter
+                onClickDateFilterButton = onClickDateFilterButton,
+                dateFilterDialogIsShown = dateFilterDialogIsShown,
+                onDismissDateFilterDialog = onDismissDateFilterDialog,
+            )
         }
 
         Button(
@@ -164,37 +233,6 @@ fun KeywordsSearchBar(
 }
 
 @Composable
-fun NotificationCard(
-    packageName: String,
-    title: String,
-    text: String,
-    date: String,
-    modifier: Modifier = Modifier,
-) {
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 7.dp, horizontal = 10.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black)
-    ) {
-        Column(
-            modifier = Modifier.padding(all = 5.dp)
-        ) {
-            Row {
-                Text(packageName)
-                Spacer(modifier = modifier.weight(1f))
-                Text(date)
-            }
-            HorizontalDivider()
-            Text(title)
-            HorizontalDivider()
-            Text(text)
-        }
-    }
-}
-
-@Composable
 fun NotificationCardList(
     notificationList: List<Notification>,
     modifier: Modifier = Modifier
@@ -215,6 +253,301 @@ fun NotificationCardList(
     }
 }
 
+@Composable
+fun FilterOptions(
+    // Apps filter
+    onClickAppFilterButton: () -> Unit,
+    appList: List<String>,
+    appFilterDialogIsShown: Boolean,
+    onDismissAppFilterDialog: () -> Unit,
+    // Category filter
+    onClickCategoryFilterButton: () -> Unit,
+    categoryList: List<String?>,
+    categoryFilterDialogIsShown: Boolean,
+    onDismissCategoryFilterDialog: () -> Unit,
+    updateCategoryFilterSelections: (String?) -> Unit,
+    onConfirmCategoryFilter: () -> Unit,
+    onCancelCategoryFilter: () -> Unit,
+    // Date filter
+    onClickDateFilterButton: () -> Unit,
+    dateFilterDialogIsShown: Boolean,
+    onDismissDateFilterDialog: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            IconButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier
+                    .height(55.dp)
+                    .clip(RoundedCornerShape(10.dp))
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.filter_icon),
+                    contentDescription = "Favorite",
+                    modifier = Modifier
+                        .size(35.dp)
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Apps") },
+                    onClick = onClickAppFilterButton
+                )
+                DropdownMenuItem(
+                    text = { Text("Category") },
+                    onClick = onClickCategoryFilterButton
+                )
+                DropdownMenuItem(
+                    text = { Text("Date") },
+                    onClick = onClickDateFilterButton
+                )
+                DropdownMenuItem(
+                    text = { Text("Clear") },
+                    onClick = {/*TODO: Implement the function of Clear button */}
+                )
+            }
+
+            when {
+                appFilterDialogIsShown -> Apps(
+                    appList = appList,
+                    onDismissRequest = onDismissAppFilterDialog
+                )
+                categoryFilterDialogIsShown -> Category(
+                    categoryList = categoryList,
+                    onDismissRequest = onDismissCategoryFilterDialog,
+                    updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
+                    onCancel = { onCancelCategoryFilter() },
+                    onConfirm = { onConfirmCategoryFilter() }
+                )
+                dateFilterDialogIsShown -> Date(
+                    //TODO: here lies a function that input is a pair of date. It will change the
+                    // UI state (list of notifications) of manager screen based on the input.
+                    onDateRangeSelected = {},
+                    onDismiss= { onDismissDateFilterDialog() }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Apps(
+    appList: List<String>,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val checkedList = remember(appList) { List(appList.size) { mutableStateOf(false) } }
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(475.dp),
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                itemsIndexed(appList) { index, app ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(app)
+                        Spacer(modifier = modifier.weight(1f))
+                        Checkbox(
+                            checked = checkedList[index].value,
+                            onCheckedChange = { checkedList[index].value = it }
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Category(
+    categoryList: List<String?>,
+    onDismissRequest: () -> Unit,
+    updateCategoryFilterSelections: (String?) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
+
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(475.dp),
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+//                    .weight(1f)
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Option list
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    itemsIndexed(categoryList) { index, category ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (category == null || category == "") {
+                                Text("Unknown")
+                            } else {
+                                Text(category)
+                            }
+                            Spacer(modifier = modifier.weight(1f))
+                            Checkbox(
+                                checked = checkedList[index].value,
+                                onCheckedChange = {
+                                    updateCategoryFilterSelections(category)
+                                    checkedList[index].value = it
+                                }
+                            )
+                        }
+                        HorizontalDivider()
+                    }
+                }
+                // Confirm and Cancel buttons.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    TextButton(
+                        onClick = {
+                            onCancel()
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onConfirm()
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+
+            }
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Date(
+    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dateRangePickerState = rememberDateRangePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDateRangeSelected(
+                        Pair(
+                            dateRangePickerState.selectedStartDateMillis,
+                            dateRangePickerState.selectedEndDateMillis
+                        )
+                    )
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DateRangePicker(
+            state = dateRangePickerState,
+            title = {
+                Text(
+                    text = "Select date range"
+                )
+            },
+            showModeToggle = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppPreview() {
+    Apps(
+        appList = listOf("App1", "App2", "App3", "App4"),
+        onDismissRequest = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CategoryPreview() {
+    Category(
+        categoryList = listOf("alarm", "msg","", "", "", "", "", "", ""),
+        onDismissRequest = {},
+        updateCategoryFilterSelections = {},
+        onCancel = {},
+        onConfirm = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DatePreview() {
+    Date(
+        onDateRangeSelected = {},
+        onDismiss = {}
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun NotificationCardPreview() {
@@ -232,37 +565,53 @@ fun NotificationCardPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ManagerScreenPreview() {
-    ManagerContent(
-        notificationList = listOf(
-            Notification(
-                rowid = 0,
-                packageName = "com.preview.whatever",
-                title = "This is a title",
-                text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                        "using the Divider composable, which is part of the Material design components. " +
-                        "The Divider composable allows you to draw a simple line that spans across the " +
-                        "width" + " of its parent container.",
-                bigText = null,
-                category = null,
-                date = "30/30/3030 11h30"
-            ),
-
-            Notification(
-                rowid = 0,
-                packageName = "com.preview.whatever",
-                title = "This is a title",
-                text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                        "using the Divider composable, which is part of the Material design components. " +
-                        "The Divider composable allows you to draw a simple line that spans across the " +
-                        "width" + " of its parent container.",
-                bigText = null,
-                category = null,
-                date = "30/30/3030 11h30"
-            ),
+    val notificationList = listOf(
+        Notification(
+            rowid = 0,
+            packageName = "com.preview.whatever",
+            title = "This is a title",
+            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
+                    "using the Divider composable, which is part of the Material design components. " +
+                    "The Divider composable allows you to draw a simple line that spans across the " +
+                    "width" + " of its parent container.",
+            bigText = null,
+            category = null,
+            date = "30/30/3030 11h30"
         ),
+
+        Notification(
+            rowid = 0,
+            packageName = "com.preview.whatever",
+            title = "This is a title",
+            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
+                    "using the Divider composable, which is part of the Material design components. " +
+                    "The Divider composable allows you to draw a simple line that spans across the " +
+                    "width" + " of its parent container.",
+            bigText = null,
+            category = null,
+            date = "30/30/3030 11h30"
+        ),
+    )
+
+    ManagerContent(
+        notificationList = notificationList,
         onReload = {},
         onTypingSearch = { _: String -> },
         onEnterSearch = { _: String -> },
-        query = ""
+        query = "",
+        onClickAppFilterButton = {},
+        appList = listOf(),
+        appFilterDialogIsShown = false,
+        onDismissAppFilterDialog = {},
+        onClickCategoryFilterButton = {},
+        categoryList = listOf(),
+        categoryFilterDialogIsShown = false,
+        onDismissCategoryFilterDialog = {},
+        updateCategoryFilterSelections = {},
+        onConfirmCategoryFilter = {},
+        onCancelCategoryFilter = {},
+        onClickDateFilterButton = {},
+        dateFilterDialogIsShown = false,
+        onDismissDateFilterDialog = {},
     )
 }
