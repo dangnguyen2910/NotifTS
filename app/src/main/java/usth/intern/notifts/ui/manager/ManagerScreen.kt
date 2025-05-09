@@ -85,6 +85,9 @@ fun ManagerScreen(
         appList = uiState.appList,
         appFilterDialogIsShown = uiState.appFilterDialogIsShown,
         onDismissAppFilterDialog = { managerViewModel.onDismissAppFilterDialog() },
+        updateAppFilterSelections = { managerViewModel.updateAppFilterSelections(it) },
+        onConfirmAppFilter = { managerViewModel.onConfirmAppFilter() },
+        onCancelAppFilter = { managerViewModel.onCancelAppFilter() },
         // Category filter
         onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
         categoryList = uiState.categoryList,
@@ -97,7 +100,7 @@ fun ManagerScreen(
         onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
         dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
         onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -115,6 +118,9 @@ fun ManagerContent(
     appList: List<String>,
     appFilterDialogIsShown: Boolean,
     onDismissAppFilterDialog: () -> Unit,
+    updateAppFilterSelections: (String) -> Unit,
+    onConfirmAppFilter: () -> Unit,
+    onCancelAppFilter: () -> Unit,
     // Category filter
     onClickCategoryFilterButton: () -> Unit,
     categoryList: List<String?>,
@@ -164,6 +170,9 @@ fun ManagerContent(
                 appList = appList,
                 appFilterDialogIsShown = appFilterDialogIsShown,
                 onDismissAppFilterDialog = onDismissAppFilterDialog,
+                updateAppFilterSelections = updateAppFilterSelections,
+                onConfirmAppFilter = onConfirmAppFilter,
+                onCancelAppFilter = onCancelAppFilter,
                 // Category filter
                 onClickCategoryFilterButton = onClickCategoryFilterButton,
                 categoryList = categoryList,
@@ -260,6 +269,9 @@ fun FilterOptions(
     appList: List<String>,
     appFilterDialogIsShown: Boolean,
     onDismissAppFilterDialog: () -> Unit,
+    updateAppFilterSelections: (String) -> Unit,
+    onConfirmAppFilter: () -> Unit,
+    onCancelAppFilter: () -> Unit,
     // Category filter
     onClickCategoryFilterButton: () -> Unit,
     categoryList: List<String?>,
@@ -321,14 +333,17 @@ fun FilterOptions(
             when {
                 appFilterDialogIsShown -> Apps(
                     appList = appList,
-                    onDismissRequest = onDismissAppFilterDialog
+                    onDismissRequest = onDismissAppFilterDialog,
+                    updateAppFilterSelections = { updateAppFilterSelections(it) },
+                    onCancelAppFilter = { onCancelAppFilter() },
+                    onConfirmAppFilter = { onConfirmAppFilter },
                 )
                 categoryFilterDialogIsShown -> Category(
                     categoryList = categoryList,
                     onDismissRequest = onDismissCategoryFilterDialog,
                     updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
-                    onCancel = { onCancelCategoryFilter() },
-                    onConfirm = { onConfirmCategoryFilter() }
+                    onCancelCategoryFilter = { onCancelCategoryFilter() },
+                    onConfirmCategoryFilter = { onConfirmCategoryFilter() }
                 )
                 dateFilterDialogIsShown -> Date(
                     //TODO: here lies a function that input is a pair of date. It will change the
@@ -345,6 +360,9 @@ fun FilterOptions(
 fun Apps(
     appList: List<String>,
     onDismissRequest: () -> Unit,
+    updateAppFilterSelections: (String) -> Unit,
+    onCancelAppFilter: () -> Unit,
+    onConfirmAppFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedList = remember(appList) { List(appList.size) { mutableStateOf(false) } }
@@ -357,25 +375,60 @@ fun Apps(
                 .height(475.dp),
             shape = RoundedCornerShape(7.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                itemsIndexed(appList) { index, app ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(app)
-                        Spacer(modifier = modifier.weight(1f))
-                        Checkbox(
-                            checked = checkedList[index].value,
-                            onCheckedChange = { checkedList[index].value = it }
-                        )
+                // Apps list
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    itemsIndexed(appList) { index, app ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(app)
+                            Spacer(modifier = modifier.weight(1f))
+                            Checkbox(
+                                checked = checkedList[index].value,
+                                onCheckedChange = {
+                                    updateAppFilterSelections(app)
+                                    checkedList[index].value = it
+                                }
+                            )
+                        }
+                        HorizontalDivider()
                     }
-                    HorizontalDivider()
+                }
+                // Confirm and Cancel buttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    TextButton(
+                        onClick = {
+                            onCancelAppFilter()
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            onConfirmAppFilter()
+                            onDismissRequest()
+                        },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
                 }
             }
         }
@@ -387,8 +440,8 @@ fun Category(
     categoryList: List<String?>,
     onDismissRequest: () -> Unit,
     updateCategoryFilterSelections: (String?) -> Unit,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
+    onCancelCategoryFilter: () -> Unit,
+    onConfirmCategoryFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
@@ -447,7 +500,7 @@ fun Category(
                 ) {
                     TextButton(
                         onClick = {
-                            onCancel()
+                            onCancelCategoryFilter()
                             onDismissRequest()
                         },
                         modifier = Modifier.padding(8.dp),
@@ -456,7 +509,7 @@ fun Category(
                     }
                     TextButton(
                         onClick = {
-                            onConfirm()
+                            onConfirmCategoryFilter()
                             onDismissRequest()
                         },
                         modifier = Modifier.padding(8.dp),
@@ -523,7 +576,10 @@ fun Date(
 fun AppPreview() {
     Apps(
         appList = listOf("App1", "App2", "App3", "App4"),
-        onDismissRequest = {}
+        onDismissRequest = {},
+        updateAppFilterSelections = {},
+        onCancelAppFilter = {},
+        onConfirmAppFilter = {},
     )
 }
 
@@ -534,8 +590,8 @@ fun CategoryPreview() {
         categoryList = listOf("alarm", "msg","", "", "", "", "", "", ""),
         onDismissRequest = {},
         updateCategoryFilterSelections = {},
-        onCancel = {},
-        onConfirm = {},
+        onCancelCategoryFilter = {},
+        onConfirmCategoryFilter = {},
     )
 }
 
@@ -613,5 +669,8 @@ fun ManagerScreenPreview() {
         onClickDateFilterButton = {},
         dateFilterDialogIsShown = false,
         onDismissDateFilterDialog = {},
+        updateAppFilterSelections = {},
+        onConfirmAppFilter = {},
+        onCancelAppFilter = {},
     )
 }

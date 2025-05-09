@@ -158,4 +158,16 @@ class ManagerViewModel @Inject constructor(
             Log.d("ManagerViewModel", "onConfirmCategoryFilter is done")
         }
     }
+
+    fun updateAppFilterSelections(app: String) {
+        TODO("Not implemented")
+    }
+
+    fun onConfirmAppFilter() {
+        TODO("Not yet implemented")
+    }
+
+    fun onCancelAppFilter() {
+        TODO("Not yet implemented")
+    }
 }
