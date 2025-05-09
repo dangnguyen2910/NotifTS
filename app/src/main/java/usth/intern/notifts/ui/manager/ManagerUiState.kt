@@ -7,10 +7,11 @@ data class ManagerUiState (
     val query: String = "",
     val isAppDialogShown: Boolean = false,
     // Filter related
-    val appFilterDialogIsShown: Boolean = false,
-    val categoryFilterDialogIsShown: Boolean = false,
-    val dateFilterDialogIsShown: Boolean = false,
     val appList: List<String> = listOf(),
+    val appFilterDialogIsShown: Boolean = false,
+    val appSelectionList: MutableList<String> = mutableListOf(),
     val categoryList: List<String?> = listOf(),
-    val categorySelectionList: MutableList<String?> = mutableListOf()
+    val categoryFilterDialogIsShown: Boolean = false,
+    val categorySelectionList: MutableList<String?> = mutableListOf(),
+    val dateFilterDialogIsShown: Boolean = false,
 )

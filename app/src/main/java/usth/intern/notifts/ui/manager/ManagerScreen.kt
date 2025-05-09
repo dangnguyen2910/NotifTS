@@ -336,7 +336,7 @@ fun FilterOptions(
                     onDismissRequest = onDismissAppFilterDialog,
                     updateAppFilterSelections = { updateAppFilterSelections(it) },
                     onCancelAppFilter = { onCancelAppFilter() },
-                    onConfirmAppFilter = { onConfirmAppFilter },
+                    onConfirmAppFilter = { onConfirmAppFilter() }
                 )
                 categoryFilterDialogIsShown -> Category(
                     categoryList = categoryList,

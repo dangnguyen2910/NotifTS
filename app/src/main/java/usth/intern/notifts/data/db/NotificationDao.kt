@@ -49,4 +49,7 @@ interface NotificationDao {
         categorySelectionList: List<String?>,
         containNull: Boolean
     ) : Flow<List<Notification>>
+
+    @Query("select rowid, * from notification where package_name in (:appSelectionList)")
+    fun loadNotificationByApps(appSelectionList: List<String>): Flow<List<Notification>>
 }

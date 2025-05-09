@@ -200,4 +200,21 @@ class NotificationDaoTest {
             }
         }
     }
+
+    @Test
+    fun loadNotificationsByApps() {
+        val expect2 = notification2.copy(rowid = 2)
+        val expect3 = notification3.copy(rowid = 3)
+        val expectList = listOf(expect2, expect3)
+
+        runBlocking {
+            launch {
+                val appList = listOf("com.google.whatever")
+                val notificationList = notificationDao
+                    .loadNotificationByApps(appList)
+                    .first()
+                assertEquals(expectList, notificationList)
+            }
+        }
+    }
 }

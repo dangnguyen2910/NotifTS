@@ -159,15 +159,45 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Similar to [updateCategoryFilterSelections] but for app instead
+     */
     fun updateAppFilterSelections(app: String) {
-        TODO("Not implemented")
+        if (app !in _uiState.value.categorySelectionList) {
+            _uiState.value.appSelectionList.add(app)
+        } else {
+            _uiState.value.appSelectionList.remove(app)
+        }
+        Log.d("ManagerViewModel", "updateAppFilterSelections is called")
     }
 
+    /**
+     * Similar to [onConfirmCategoryFilter] but for app instead.
+     */
     fun onConfirmAppFilter() {
-        TODO("Not yet implemented")
+        if (_uiState.value.appSelectionList.isEmpty()) {
+            return
+        }
+
+        viewModelScope.launch {
+            val notificationList = databaseRepository.loadNotificationByApps(
+                appSelectionList = _uiState.value.appSelectionList.toList()
+            ).first()
+            _uiState.update { currentState ->
+                currentState.copy(notificationList = notificationList)
+            }
+
+            // Delete app selection list
+            onCancelAppFilter()
+        }
+        Log.d("ManagerViewModel", "onConfirmAppFilter is done")
+
     }
 
+    /**
+     * Similar to [onCancelCategoryFilter] but for app instead.
+     */
     fun onCancelAppFilter() {
-        TODO("Not yet implemented")
+        _uiState.value.appSelectionList.clear()
     }
 }

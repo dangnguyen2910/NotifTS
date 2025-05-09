@@ -66,4 +66,8 @@ class DatabaseRepository @Inject constructor(
             containNull = containNull
         )
     }
+
+    fun loadNotificationByApps(appSelectionList: List<String>): Flow<List<Notification>> {
+        return notificationDao.loadNotificationByApps(appSelectionList)
+    }
 }
