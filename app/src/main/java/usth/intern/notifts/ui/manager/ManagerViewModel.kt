@@ -155,6 +155,8 @@ class ManagerViewModel @Inject constructor(
             _uiState.update { currentState ->
                 currentState.copy(notificationList = notificationList)
             }
+            onCancelCategoryFilter()
+            
             Log.d("ManagerViewModel", "onConfirmCategoryFilter is done")
         }
     }
