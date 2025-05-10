@@ -46,33 +46,3 @@ fun Title(
     )
 }
 
-@Composable
-fun NotificationCard(
-    packageName: String,
-    title: String,
-    text: String,
-    date: String,
-    modifier: Modifier = Modifier,
-) {
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 7.dp, horizontal = 10.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black)
-    ) {
-        Column(
-            modifier = Modifier.padding(all = 5.dp)
-        ) {
-            Row {
-                Text(packageName)
-                Spacer(modifier = modifier.weight(1f))
-                Text(date)
-            }
-            HorizontalDivider()
-            Text(title)
-            HorizontalDivider()
-            Text(text)
-        }
-    }
-}
