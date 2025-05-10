@@ -93,6 +93,7 @@ fun ManagerScreen(
         onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
         dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
         onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
+        onDateRangeSelected = { managerViewModel.onDateRangeSelected(it) },
         modifier = modifier,
     )
 }
@@ -126,6 +127,7 @@ fun ManagerContent(
     onClickDateFilterButton: () -> Unit,
     dateFilterDialogIsShown: Boolean,
     onDismissDateFilterDialog: () -> Unit,
+    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -178,6 +180,7 @@ fun ManagerContent(
                 onClickDateFilterButton = onClickDateFilterButton,
                 dateFilterDialogIsShown = dateFilterDialogIsShown,
                 onDismissDateFilterDialog = onDismissDateFilterDialog,
+                onDateRangeSelected = onDateRangeSelected
             )
         }
 
@@ -258,6 +261,7 @@ fun FilterDialog(
     onClickDateFilterButton: () -> Unit,
     dateFilterDialogIsShown: Boolean,
     onDismissDateFilterDialog: () -> Unit,
+    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -320,9 +324,7 @@ fun FilterDialog(
                     onConfirmCategoryFilter = { onConfirmCategoryFilter() }
                 )
                 dateFilterDialogIsShown -> Date(
-                    //TODO: here lies a function that input is a pair of date. It will change the
-                    // UI state (list of notifications) of manager screen based on the input.
-                    onDateRangeSelected = {},
+                    onDateRangeSelected = { onDateRangeSelected(it) },
                     onDismiss= { onDismissDateFilterDialog() }
                 )
             }
@@ -405,5 +407,6 @@ fun ManagerScreenPreview() {
         updateAppFilterSelections = {},
         onConfirmAppFilter = {},
         onCancelAppFilter = {},
+        onDateRangeSelected = {},
     )
 }

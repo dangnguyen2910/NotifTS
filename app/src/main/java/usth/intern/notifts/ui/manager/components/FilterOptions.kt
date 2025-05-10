@@ -219,7 +219,7 @@ fun Date(
                     onDismiss()
                 }
             ) {
-                Text("OK")
+                Text("Confirm")
             }
         },
         dismissButton = {

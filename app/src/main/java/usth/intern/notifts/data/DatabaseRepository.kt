@@ -70,4 +70,13 @@ class DatabaseRepository @Inject constructor(
     fun loadNotificationByApps(appSelectionList: List<String>): Flow<List<Notification>> {
         return notificationDao.loadNotificationByApps(appSelectionList)
     }
+
+    fun loadNotificationByDate(date: Long?): Flow<List<Notification>> {
+        return notificationDao.loadNotificationByDate(date)
+    }
+
+    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>> {
+        return notificationDao.loadNotificationByDateRange(firstDate, secondDate)
+    }
+
 }

@@ -3,7 +3,6 @@ package usth.intern.notifts.ui.manager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -201,5 +200,34 @@ class ManagerViewModel @Inject constructor(
      */
     fun onCancelAppFilter() {
         _uiState.value.appSelectionList.clear()
+    }
+
+    /**
+     * This function is triggered when Confirm button of Date Filter Dialog is clicked.
+     * @param datePair: Pair of date chosen by user.
+     */
+    fun onDateRangeSelected(datePair: Pair<Long?, Long?>) {
+        // If second date is null -> filter only the first date
+        // else date range.
+        viewModelScope.launch {
+            if (datePair.second == null) {
+                val notificationList = databaseRepository
+                    .loadNotificationByDate(datePair.first)
+                    .first()
+
+                _uiState.update { currentState ->
+                    currentState.copy(notificationList = notificationList)
+                }
+            } else {
+                val notificationList = databaseRepository.loadNotificationByDateRange(
+                    datePair.first,
+                    datePair.second
+                ).first()
+
+                _uiState.update { currentState ->
+                    currentState.copy(notificationList = notificationList)
+                }
+            }
+        }
     }
 }
