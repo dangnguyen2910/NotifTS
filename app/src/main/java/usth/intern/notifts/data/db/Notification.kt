@@ -28,5 +28,5 @@ data class Notification(
     val category: String?,
 
     @ColumnInfo(name = "date")
-    val date: String
+    val date: Long
 )

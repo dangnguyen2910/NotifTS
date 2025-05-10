@@ -53,9 +53,10 @@ interface NotificationDao {
     @Query("select rowid, * from notification where package_name in (:appSelectionList)")
     fun loadNotificationByApps(appSelectionList: List<String>): Flow<List<Notification>>
 
-    @Query("select")
-    fun loadNotificationByDate(date: Long?): Flow<List<Notification>>
-
-    @Query("")
-    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>>
+    // TODO: Fix me
+//    @Query("select")
+//    fun loadNotificationByDate(date: Long?): Flow<List<Notification>>
+//
+//    @Query("")
+//    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>>
 }

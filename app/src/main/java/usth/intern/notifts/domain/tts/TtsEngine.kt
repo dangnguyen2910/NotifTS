@@ -1,7 +1,6 @@
 package usth.intern.notifts.domain.tts
 
 import android.content.Context
-import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,9 +20,7 @@ class TtsEngine @Inject constructor(
         "VIETNAMESE" to null,
     )
 
-    fun run(notificationMap: Map<String, String>) {
-        val title = notificationMap["title"] ?: ""
-        val text = notificationMap["text"] ?: ""
+    fun run(title: String, text: String) {
 
         tts = TextToSpeech(context, { status ->
             if (status == TextToSpeech.SUCCESS) {

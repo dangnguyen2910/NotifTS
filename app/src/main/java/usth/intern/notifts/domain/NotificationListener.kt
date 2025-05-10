@@ -7,8 +7,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import usth.intern.notifts.data.DatabaseRepository
 import usth.intern.notifts.data.PreferenceRepository
-import usth.intern.notifts.domain.manager.ManagerSystem
 import usth.intern.notifts.domain.tts.TtsEngine
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,7 +30,7 @@ class NotificationListener : NotificationListenerService() {
     lateinit var settings: Settings
 
     @Inject
-    lateinit var managerSystem: ManagerSystem
+    lateinit var databaseRepository: DatabaseRepository
 
     /**
      * If this value is false -> Notifications will not be spoken
@@ -54,8 +54,7 @@ class NotificationListener : NotificationListenerService() {
         val title = sbn.notification.extras.getCharSequence("android.title") ?: ""
         val text = sbn.notification.extras.getCharSequence("android.text") ?: ""
         val bigText = sbn.notification.extras.getCharSequence("android.bigText")?: ""
-        val dateString = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-            .format(Date(sbn.postTime))
+        val date = sbn.postTime
 
         // Some apps push multiple same notifications for no reason, so we need to ignore them
         val isDuplicated = (text.toString() == previousText)
@@ -65,19 +64,17 @@ class NotificationListener : NotificationListenerService() {
 
         previousText = text.toString()
 
-        val notificationMap = mapOf(
-            "packageName" to sbn.packageName,
-            "category" to category,
-            "title" to title.toString(),
-            "text" to text.toString(),
-            "bigText" to bigText.toString(),
-            "dateString" to dateString
-        )
-
         runBlocking {
             launch { isActivated = preferenceRepository.isActivatedFlow.first() }
             launch {
-                managerSystem.saveNotification(notificationMap)
+                databaseRepository.insertNotification(
+                    packageName = sbn.packageName,
+                    title = title.toString(),
+                    text = text.toString(),
+                    bigText = bigText.toString(),
+                    category = category,
+                    date = date
+                )
                 Log.d(TAG, "Save notification complete")
             }
         }
@@ -86,8 +83,14 @@ class NotificationListener : NotificationListenerService() {
             return
         }
 
-
-        logNewNotification(notificationMap)
+        logNewNotification(
+            packageName = packageName,
+            category = category,
+            title = title.toString(),
+            text = text.toString(),
+            bigText = bigText.toString(),
+            date = date
+        )
 
         runBlocking {
             launch {
@@ -106,7 +109,10 @@ class NotificationListener : NotificationListenerService() {
                     speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
                 )
                 if (isAllowedToSpeak) {
-                    ttsEngine.run(notificationMap)
+                    ttsEngine.run(
+                        title.toString(),
+                        text.toString()
+                    )
                 }
             }
         }
@@ -130,14 +136,24 @@ class NotificationListener : NotificationListenerService() {
         return false
     }
 
-    private fun logNewNotification(notificationMap: Map<String, String>) {
+    private fun logNewNotification(
+        packageName: String,
+        category: String?,
+        title: String,
+        text: String?,
+        bigText: String?,
+        date: Long,
+    ) {
         Log.d(TAG, "-----------------------------------------------------")
-        Log.d(TAG, "Package name ${notificationMap["packageName"]} ")
-        Log.d(TAG, "Category: ${notificationMap["category"]}")
-        Log.d(TAG, "Title: ${notificationMap["title"]}")
-        Log.d(TAG, "Text: ${notificationMap["text"]}")
-        Log.d(TAG, "Big Text: ${notificationMap["bigText"]}")
-        Log.d(TAG, "Date: ${notificationMap["dateString"]}")
+        Log.d(TAG, "Package name $packageName")
+        Log.d(TAG, "Category: $category")
+        Log.d(TAG, "Title: $title")
+        Log.d(TAG, "Text: $text")
+        Log.d(TAG, "Big Text: $bigText")
+        Log.d(TAG, "Date: ${SimpleDateFormat(
+            "dd-MM-yyyy HH:mm",
+            Locale.getDefault()).format(Date(date))}"
+        )
 
     }
 }

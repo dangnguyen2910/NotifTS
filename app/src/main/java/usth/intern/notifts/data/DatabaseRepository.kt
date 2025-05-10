@@ -26,7 +26,7 @@ class DatabaseRepository @Inject constructor(
         text: String,
         bigText: String?,
         category: String?,
-        date: String
+        date: Long
     ) : Long{
         val notification = Notification(
             packageName = packageName,
@@ -71,12 +71,13 @@ class DatabaseRepository @Inject constructor(
         return notificationDao.loadNotificationByApps(appSelectionList)
     }
 
-    fun loadNotificationByDate(date: Long?): Flow<List<Notification>> {
-        return notificationDao.loadNotificationByDate(date)
-    }
-
-    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>> {
-        return notificationDao.loadNotificationByDateRange(firstDate, secondDate)
-    }
+    // TODO: Fix me
+//    fun loadNotificationByDate(date: Long?): Flow<List<Notification>> {
+//        return notificationDao.loadNotificationByDate(date)
+//    }
+//
+//    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>> {
+//        return notificationDao.loadNotificationByDateRange(firstDate, secondDate)
+//    }
 
 }

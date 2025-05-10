@@ -57,6 +57,8 @@ import usth.intern.notifts.ui.manager.components.Apps
 import usth.intern.notifts.ui.manager.components.Category
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun ManagerScreen(
@@ -337,16 +339,20 @@ fun NotificationCardList(
     notificationList: List<Notification>,
     modifier: Modifier = Modifier
 ) {
+    val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
     ) {
         items (notificationList){ notification ->
+           val dateString = formatter.format(notification.date)
+
             NotificationCard(
                 packageName = notification.packageName,
                 title = notification.title,
                 text = notification.text,
-                date = notification.date
+                date = dateString,
             )
             Spacer(modifier = modifier.height(0.dp))
         }
@@ -367,7 +373,7 @@ fun ManagerScreenPreview() {
                     "width" + " of its parent container.",
             bigText = null,
             category = null,
-            date = "30/30/3030 11h30"
+            date = java.util.Date().time
         ),
 
         Notification(
@@ -380,7 +386,7 @@ fun ManagerScreenPreview() {
                     "width" + " of its parent container.",
             bigText = null,
             category = null,
-            date = "30/30/3030 11h30"
+            date = java.util.Date().time
         ),
     )
 

@@ -206,28 +206,29 @@ class ManagerViewModel @Inject constructor(
      * This function is triggered when Confirm button of Date Filter Dialog is clicked.
      * @param datePair: Pair of date chosen by user.
      */
+    // TODO: Fix me
     fun onDateRangeSelected(datePair: Pair<Long?, Long?>) {
-        // If second date is null -> filter only the first date
-        // else date range.
-        viewModelScope.launch {
-            if (datePair.second == null) {
-                val notificationList = databaseRepository
-                    .loadNotificationByDate(datePair.first)
-                    .first()
-
-                _uiState.update { currentState ->
-                    currentState.copy(notificationList = notificationList)
-                }
-            } else {
-                val notificationList = databaseRepository.loadNotificationByDateRange(
-                    datePair.first,
-                    datePair.second
-                ).first()
-
-                _uiState.update { currentState ->
-                    currentState.copy(notificationList = notificationList)
-                }
-            }
-        }
+//        // If second date is null -> filter only the first date
+//        // else date range.
+//        viewModelScope.launch {
+//            if (datePair.second == null) {
+//                val notificationList = databaseRepository
+//                    .loadNotificationByDate(datePair.first)
+//                    .first()
+//
+//                _uiState.update { currentState ->
+//                    currentState.copy(notificationList = notificationList)
+//                }
+//            } else {
+//                val notificationList = databaseRepository.loadNotificationByDateRange(
+//                    datePair.first,
+//                    datePair.second
+//                ).first()
+//
+//                _uiState.update { currentState ->
+//                    currentState.copy(notificationList = notificationList)
+//                }
+//            }
+//        }
     }
 }
