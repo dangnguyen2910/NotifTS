@@ -212,7 +212,6 @@ fun KeywordsSearchBar(
     focusManager: FocusManager = LocalFocusManager.current,
     focusState: MutableState<Boolean> = mutableStateOf(false)
 ) {
-    //todo: Fix height
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -237,7 +236,6 @@ fun KeywordsSearchBar(
             .focusRequester(focusRequester)
             .onFocusChanged { focusState.value = it.isFocused }
             .focusable()
-            .height(50.dp)
         )
 }
 
