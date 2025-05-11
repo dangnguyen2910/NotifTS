@@ -43,19 +43,35 @@ interface NotificationDao {
         "select rowid, * " +
         "from notification " +
         "where category in (:categorySelectionList)" +
-            "or category is null and :containNull = 1"
+            "or category is null and :containNull = 1 " +
+        "order by rowid desc"
     )
     fun loadNotificationsByCategories(
         categorySelectionList: List<String?>,
         containNull: Boolean
     ) : Flow<List<Notification>>
 
-    @Query("select rowid, * from notification where package_name in (:appSelectionList)")
+    @Query(
+        "select rowid, * " +
+        "from notification " +
+        "where package_name in (:appSelectionList) " +
+        "order by rowid desc"
+    )
     fun loadNotificationByApps(appSelectionList: List<String>): Flow<List<Notification>>
 
-    @Query("select rowid, * from notification where date >= :selectedDate AND date < :nextDay")
+    @Query(
+        "select rowid, * " +
+        "from notification " +
+        "where date >= :selectedDate AND date < :nextDay " +
+        "order by rowid desc"
+    )
     fun loadNotificationByDate(selectedDate: Long?, nextDay: Long?): Flow<List<Notification>>
 
-    @Query("select rowid, * from notification where date BETWEEN :firstDate AND :secondDate")
+    @Query(
+        "select rowid, * " +
+        "from notification " +
+        "where date BETWEEN :firstDate AND :secondDate " +
+        "order by rowid desc"
+    )
     fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>>
 }

@@ -200,7 +200,7 @@ class NotificationDaoTest {
         val expect1 = notification1.copy(rowid = 1)
         val expect2 = notification2.copy(rowid = 2)
         val expect3 = notification3.copy(rowid = 3)
-        val expectList = listOf(expect1, expect2, expect3)
+        val expectList = listOf(expect3, expect2, expect1)
 
         runBlocking {
             launch {
@@ -217,7 +217,7 @@ class NotificationDaoTest {
     fun loadNotificationsByCategories_NoNull() {
         val expect2 = notification2.copy(rowid = 2)
         val expect3 = notification3.copy(rowid = 3)
-        val expectList = listOf(expect2, expect3)
+        val expectList = listOf(expect3, expect2)
 
         runBlocking {
             launch {
@@ -234,7 +234,7 @@ class NotificationDaoTest {
     fun loadNotificationsByApps() {
         val expect2 = notification2.copy(rowid = 2)
         val expect3 = notification3.copy(rowid = 3)
-        val expectList = listOf(expect2, expect3)
+        val expectList = listOf(expect3, expect2)
 
         runBlocking {
             launch {
@@ -288,7 +288,7 @@ class NotificationDaoTest {
         val expect1 = notification1.copy(rowid=1)
         val expect2 = notification2.copy(rowid=2)
         val expect3 = notification3.copy(rowid=3)
-        val expectList = listOf(expect1, expect2, expect3)
+        val expectList = listOf(expect3, expect2, expect1)
 
         runBlocking {
             launch {
