@@ -1,6 +1,7 @@
 package usth.intern.notifts
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
@@ -15,6 +16,11 @@ import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
 import usth.intern.notifts.data.db.NotificationDao
 import java.io.IOException
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class NotificationDaoTest {
     private lateinit var db: AppDatabase
@@ -33,13 +39,23 @@ class NotificationDaoTest {
 
         notificationDao = db.notificationDao()
 
+        val date1 = "01-01-2025 03:00:00"
+        val date2 = "03-01-2025 12:00:00"
+        val date3 = "04-01-2025 15:00:00"
+
+        val dateLong1 = dateStringToLong(date1)
+        val dateLong2 = dateStringToLong(date2)
+        val dateLong3 = dateStringToLong(date3)
+
+        Log.d("NotificationDaoTest", "Date Long1: $dateLong1")
+
         notification1 = Notification(
             packageName = "com.google.gm",
             title = "This is a title",
             text = "This is the content of notification",
             bigText = null,
             category = null,
-            date = "Today"
+            date = dateLong1,
         )
 
         notification2 = Notification(
@@ -48,7 +64,7 @@ class NotificationDaoTest {
             text = "This is a new email",
             bigText = "More content of the new email",
             category = "mail",
-            date = "Tomorrow"
+            date = dateLong2,
         )
 
         notification3 = Notification(
@@ -57,7 +73,7 @@ class NotificationDaoTest {
             text = "This is a new email from whatever",
             bigText = "More content of the new email",
             category = "mail",
-            date = "Tomorrow"
+            date = dateLong3
         )
 
         runBlocking {
@@ -67,6 +83,19 @@ class NotificationDaoTest {
                 notificationDao.insertNotification(notification3)
             }
         }
+    }
+
+    private fun dateStringToLong(dateString: String) : Long {
+        val inputFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+        try {
+            val date = inputFormat.parse(dateString)
+            val dateLong = date!!.time
+            return dateLong
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return -1
     }
 
     @After
@@ -212,6 +241,59 @@ class NotificationDaoTest {
                 val appList = listOf("com.google.whatever")
                 val notificationList = notificationDao
                     .loadNotificationByApps(appList)
+                    .first()
+                assertEquals(expectList, notificationList)
+            }
+        }
+    }
+
+    @Test
+    fun loadNotificationByDate() {
+        val dateString = "01-01-2025 00:00:00"
+        val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+        val dateLong = formatter.parse(dateString)!!.time
+
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = dateLong
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val nextDay = calendar.timeInMillis
+        Log.d("NotificationDaoTest", "Today: $dateLong")
+        Log.d("NotificationDaoTest", "Next day: $nextDay")
+
+        val expect1 = notification1.copy(rowid=1)
+        val expectList = listOf(expect1)
+
+        runBlocking {
+            launch {
+                val notificationList = notificationDao
+                    .loadNotificationByDate(dateLong, nextDay)
+                    .first()
+                assertEquals(expectList, notificationList)
+            }
+        }
+    }
+
+    @Test
+    fun loadNotificationByDateRange() {
+        val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+        val dateString = "01-01-2025 00:00:00"
+        val dateLong = formatter.parse(dateString)!!.time
+
+        val nextDay = formatter.parse("05-01-2025 00:00:00")!!.time
+
+        Log.d("NotificationDaoTest", "Today: $dateLong")
+        Log.d("NotificationDaoTest", "Next day: $nextDay")
+
+        val expect1 = notification1.copy(rowid=1)
+        val expect2 = notification2.copy(rowid=2)
+        val expect3 = notification3.copy(rowid=3)
+        val expectList = listOf(expect1, expect2, expect3)
+
+        runBlocking {
+            launch {
+                val notificationList = notificationDao
+                    .loadNotificationByDate(dateLong, nextDay)
                     .first()
                 assertEquals(expectList, notificationList)
             }

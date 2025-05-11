@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -206,29 +209,33 @@ class ManagerViewModel @Inject constructor(
      * This function is triggered when Confirm button of Date Filter Dialog is clicked.
      * @param datePair: Pair of date chosen by user.
      */
-    // TODO: Fix me
     fun onDateRangeSelected(datePair: Pair<Long?, Long?>) {
-//        // If second date is null -> filter only the first date
-//        // else date range.
-//        viewModelScope.launch {
-//            if (datePair.second == null) {
-//                val notificationList = databaseRepository
-//                    .loadNotificationByDate(datePair.first)
-//                    .first()
-//
-//                _uiState.update { currentState ->
-//                    currentState.copy(notificationList = notificationList)
-//                }
-//            } else {
-//                val notificationList = databaseRepository.loadNotificationByDateRange(
-//                    datePair.first,
-//                    datePair.second
-//                ).first()
-//
-//                _uiState.update { currentState ->
-//                    currentState.copy(notificationList = notificationList)
-//                }
-//            }
-//        }
+        // If first date is null -> Do nothing
+        if (datePair.first == null) {
+            return
+        }
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        // If second date is null -> filter only the first date
+        // else date range.
+        viewModelScope.launch {
+            if (datePair.second == null) {
+                val notificationList = databaseRepository
+                    .loadNotificationByDate(datePair.first)
+                    .first()
+
+                _uiState.update { currentState ->
+                    currentState.copy(notificationList = notificationList)
+                }
+            } else {
+                val notificationList = databaseRepository.loadNotificationByDateRange(
+                    datePair.first,
+                    datePair.second
+                ).first()
+
+                _uiState.update { currentState ->
+                    currentState.copy(notificationList = notificationList)
+                }
+            }
+        }
     }
 }

@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
+import java.util.Calendar
 import javax.inject.Inject
 
 class DatabaseRepository @Inject constructor(
@@ -71,13 +73,34 @@ class DatabaseRepository @Inject constructor(
         return notificationDao.loadNotificationByApps(appSelectionList)
     }
 
-    // TODO: Fix me
-//    fun loadNotificationByDate(date: Long?): Flow<List<Notification>> {
-//        return notificationDao.loadNotificationByDate(date)
-//    }
-//
-//    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>> {
-//        return notificationDao.loadNotificationByDateRange(firstDate, secondDate)
-//    }
+    fun loadNotificationByDate(date: Long?): Flow<List<Notification>> {
+        if (date == null) {
+            return emptyFlow()
+        }
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = date
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val nextDay = calendar.timeInMillis
+
+        return notificationDao.loadNotificationByDate(date, nextDay)
+    }
+
+    fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>> {
+        if (firstDate == null) {
+            return emptyFlow()
+        }
+        if (secondDate == null) {
+            return loadNotificationByDate(firstDate)
+        }
+
+        // Since by default selected date starts at 00:00, when select a date range, user
+        // often want notifications that included in the end dates -> Increment the second
+        // date by one day to include all notifications in the second date.
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = secondDate
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val nextDay = calendar.timeInMillis
+        return notificationDao.loadNotificationByDateRange(firstDate, nextDay)
+    }
 
 }
