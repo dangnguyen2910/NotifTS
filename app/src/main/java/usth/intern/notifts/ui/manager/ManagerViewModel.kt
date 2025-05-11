@@ -5,15 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,11 +23,19 @@ class ManagerViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun onReload() {
+        _uiState.update { currentState ->
+            currentState.copy(isRefreshing = true)
+        }
+        Log.d("ManagerViewModel", "isRefreshing: ${_uiState.value.isRefreshing}")
         viewModelScope.launch {
+            delay(500)
             _uiState.update { currentState ->
                 currentState.copy(
                     notificationList = databaseRepository.loadAllNotification().first()
                 )
+            }
+            _uiState.update {
+                it.copy(isRefreshing = false)
             }
             Log.d("ManagerViewModel", "On reload is called")
         }
@@ -214,7 +220,6 @@ class ManagerViewModel @Inject constructor(
         if (datePair.first == null) {
             return
         }
-        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         // If second date is null -> filter only the first date
         // else date range.
         viewModelScope.launch {

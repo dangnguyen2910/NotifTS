@@ -14,4 +14,5 @@ data class ManagerUiState (
     val categoryFilterDialogIsShown: Boolean = false,
     val categorySelectionList: MutableList<String?> = mutableListOf(),
     val dateFilterDialogIsShown: Boolean = false,
+    val isRefreshing: Boolean = false
 )

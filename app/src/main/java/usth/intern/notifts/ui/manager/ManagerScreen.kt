@@ -23,11 +23,13 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -68,11 +70,12 @@ fun ManagerScreen(
     val uiState by managerViewModel.uiState.collectAsState()
 
     ManagerContent(
+        notificationList = uiState.notificationList,
+        onRefresh = { managerViewModel.onReload() },
+        isRefreshing = uiState.isRefreshing,
         // Search related
         query = uiState.query,
-        notificationList = uiState.notificationList,
         onTypingSearch = { managerViewModel.onTypingSearch(it) },
-        onReload = { managerViewModel.onReload() },
         onEnterSearch = { managerViewModel.onEnterSearch(it) },
         // Filter related
         // App filter
@@ -108,7 +111,8 @@ fun ManagerContent(
     onEnterSearch: (String) -> Unit,
     // Notification list
     notificationList: List<Notification>,
-    onReload: () -> Unit,
+    onRefresh: () -> Unit,
+    isRefreshing: Boolean,
     // Apps filter
     onClickAppFilterButton: () -> Unit,
     appList: List<String>,
@@ -186,14 +190,11 @@ fun ManagerContent(
             )
         }
 
-        // TODO: Replace this with scroll down to reload
-        Button(
-            onClick = onReload,
-        ) {
-            Text("Reload")
-        }
-
-        NotificationCardList(notificationList)
+        NotificationCardList(
+            notificationList,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+        )
     }
 }
 
@@ -334,27 +335,35 @@ fun FilterDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationCardList(
     notificationList: List<Notification>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
     ) {
-        items (notificationList){ notification ->
-           val dateString = formatter.format(notification.date)
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+        ) {
+            items (notificationList){ notification ->
+                val dateString = formatter.format(notification.date)
 
-            NotificationCard(
-                packageName = notification.packageName,
-                title = notification.title,
-                text = notification.text,
-                date = dateString,
-            )
-            Spacer(modifier = modifier.height(0.dp))
+                NotificationCard(
+                    packageName = notification.packageName,
+                    title = notification.title,
+                    text = notification.text,
+                    date = dateString,
+                )
+                Spacer(modifier = modifier.height(0.dp))
+            }
         }
     }
 }
@@ -392,7 +401,7 @@ fun ManagerScreenPreview() {
 
     ManagerContent(
         notificationList = notificationList,
-        onReload = {},
+        onRefresh = {},
         onTypingSearch = { _: String -> },
         onEnterSearch = { _: String -> },
         query = "",
@@ -414,5 +423,6 @@ fun ManagerScreenPreview() {
         onConfirmAppFilter = {},
         onCancelAppFilter = {},
         onDateRangeSelected = {},
+        isRefreshing = false,
     )
 }
