@@ -45,7 +45,7 @@ fun BottomNavigationBar(
 ) {
     var inSettingsScreen by remember { mutableStateOf(true) }
     var inManagerScreen by remember { mutableStateOf(false) }
-//    val inDashboardScreen by remember { mutableStateOf(false) }
+    var inDashboardScreen by remember { mutableStateOf(false) }
 
     NavigationBar {
         NavigationBarItem(
@@ -56,6 +56,7 @@ fun BottomNavigationBar(
                 navController.navigate(NotiftsScreen.Settings.name)
                 inSettingsScreen = true
                 inManagerScreen = false
+                inDashboardScreen = false
             }
         )
         NavigationBarItem(
@@ -72,14 +73,25 @@ fun BottomNavigationBar(
                 navController.navigate(NotiftsScreen.Manager.name)
                 inSettingsScreen = false
                 inManagerScreen = true
+                inDashboardScreen = false
             }
         )
-//        NavigationBarItem(
-//            icon = { Icon(Icons.Default.Settings, contentDescription = "Dashboard") },
-//            label = { Text("Dashboard") },
-//            selected = inDashboardScreen,
-//            onClick = { navController.navigate(NotiftsScreen.DashBoard.name)}
-//        )
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    painterResource(R.drawable.dashboard_icon),
+                    contentDescription = "Dashboard"
+                )
+            },
+            label = { Text("Dashboard") },
+            selected = inDashboardScreen,
+            onClick = {
+                navController.navigate(NotiftsScreen.DashBoard.name)
+                inSettingsScreen = false
+                inManagerScreen = false
+                inDashboardScreen = true
+            }
+        )
     }
 }
 

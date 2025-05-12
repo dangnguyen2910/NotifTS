@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import usth.intern.notifts.ui.BottomNavigationBar
+import usth.intern.notifts.ui.DashboardScreen
 import usth.intern.notifts.ui.SettingsScreen
 import usth.intern.notifts.ui.Title
 import usth.intern.notifts.ui.manager.ManagerScreen
@@ -58,6 +59,11 @@ fun NotiftsScreen(
             }
             composable(route = NotiftsScreen.Manager.name) {
                 ManagerScreen(
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            composable(route = NotiftsScreen.DashBoard.name) {
+                DashboardScreen(
                     modifier = Modifier.padding(innerPadding)
                 )
             }
