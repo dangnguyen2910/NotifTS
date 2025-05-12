@@ -230,7 +230,7 @@ fun KeywordsSearchBar(
         singleLine = true,
         textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
         modifier = modifier
-            .padding(start = 8.dp, end = 8.dp)
+            .padding(start = 8.dp)
             .fillMaxWidth(0.85f)
             .focusRequester(focusRequester)
             .onFocusChanged { focusState.value = it.isFocused }
@@ -278,7 +278,7 @@ fun FilterDialog(
                     .clip(RoundedCornerShape(10.dp))
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.filter_icon),
+                    painter = painterResource(R.drawable.filter_icon_v2),
                     contentDescription = "Favorite",
                     modifier = Modifier
                         .size(35.dp)
