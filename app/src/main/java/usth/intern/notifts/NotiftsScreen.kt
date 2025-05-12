@@ -12,13 +12,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import usth.intern.notifts.ui.BottomNavigationBar
 import usth.intern.notifts.ui.SettingsScreen
-import usth.intern.notifts.ui.components.Title
+import usth.intern.notifts.ui.Title
 import usth.intern.notifts.ui.manager.ManagerScreen
 
 enum class NotiftsScreen(val title: String) {
     Settings(title = "Settings"),
     Manager(title = "Notification Manager"),
+    DashBoard(title = "Dashboard"),
 }
 
 @Composable
@@ -34,10 +36,12 @@ fun NotiftsScreen(
         backStackEntry?.destination?.route ?: NotiftsScreen.Settings.name
     )
 
+
     Scaffold(
-        topBar = {
-            Title(title = currentScreen.title)
-        }
+        topBar = { Title(title = currentScreen.title) },
+        bottomBar = { BottomNavigationBar(
+            navController = navController,
+        ) }
     ) { innerPadding ->
         NavHost(
             navController = navController,

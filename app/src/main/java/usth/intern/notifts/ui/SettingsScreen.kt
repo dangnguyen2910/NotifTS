@@ -90,18 +90,6 @@ fun SettingsContent(
             isActivated = activationStateList[3],
             activateFunction = activateFunction[3],
         )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Button(
-                onClick = onPressButtonClicked
-            ) {
-                Text("Press")
-            }
-        }
     }
 }
 
