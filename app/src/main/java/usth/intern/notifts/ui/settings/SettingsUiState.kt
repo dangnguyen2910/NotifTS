@@ -1,4 +1,4 @@
-package usth.intern.notifts.ui
+package usth.intern.notifts.ui.settings
 
 data class SettingsUiState(
     val isActivated: Boolean,
