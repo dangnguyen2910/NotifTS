@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import usth.intern.notifts.ui.BottomNavigationBar
-import usth.intern.notifts.ui.DashboardScreen
+import usth.intern.notifts.ui.dashboard.DashboardScreen
 import usth.intern.notifts.ui.settings.SettingsScreen
 import usth.intern.notifts.ui.Title
 import usth.intern.notifts.ui.manager.ManagerScreen
