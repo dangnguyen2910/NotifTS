@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,14 +22,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -43,10 +47,12 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,6 +64,10 @@ import usth.intern.notifts.ui.manager.components.Apps
 import usth.intern.notifts.ui.manager.components.Category
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
+import usth.intern.notifts.ui.theme.anon
+import usth.intern.notifts.ui.theme.green
+import usth.intern.notifts.ui.theme.veiledSpotlight
+import usth.intern.notifts.ui.theme.white
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -148,11 +158,17 @@ fun ManagerContent(
             ) {
                 focusManager.clearFocus()
             }
+            .padding(16.dp)
+            .fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
         ) {
             KeywordsSearchBar(
                 query = query,
@@ -162,7 +178,10 @@ fun ManagerContent(
                 focusRequester = focusRequester,
                 focusManager = focusManager,
                 focusState = focusState,
+                modifier = Modifier.weight(0.85f)
             )
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             FilterDialog(
                 // Apps filter
@@ -185,9 +204,12 @@ fun ManagerContent(
                 onClickDateFilterButton = onClickDateFilterButton,
                 dateFilterDialogIsShown = dateFilterDialogIsShown,
                 onDismissDateFilterDialog = onDismissDateFilterDialog,
-                onDateRangeSelected = onDateRangeSelected
+                onDateRangeSelected = onDateRangeSelected,
+                modifier = Modifier.weight(0.15f)
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         NotificationCardList(
             notificationList,
@@ -204,16 +226,34 @@ fun KeywordsSearchBar(
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: @Composable () -> Unit = { Text("Search") },
-    leadingIcon: @Composable (() -> Unit)? = { Icon(Icons.Default.Search, contentDescription = "Search") },
     keyboardController:SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     focusRequester: FocusRequester = FocusRequester(),
     focusManager: FocusManager = LocalFocusManager.current,
     focusState: MutableState<Boolean> = mutableStateOf(false)
 ) {
-    OutlinedTextField(
+    TextField(
         value = query,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = white,
+            unfocusedContainerColor = white,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        ),
+        shape = RoundedCornerShape(12.dp),
         onValueChange = onQueryChange,
+        placeholder = {
+            Text(
+                text = stringResource(R.string.text_search),
+                color = veiledSpotlight
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = stringResource(R.string.text_search_icon),
+                tint = anon
+            )
+        },
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = ImeAction.Search
         ),
@@ -224,20 +264,16 @@ fun KeywordsSearchBar(
                 keyboardController?.hide()
             }
         ),
-        shape = RoundedCornerShape(10.dp),
-        leadingIcon = leadingIcon,
-        placeholder = placeholder,
+        textStyle = LocalTextStyle.current.copy(lineHeight = 20.sp),
         singleLine = true,
-        textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
         modifier = modifier
-            .padding(start = 8.dp)
+//            .padding(start = 8.dp)
             .fillMaxWidth(0.85f)
-            .focusRequester(focusRequester)
+            .focusRequester(focusRequester = focusRequester)
             .onFocusChanged { focusState.value = it.isFocused }
             .focusable()
-        )
+    )
 }
-
 
 @Composable
 fun FilterDialog(
@@ -266,68 +302,79 @@ fun FilterDialog(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            IconButton(
-                onClick = { expanded = !expanded },
-                modifier = Modifier
-                    .height(55.dp)
-                    .clip(RoundedCornerShape(10.dp))
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.filter_icon_v2),
-                    contentDescription = "Favorite",
-                    modifier = Modifier
-                        .size(35.dp)
-                )
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.clip(RoundedCornerShape(10.dp))
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Apps") },
-                    onClick = onClickAppFilterButton
-                )
-                DropdownMenuItem(
-                    text = { Text("Category") },
-                    onClick = onClickCategoryFilterButton
-                )
-                DropdownMenuItem(
-                    text = { Text("Date") },
-                    onClick = onClickDateFilterButton
-                )
-                DropdownMenuItem(
-                    text = { Text("Clear") },
-                    onClick = {/*TODO: Implement the function of Clear button */}
-                )
-            }
+    Box {
+//            IconButton(
+//                onClick = { expanded = !expanded },
+//                modifier = Modifier
+//                    .height(55.dp)
+//                    .clip(RoundedCornerShape(10.dp))
+//            ) {
+//                Icon(
+//                    painter = painterResource(R.drawable.filter_icon_v2),
+//                    contentDescription = "Favorite",
+//                    modifier = Modifier
+//                        .size(35.dp)
+//                )
+//            }
+        Button(
+            onClick = { expanded = !expanded },
+            elevation = null,
+            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = green
+            ),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.filter),
+                contentDescription = stringResource(R.string.text_filter_icon),
+                tint = white,
+                modifier = Modifier.size(20.dp, 20.dp)
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.clip(RoundedCornerShape(10.dp))
+        ) {
+            DropdownMenuItem(
+                text = { Text("Apps") },
+                onClick = onClickAppFilterButton
+            )
+            DropdownMenuItem(
+                text = { Text("Category") },
+                onClick = onClickCategoryFilterButton
+            )
+            DropdownMenuItem(
+                text = { Text("Date") },
+                onClick = onClickDateFilterButton
+            )
+            DropdownMenuItem(
+                text = { Text("Clear") },
+                onClick = {/*TODO: Implement the function of Clear button */}
+            )
+        }
 
-            when {
-                appFilterDialogIsShown -> Apps(
-                    appList = appList,
-                    onDismissRequest = onDismissAppFilterDialog,
-                    updateAppFilterSelections = { updateAppFilterSelections(it) },
-                    onCancelAppFilter = { onCancelAppFilter() },
-                    onConfirmAppFilter = { onConfirmAppFilter() }
-                )
-                categoryFilterDialogIsShown -> Category(
-                    categoryList = categoryList,
-                    onDismissRequest = onDismissCategoryFilterDialog,
-                    updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
-                    onCancelCategoryFilter = { onCancelCategoryFilter() },
-                    onConfirmCategoryFilter = { onConfirmCategoryFilter() }
-                )
-                dateFilterDialogIsShown -> Date(
-                    onDateRangeSelected = { onDateRangeSelected(it) },
-                    onDismiss= { onDismissDateFilterDialog() }
-                )
-            }
+        when {
+            appFilterDialogIsShown -> Apps(
+                appList = appList,
+                onDismissRequest = onDismissAppFilterDialog,
+                updateAppFilterSelections = { updateAppFilterSelections(it) },
+                onCancelAppFilter = { onCancelAppFilter() },
+                onConfirmAppFilter = { onConfirmAppFilter() }
+            )
+            categoryFilterDialogIsShown -> Category(
+                categoryList = categoryList,
+                onDismissRequest = onDismissCategoryFilterDialog,
+                updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
+                onCancelCategoryFilter = { onCancelCategoryFilter() },
+                onConfirmCategoryFilter = { onConfirmCategoryFilter() }
+            )
+            dateFilterDialogIsShown -> Date(
+                onDateRangeSelected = { onDateRangeSelected(it) },
+                onDismiss= { onDismissDateFilterDialog() }
+            )
         }
     }
 }
@@ -359,7 +406,7 @@ fun NotificationCardList(
                     text = notification.text,
                     date = dateString,
                 )
-                Spacer(modifier = modifier.height(0.dp))
+                Spacer(modifier = modifier.height(10.dp))
             }
         }
     }

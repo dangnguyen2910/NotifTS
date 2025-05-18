@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">NotifTS</string>
     <string name="notification_listener">Notification Listener</string>
+    <string name="text_search_icon">Search Icon</string>
+    <string name="text_filter_icon">Filter Icon</string>
+    <string name="text_icon_home">Home</string>
+    <string name="text_icon_settings">Settings</string>
+    <string name="text_search">Search</string>
 </resources>

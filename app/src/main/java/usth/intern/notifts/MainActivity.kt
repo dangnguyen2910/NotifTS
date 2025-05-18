@@ -13,7 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import usth.intern.notifts.domain.NotificationListener
-import usth.intern.notifts.ui.theme.NotifTSTheme
+import usth.intern.notifts.ui.theme.NotiftsTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NotifTSTheme {
+            NotiftsTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NotiftsScreen()
                 }
