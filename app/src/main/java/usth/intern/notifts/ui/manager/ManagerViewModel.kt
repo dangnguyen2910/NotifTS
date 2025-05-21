@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +29,7 @@ class ManagerViewModel @Inject constructor(
         }
         Log.d("ManagerViewModel", "isRefreshing: ${_uiState.value.isRefreshing}")
         viewModelScope.launch {
-            delay(500)
+            delay(200)
             _uiState.update { currentState ->
                 currentState.copy(
                     notificationList = databaseRepository.loadAllNotification().first()
@@ -164,7 +165,7 @@ class ManagerViewModel @Inject constructor(
                 currentState.copy(notificationList = notificationList)
             }
             onCancelCategoryFilter()
-            
+
             Log.d("ManagerViewModel", "onConfirmCategoryFilter is done")
         }
     }
@@ -220,21 +221,27 @@ class ManagerViewModel @Inject constructor(
         if (datePair.first == null) {
             return
         }
+
+        val offset = calculateTimeOffsetFromUTC()
+
         // If second date is null -> filter only the first date
         // else date range.
         viewModelScope.launch {
+            val firstDate = datePair.first!! - offset
+
             if (datePair.second == null) {
                 val notificationList = databaseRepository
-                    .loadNotificationByDate(datePair.first)
+                    .loadNotificationByDate(firstDate)
                     .first()
 
                 _uiState.update { currentState ->
                     currentState.copy(notificationList = notificationList)
                 }
             } else {
+                val secondDate = datePair.second!! - offset
                 val notificationList = databaseRepository.loadNotificationByDateRange(
-                    datePair.first,
-                    datePair.second
+                    firstDate,
+                    secondDate
                 ).first()
 
                 _uiState.update { currentState ->
@@ -242,5 +249,11 @@ class ManagerViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun calculateTimeOffsetFromUTC() : Long {
+        val now = ZonedDateTime.now()
+        val offset = now.offset
+        return offset.totalSeconds * 1000L
     }
 }
