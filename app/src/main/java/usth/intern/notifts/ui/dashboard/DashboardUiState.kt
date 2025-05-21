@@ -1,4 +1,7 @@
 package usth.intern.notifts.ui.dashboard
 
-class DashboardUiState {
-}
+import usth.intern.notifts.data.db.NotificationCountByDate
+
+data class DashboardUiState(
+    val notificationCountByDate: Map<String, Number> = mapOf()
+)
