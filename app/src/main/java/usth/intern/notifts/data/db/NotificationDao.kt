@@ -84,5 +84,5 @@ interface NotificationDao {
         "BETWEEN :sevenDaysAgo AND :today " +
         "GROUP BY notificationDate order by rowid desc"
     )
-    fun countNotificationLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountPerDate>
+    fun countNotificationLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountByDate>
 }

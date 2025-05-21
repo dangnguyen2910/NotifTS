@@ -14,7 +14,7 @@ import org.junit.Ignore
 import org.junit.Test
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
-import usth.intern.notifts.data.db.NotificationCountPerDate
+import usth.intern.notifts.data.db.NotificationCountByDate
 import usth.intern.notifts.data.db.NotificationDao
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -318,9 +318,9 @@ class NotificationDaoTest {
         Log.d("NotificationDaoTest", "Seven days ago: $sevenDaysAgo")
 
         val expectation = listOf(
-            NotificationCountPerDate("04-01-2025", 1),
-            NotificationCountPerDate("03-01-2025", 1),
-            NotificationCountPerDate("01-01-2025", 1),
+            NotificationCountByDate("04-01-2025", 1),
+            NotificationCountByDate("03-01-2025", 1),
+            NotificationCountByDate("01-01-2025", 1),
         )
 
         runBlocking {
