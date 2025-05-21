@@ -351,7 +351,7 @@ fun NotificationCardList(
                 .fillMaxSize()
         ) {
             items (notificationList){ notification ->
-                val dateString = formatter.format(notification.date)
+                val dateString = formatter.format(notification.timestamp)
 
                 NotificationCard(
                     packageName = notification.packageName,
@@ -379,7 +379,7 @@ fun ManagerScreenPreview() {
                     "width" + " of its parent container.",
             bigText = null,
             category = null,
-            date = java.util.Date().time
+            timestamp = java.util.Date().time
         ),
 
         Notification(
@@ -392,7 +392,7 @@ fun ManagerScreenPreview() {
                     "width" + " of its parent container.",
             bigText = null,
             category = null,
-            date = java.util.Date().time
+            timestamp = java.util.Date().time
         ),
     )
 
