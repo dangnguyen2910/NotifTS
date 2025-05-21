@@ -27,8 +27,7 @@ fun NotificationCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 7.dp, horizontal = 10.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
     ) {
         Column(
