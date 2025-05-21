@@ -14,13 +14,12 @@ import org.junit.Ignore
 import org.junit.Test
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
+import usth.intern.notifts.data.db.NotificationCountPerDate
 import usth.intern.notifts.data.db.NotificationDao
 import java.io.IOException
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.TimeZone
 
 class NotificationDaoTest {
     private lateinit var db: AppDatabase
@@ -48,6 +47,8 @@ class NotificationDaoTest {
         val dateLong3 = dateStringToLong(date3)
 
         Log.d("NotificationDaoTest", "Date Long1: $dateLong1")
+        Log.d("NotificationDaoTest", "Date Long2: $dateLong2")
+        Log.d("NotificationDaoTest", "Date Long3: $dateLong3")
 
         notification1 = Notification(
             packageName = "com.google.gm",
@@ -55,7 +56,7 @@ class NotificationDaoTest {
             text = "This is the content of notification",
             bigText = null,
             category = null,
-            date = dateLong1,
+            timestamp = dateLong1,
         )
 
         notification2 = Notification(
@@ -64,7 +65,7 @@ class NotificationDaoTest {
             text = "This is a new email",
             bigText = "More content of the new email",
             category = "mail",
-            date = dateLong2,
+            timestamp = dateLong2,
         )
 
         notification3 = Notification(
@@ -73,7 +74,7 @@ class NotificationDaoTest {
             text = "This is a new email from whatever",
             bigText = "More content of the new email",
             category = "mail",
-            date = dateLong3
+            timestamp = dateLong3
         )
 
         runBlocking {
@@ -87,6 +88,7 @@ class NotificationDaoTest {
 
     private fun dateStringToLong(dateString: String) : Long {
         val inputFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
 
         try {
             val date = inputFormat.parse(dateString)
@@ -296,6 +298,36 @@ class NotificationDaoTest {
                     .loadNotificationByDate(dateLong, nextDay)
                     .first()
                 assertEquals(expectList, notificationList)
+            }
+        }
+    }
+
+    @Test
+    fun countNotificationLast7Days() {
+        val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+        val calendar = Calendar.getInstance()
+
+        val dateString = "05-01-2025 00:00:00"
+        val today = formatter.parse(dateString)!!.time
+        Log.d("NotificationDaoTest", "Today: $today")
+
+        calendar.timeInMillis = today
+
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        val sevenDaysAgo = calendar.timeInMillis
+        Log.d("NotificationDaoTest", "Seven days ago: $sevenDaysAgo")
+
+        val expectation = listOf(
+            NotificationCountPerDate("04-01-2025", 1),
+            NotificationCountPerDate("03-01-2025", 1),
+            NotificationCountPerDate("01-01-2025", 1),
+        )
+
+        runBlocking {
+            launch {
+                val notificationCount = notificationDao
+                    .countNotificationLast7Days(today, sevenDaysAgo)
+                assertEquals(expectation, notificationCount)
             }
         }
     }
