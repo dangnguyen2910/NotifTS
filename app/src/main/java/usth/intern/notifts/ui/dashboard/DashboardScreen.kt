@@ -9,20 +9,35 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
+import com.patrykandpatrick.vico.compose.cartesian.layer.point
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
+import com.patrykandpatrick.vico.compose.common.fill
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.core.common.component.TextComponent
 import com.patrykandpatrick.vico.core.common.data.ExtraStore
+import com.patrykandpatrick.vico.core.common.shape.CorneredShape
 import kotlinx.coroutines.runBlocking
+
+private val BottomAxisLabelKey = ExtraStore.Key<List<String>>()
+
+private val BottomAxisValueFormatter = CartesianValueFormatter { context, x, _ ->
+    context.model.extraStore[BottomAxisLabelKey][x.toInt()]
+}
 
 @Composable
 fun DashboardScreen(
@@ -51,11 +66,26 @@ private fun LineChartHost(
 ) {
     CartesianChartHost(
         chart = rememberCartesianChart(
-            rememberLineCartesianLayer(),
+            rememberLineCartesianLayer(
+                LineCartesianLayer.LineProvider.series(
+                    LineCartesianLayer.rememberLine(
+                        pointProvider =
+                        LineCartesianLayer.PointProvider.single(
+                            LineCartesianLayer.point(
+                                rememberShapeComponent(
+                                    fill(Color(0xFF2196F3)),
+                                    CorneredShape.Pill
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
             startAxis = VerticalAxis.rememberStart(),
             bottomAxis = HorizontalAxis.rememberBottom(
                 valueFormatter = BottomAxisValueFormatter
             ),
+            marker = rememberDefaultCartesianMarker(label = TextComponent())
         ),
         modelProducer = modelProducer,
         modifier = modifier,
@@ -108,10 +138,4 @@ private fun Preview() {
         }
     }
     LineChartHost(modelProducer)
-}
-
-private val BottomAxisLabelKey = ExtraStore.Key<List<String>>()
-
-private val BottomAxisValueFormatter = CartesianValueFormatter { context, x, _ ->
-    context.model.extraStore[BottomAxisLabelKey][x.toInt()]
 }
