@@ -33,11 +33,24 @@ import com.patrykandpatrick.vico.core.common.component.TextComponent
 import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import com.patrykandpatrick.vico.core.common.shape.CorneredShape
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-private val BottomAxisLabelKey = ExtraStore.Key<List<String>>()
+val data =
+    mapOf(
+        LocalDate.parse("2022-07-01") to 2f,
+        LocalDate.parse("2022-07-02") to 6f,
+        LocalDate.parse("2022-07-10") to 4f,
+    )
 
-private val BottomAxisValueFormatter = CartesianValueFormatter { context, x, _ ->
-    context.model.extraStore[BottomAxisLabelKey][x.toInt()]
+val xToDateMapKey: ExtraStore.Key<Map<Float, LocalDate>> = ExtraStore.Key()
+val xToDates = data.keys.associateBy { it.toEpochDay().toFloat() }
+
+val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM")
+
+val horizontalLabelFormatter = CartesianValueFormatter { _, x, _ ->
+    (LocalDate.ofEpochDay(x.toLong()))
+        .format(dateTimeFormatter)
 }
 
 @Composable
@@ -87,7 +100,7 @@ private fun LineChartHost(
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
                 label = rememberAxisLabelComponent(Color.Black),
-                valueFormatter = BottomAxisValueFormatter
+                valueFormatter = horizontalLabelFormatter
             ),
             marker = rememberDefaultCartesianMarker(label = TextComponent())
         ),
@@ -108,37 +121,24 @@ fun JetpackComposeBasicLineChart(
     LaunchedEffect(Unit) {
         modelProducer.runTransaction {
             lineSeries {
-                series(countMap.values)
-                extras { it[BottomAxisLabelKey] = countMap.keys.toList() }
+                series(xToDates.keys, countMap.values)
+                extras { it[xToDateMapKey] = xToDates }
             }
         }
     }
     LineChartHost(modelProducer, modifier)
 }
 
-private val data = mapOf<String,Number>(
-    "2009" to -0,
-    "2012" to -44.16,
-    "2014" to -6.8,
-    "2015" to 0.69,
-    "2016" to 6.62,
-    "2018" to 11.69,
-    "2019" to 9.52,
-    "2020" to 16.45,
-)
 
 @Composable
 @Preview
 private fun Preview() {
-
     val modelProducer = remember { CartesianChartModelProducer() }
 
     runBlocking {
         modelProducer.runTransaction {
-            lineSeries {
-                series(data.values)
-                extras { it[BottomAxisLabelKey] = data.keys.toList()}
-            }
+            lineSeries { series(xToDates.keys, data.values) }
+            extras { it[xToDateMapKey] = xToDates }
         }
     }
     LineChartHost(modelProducer)
