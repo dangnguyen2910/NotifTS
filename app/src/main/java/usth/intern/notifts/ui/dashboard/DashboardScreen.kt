@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.point
@@ -69,8 +70,7 @@ private fun LineChartHost(
             rememberLineCartesianLayer(
                 LineCartesianLayer.LineProvider.series(
                     LineCartesianLayer.rememberLine(
-                        pointProvider =
-                        LineCartesianLayer.PointProvider.single(
+                        pointProvider = LineCartesianLayer.PointProvider.single(
                             LineCartesianLayer.point(
                                 rememberShapeComponent(
                                     fill(Color(0xFF2196F3)),
@@ -81,8 +81,12 @@ private fun LineChartHost(
                     )
                 )
             ),
-            startAxis = VerticalAxis.rememberStart(),
+            // TODO: Need to change this if the app ever needs a dark theme.
+            startAxis = VerticalAxis.rememberStart(
+                label = rememberAxisLabelComponent(Color.Black)
+            ),
             bottomAxis = HorizontalAxis.rememberBottom(
+                label = rememberAxisLabelComponent(Color.Black),
                 valueFormatter = BottomAxisValueFormatter
             ),
             marker = rememberDefaultCartesianMarker(label = TextComponent())
