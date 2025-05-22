@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
+import usth.intern.notifts.data.db.NotificationCountByDate
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -36,7 +37,7 @@ class DatabaseRepository @Inject constructor(
             text = text,
             bigText = bigText,
             category = category,
-            date = date
+            timestamp = date
         )
 
         val id = notificationDao.insertNotification(notification)
@@ -103,4 +104,11 @@ class DatabaseRepository @Inject constructor(
         return notificationDao.loadNotificationByDateRange(firstDate, nextDay)
     }
 
+    fun countNotificationLast7Days() : List<NotificationCountByDate> {
+        val calendar = Calendar.getInstance()
+        val today = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        val sevenDaysAgo = calendar.timeInMillis
+        return notificationDao.countNotificationLast7Days(today, sevenDaysAgo)
+    }
 }

@@ -62,7 +62,7 @@ interface NotificationDao {
     @Query(
         "select rowid, * " +
         "from notification " +
-        "where date >= :selectedDate AND date < :nextDay " +
+        "where timestamp >= :selectedDate AND timestamp < :nextDay " +
         "order by rowid desc"
     )
     fun loadNotificationByDate(selectedDate: Long?, nextDay: Long?): Flow<List<Notification>>
@@ -70,8 +70,19 @@ interface NotificationDao {
     @Query(
         "select rowid, * " +
         "from notification " +
-        "where date BETWEEN :firstDate AND :secondDate " +
+        "where timestamp BETWEEN :firstDate AND :secondDate " +
         "order by rowid desc"
     )
     fun loadNotificationByDateRange(firstDate: Long?, secondDate: Long?): Flow<List<Notification>>
+
+    @Query(
+        "select " +
+            "strftime('%d-%m-%Y', timestamp / 1000, 'unixepoch') as notificationDate, " +
+            "count(*) as notificationCount " +
+        "from notification " +
+        "where timestamp " +
+        "BETWEEN :sevenDaysAgo AND :today " +
+        "GROUP BY notificationDate order by rowid desc"
+    )
+    fun countNotificationLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountByDate>
 }
