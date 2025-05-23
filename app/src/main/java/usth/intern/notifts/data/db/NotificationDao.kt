@@ -91,7 +91,7 @@ interface NotificationDao {
             "where timestamp BETWEEN :sevenDaysAgo AND :today " +
             "group by package_name " +
             "order by notificationCount desc " +
-            "limit 10"
+            "limit 5"
     )
     fun countNotificationByAppLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountByApp>
 }
