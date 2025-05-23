@@ -94,7 +94,7 @@ fun JetpackComposeBasicLineChart(
     val floatToDate = countMap.keys.associateBy { it.toEpochDay().toFloat() }
 
     if (countMap.isNotEmpty()) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(countMap) {
             modelProducer.runTransaction {
                 lineSeries {
                     series(floatToDate.keys, countMap.values)

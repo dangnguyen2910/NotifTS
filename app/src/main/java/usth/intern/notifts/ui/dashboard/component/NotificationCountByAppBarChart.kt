@@ -66,7 +66,7 @@ fun JetpackComposeBasicColumnChart(
     val modelProducer = remember { CartesianChartModelProducer() }
 
     if (countByAppMap.isNotEmpty()) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(countByAppMap) {
             modelProducer.runTransaction {
                 columnSeries {
                     series(countByAppMap.values)
