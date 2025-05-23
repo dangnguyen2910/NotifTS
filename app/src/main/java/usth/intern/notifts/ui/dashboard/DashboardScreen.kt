@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import usth.intern.notifts.ui.dashboard.component.JetpackComposeBasicColumnChart
 import usth.intern.notifts.ui.dashboard.component.JetpackComposeBasicLineChart
 
 
@@ -25,7 +26,14 @@ fun DashboardScreen(
         if (uiState.notificationCountByDate.isNotEmpty()) {
             JetpackComposeBasicLineChart(
                 countMap = uiState.notificationCountByDate,
-                updateNotificationCount = {}
+            )
+        }
+        Button(onClick = {dashboardViewModel.getNotificationCountByApp()}) {
+            Text("Refresh")
+        }
+        if (uiState.notificationCountByApp.isNotEmpty()) {
+            JetpackComposeBasicColumnChart(
+                countByAppMap = uiState.notificationCountByApp,
             )
         }
     }

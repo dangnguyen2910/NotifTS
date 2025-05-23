@@ -88,12 +88,10 @@ private fun LineChartHost(
 @Composable
 fun JetpackComposeBasicLineChart(
     countMap: Map<LocalDate, Number>,
-    updateNotificationCount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val modelProducer = remember { CartesianChartModelProducer() }
     val floatToDate = countMap.keys.associateBy { it.toEpochDay().toFloat() }
-    updateNotificationCount()
 
     LaunchedEffect(Unit) {
         modelProducer.runTransaction {
