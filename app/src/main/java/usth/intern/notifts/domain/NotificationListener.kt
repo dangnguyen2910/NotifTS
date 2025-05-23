@@ -1,5 +1,7 @@
 package usth.intern.notifts.domain
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -64,11 +66,13 @@ class NotificationListener : NotificationListenerService() {
 
         previousText = text.toString()
 
+        val appName = getAppName(this, packageName = sbn.packageName) ?: "Unknown"
+
         runBlocking {
             launch { isActivated = preferenceRepository.isActivatedFlow.first() }
             launch {
                 databaseRepository.insertNotification(
-                    packageName = sbn.packageName,
+                    packageName = appName,
                     title = title.toString(),
                     text = text.toString(),
                     bigText = bigText.toString(),
@@ -155,5 +159,16 @@ class NotificationListener : NotificationListenerService() {
             Locale.getDefault()).format(Date(date))}"
         )
 
+    }
+
+    private fun getAppName(context: Context, packageName: String): String? {
+        return try {
+            val packageManager = context.packageManager
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e("AppName", "Package not found: ${packageName}")
+            null // Package not found
+        }
     }
 }
