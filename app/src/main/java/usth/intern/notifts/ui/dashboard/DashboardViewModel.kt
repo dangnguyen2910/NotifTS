@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,11 +20,12 @@ class DashboardViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState = _uiState.asStateFlow()
+    private val formatter = DateTimeFormatter.ofPattern("dd-MM-y")
 
     fun getNotificationCountByDay() {
         viewModelScope.launch(Dispatchers.IO) {
             val countList = databaseRepository.countNotificationLast7Days()
-            val countDateMap = countList.associate { it.notificationDate to it.notificationCount }
+            val countDateMap = countList.associate { LocalDate.parse(it.notificationDate, formatter) to it.notificationCount }
 
             _uiState.update {
                 it.copy(notificationCountByDate = countDateMap)
