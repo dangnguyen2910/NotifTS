@@ -21,7 +21,6 @@ import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.common.component.TextComponent
 import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import kotlinx.coroutines.runBlocking
-import usth.intern.notifts.data.db.NotificationCountByApp
 
 private val sample = mapOf(
     "Gmail" to 10,
@@ -65,15 +64,19 @@ fun JetpackComposeBasicColumnChart(
     modifier: Modifier = Modifier
 ) {
     val modelProducer = remember { CartesianChartModelProducer() }
-    LaunchedEffect(Unit) {
-        modelProducer.runTransaction {
-            columnSeries {
-                series(countByAppMap.values)
-                extras {  it[BottomAxisLabelKey] = countByAppMap.keys.toList() }
+
+    if (countByAppMap.isNotEmpty()) {
+        LaunchedEffect(Unit) {
+            modelProducer.runTransaction {
+                columnSeries {
+                    series(countByAppMap.values)
+                    extras {  it[BottomAxisLabelKey] = countByAppMap.keys.toList() }
+                }
             }
         }
+
+        JetpackComposeBasicColumnChart(modelProducer, modifier)
     }
-    JetpackComposeBasicColumnChart(modelProducer, modifier)
 }
 
 @Composable

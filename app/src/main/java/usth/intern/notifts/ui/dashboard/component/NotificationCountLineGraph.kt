@@ -93,15 +93,17 @@ fun JetpackComposeBasicLineChart(
     val modelProducer = remember { CartesianChartModelProducer() }
     val floatToDate = countMap.keys.associateBy { it.toEpochDay().toFloat() }
 
-    LaunchedEffect(Unit) {
-        modelProducer.runTransaction {
-            lineSeries {
-                series(floatToDate.keys, countMap.values)
-                extras { it[xToDateMapKey] = xToDates }
+    if (countMap.isNotEmpty()) {
+        LaunchedEffect(Unit) {
+            modelProducer.runTransaction {
+                lineSeries {
+                    series(floatToDate.keys, countMap.values)
+                    extras { it[xToDateMapKey] = xToDates }
+                }
             }
         }
+        LineChartHost(modelProducer, modifier)
     }
-    LineChartHost(modelProducer, modifier)
 }
 
 
