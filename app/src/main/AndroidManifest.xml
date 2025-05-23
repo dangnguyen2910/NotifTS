@@ -38,7 +38,7 @@
             </meta-data>
             <meta-data
                 android:name="android.service.notification.disabled_filter_types"
-                android:value="ongoing|silent">
+                android:value="ongoing|silent|system|progress">
             </meta-data>
         </service>
     </application>
