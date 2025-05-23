@@ -14,6 +14,7 @@ import org.junit.Ignore
 import org.junit.Test
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
+import usth.intern.notifts.data.db.NotificationCountByApp
 import usth.intern.notifts.data.db.NotificationCountByDate
 import usth.intern.notifts.data.db.NotificationDao
 import java.io.IOException
@@ -327,6 +328,35 @@ class NotificationDaoTest {
             launch {
                 val notificationCount = notificationDao
                     .countNotificationLast7Days(today, sevenDaysAgo)
+                assertEquals(expectation, notificationCount)
+            }
+        }
+    }
+
+    @Test
+    fun countNotificationByAppLast7Days() {
+        val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+        val calendar = Calendar.getInstance()
+
+        val dateString = "05-01-2025 00:00:00"
+        val today = formatter.parse(dateString)!!.time
+        Log.d("NotificationDaoTest", "Today: $today")
+
+        calendar.timeInMillis = today
+
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        val sevenDaysAgo = calendar.timeInMillis
+        Log.d("NotificationDaoTest", "Seven days ago: $sevenDaysAgo")
+
+        val expectation = listOf(
+            NotificationCountByApp("com.google.whatever", 2),
+            NotificationCountByApp("com.google.gm", 1),
+        )
+
+        runBlocking {
+            launch {
+                val notificationCount = notificationDao
+                    .countNotificationByAppLast7Days(today, sevenDaysAgo)
                 assertEquals(expectation, notificationCount)
             }
         }

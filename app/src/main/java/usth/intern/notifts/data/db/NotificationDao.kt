@@ -85,4 +85,12 @@ interface NotificationDao {
         "GROUP BY notificationDate order by rowid desc"
     )
     fun countNotificationLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountByDate>
+
+    @Query("select package_name as app, count(*) as notificationCount " +
+            "from notification " +
+            "where timestamp BETWEEN :sevenDaysAgo AND :today " +
+            "group by package_name " +
+            "order by notificationCount desc"
+    )
+    fun countNotificationByAppLast7Days(today: Long, sevenDaysAgo: Long): List<NotificationCountByApp>
 }

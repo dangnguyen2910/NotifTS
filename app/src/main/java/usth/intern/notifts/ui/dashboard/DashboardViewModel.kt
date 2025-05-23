@@ -32,4 +32,15 @@ class DashboardViewModel @Inject constructor(
             }
         }
     }
+
+    fun getNotificationCountByApp() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val countList = databaseRepository.countNotificationByAppLast7Days()
+            val countAppMap = countList.associate { it.app to it.notificationCount }
+
+            _uiState.update {
+                it.copy(notificationCountByApp = countAppMap)
+            }
+        }
+    }
 }
