@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
+import usth.intern.notifts.ui.manager.uistate.ManagerUiState
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -22,6 +24,12 @@ class ManagerViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ManagerUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _keywordsSearchBarUiState = MutableStateFlow(KeywordsSearchBarUiState(
+        onQueryChange = { onTypingSearch(it) },
+        onSearch = { onEnterSearch(it) }
+    ))
+    val keywordsSearchBarUiState = _keywordsSearchBarUiState.asStateFlow()
 
     fun onReload() {
         _uiState.update { currentState ->
@@ -42,9 +50,9 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onTypingSearch(query: String) {
+    private fun onTypingSearch(query: String) {
         viewModelScope.launch {
-            _uiState.update { currentState ->
+            _keywordsSearchBarUiState.update { currentState ->
                 currentState.copy(
                     query = query
                 )
@@ -52,7 +60,7 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onEnterSearch(query: String) {
+    private fun onEnterSearch(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {currentState ->
                 currentState.copy(

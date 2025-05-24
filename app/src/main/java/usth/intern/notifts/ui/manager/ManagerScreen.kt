@@ -34,7 +34,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,18 +42,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -64,6 +60,7 @@ import usth.intern.notifts.ui.manager.components.Apps
 import usth.intern.notifts.ui.manager.components.Category
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
+import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.theme.anon
 import usth.intern.notifts.ui.theme.green
 import usth.intern.notifts.ui.theme.veiledSpotlight
@@ -76,79 +73,11 @@ fun ManagerScreen(
     modifier: Modifier = Modifier,
 ) {
     val managerViewModel: ManagerViewModel = hiltViewModel<ManagerViewModel>()
+
     val uiState by managerViewModel.uiState.collectAsState()
+    val keywordsSearchBarUiState by managerViewModel.keywordsSearchBarUiState.collectAsState()
 
-    ManagerContent(
-        notificationList = uiState.notificationList,
-        onRefresh = { managerViewModel.onReload() },
-        isRefreshing = uiState.isRefreshing,
-        // Search related
-        query = uiState.query,
-        onTypingSearch = { managerViewModel.onTypingSearch(it) },
-        onEnterSearch = { managerViewModel.onEnterSearch(it) },
-        // Filter related
-        // App filter
-        onClickAppFilterButton = { managerViewModel.onClickAppFilterButton() },
-        appList = uiState.appList,
-        appFilterDialogIsShown = uiState.appFilterDialogIsShown,
-        onDismissAppFilterDialog = { managerViewModel.onDismissAppFilterDialog() },
-        updateAppFilterSelections = { managerViewModel.updateAppFilterSelections(it) },
-        onConfirmAppFilter = { managerViewModel.onConfirmAppFilter() },
-        onCancelAppFilter = { managerViewModel.onCancelAppFilter() },
-        // Category filter
-        onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
-        categoryList = uiState.categoryList,
-        categoryFilterDialogIsShown = uiState.categoryFilterDialogIsShown,
-        onDismissCategoryFilterDialog = { managerViewModel.onDismissCategoryFilterDialog() },
-        updateCategoryFilterSelections = { managerViewModel.updateCategoryFilterSelections(it) },
-        onConfirmCategoryFilter = { managerViewModel.onConfirmCategoryFilter() },
-        onCancelCategoryFilter = { managerViewModel.onCancelCategoryFilter() },
-        // Date filter
-        onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
-        dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
-        onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
-        onDateRangeSelected = { managerViewModel.onDateRangeSelected(it) },
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun ManagerContent(
-    // Search bar
-    query: String,
-    onTypingSearch: (String) -> Unit,
-    onEnterSearch: (String) -> Unit,
-    // Notification list
-    notificationList: List<Notification>,
-    onRefresh: () -> Unit,
-    isRefreshing: Boolean,
-    // Apps filter
-    onClickAppFilterButton: () -> Unit,
-    appList: List<String>,
-    appFilterDialogIsShown: Boolean,
-    onDismissAppFilterDialog: () -> Unit,
-    updateAppFilterSelections: (String) -> Unit,
-    onConfirmAppFilter: () -> Unit,
-    onCancelAppFilter: () -> Unit,
-    // Category filter
-    onClickCategoryFilterButton: () -> Unit,
-    categoryList: List<String?>,
-    categoryFilterDialogIsShown: Boolean,
-    onDismissCategoryFilterDialog: () -> Unit,
-    updateCategoryFilterSelections: (String?) -> Unit,
-    onConfirmCategoryFilter: () -> Unit,
-    onCancelCategoryFilter: () -> Unit,
-    // Date filter
-    onClickDateFilterButton: () -> Unit,
-    dateFilterDialogIsShown: Boolean,
-    onDismissDateFilterDialog: () -> Unit,
-    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val focusState = remember { mutableStateOf(false) }
 
     Column (
         modifier = modifier
@@ -171,13 +100,7 @@ fun ManagerContent(
                 .height(48.dp),
         ) {
             KeywordsSearchBar(
-                query = query,
-                onQueryChange = onTypingSearch,
-                onSearch = onEnterSearch,
-                keyboardController = keyboardController,
-                focusRequester = focusRequester,
-                focusManager = focusManager,
-                focusState = focusState,
+                keywordsSearchBarUiState = keywordsSearchBarUiState,
                 modifier = Modifier.weight(0.85f)
             )
 
@@ -185,26 +108,26 @@ fun ManagerContent(
 
             FilterDialog(
                 // Apps filter
-                onClickAppFilterButton = onClickAppFilterButton,
-                appList = appList,
-                appFilterDialogIsShown = appFilterDialogIsShown,
-                onDismissAppFilterDialog = onDismissAppFilterDialog,
-                updateAppFilterSelections = updateAppFilterSelections,
-                onConfirmAppFilter = onConfirmAppFilter,
-                onCancelAppFilter = onCancelAppFilter,
+                onClickAppFilterButton = { managerViewModel.onClickAppFilterButton() },
+                appList = uiState.appList,
+                appFilterDialogIsShown = uiState.appFilterDialogIsShown,
+                onDismissAppFilterDialog = { managerViewModel.onDismissAppFilterDialog() },
+                updateAppFilterSelections = { managerViewModel.updateAppFilterSelections(it) },
+                onConfirmAppFilter = { managerViewModel.onConfirmAppFilter() },
+                onCancelAppFilter = { managerViewModel.onCancelAppFilter() },
                 // Category filter
-                onClickCategoryFilterButton = onClickCategoryFilterButton,
-                categoryList = categoryList,
-                categoryFilterDialogIsShown = categoryFilterDialogIsShown,
-                onDismissCategoryFilterDialog = onDismissCategoryFilterDialog,
-                updateCategoryFilterSelections = updateCategoryFilterSelections,
-                onConfirmCategoryFilter = onConfirmCategoryFilter,
-                onCancelCategoryFilter = onCancelCategoryFilter,
+                onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
+                categoryList = uiState.categoryList,
+                categoryFilterDialogIsShown = uiState.categoryFilterDialogIsShown,
+                onDismissCategoryFilterDialog = { managerViewModel.onDismissCategoryFilterDialog() },
+                updateCategoryFilterSelections = { managerViewModel.updateCategoryFilterSelections(it) },
+                onConfirmCategoryFilter = { managerViewModel.onConfirmCategoryFilter() },
+                onCancelCategoryFilter = { managerViewModel.onCancelCategoryFilter() },
                 // Date filter
-                onClickDateFilterButton = onClickDateFilterButton,
-                dateFilterDialogIsShown = dateFilterDialogIsShown,
-                onDismissDateFilterDialog = onDismissDateFilterDialog,
-                onDateRangeSelected = onDateRangeSelected,
+                onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
+                dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
+                onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
+                onDateRangeSelected = { managerViewModel.onDateRangeSelected(it) },
                 modifier = Modifier.weight(0.15f)
             )
         }
@@ -212,27 +135,25 @@ fun ManagerContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         NotificationCardList(
-            notificationList,
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh,
+            uiState.notificationList,
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { managerViewModel.onReload() }
         )
     }
 }
 
-
 @Composable
 fun KeywordsSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    keywordsSearchBarUiState: KeywordsSearchBarUiState,
     modifier: Modifier = Modifier,
-    keyboardController:SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
-    focusRequester: FocusRequester = FocusRequester(),
-    focusManager: FocusManager = LocalFocusManager.current,
-    focusState: MutableState<Boolean> = mutableStateOf(false)
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val focusState = remember { mutableStateOf(false) }
+
     TextField(
-        value = query,
+        value = keywordsSearchBarUiState.query,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = white,
             unfocusedContainerColor = white,
@@ -240,7 +161,7 @@ fun KeywordsSearchBar(
             unfocusedIndicatorColor = Color.Transparent,
         ),
         shape = RoundedCornerShape(12.dp),
-        onValueChange = onQueryChange,
+        onValueChange = keywordsSearchBarUiState.onQueryChange,
         placeholder = {
             Text(
                 text = stringResource(R.string.text_search),
@@ -259,7 +180,7 @@ fun KeywordsSearchBar(
         ),
         keyboardActions = KeyboardActions(
             onSearch = {
-                onSearch(query)
+                keywordsSearchBarUiState.onSearch(keywordsSearchBarUiState.query)
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
@@ -267,7 +188,6 @@ fun KeywordsSearchBar(
         textStyle = LocalTextStyle.current.copy(lineHeight = 20.sp),
         singleLine = true,
         modifier = modifier
-//            .padding(start = 8.dp)
             .fillMaxWidth(0.85f)
             .focusRequester(focusRequester = focusRequester)
             .onFocusChanged { focusState.value = it.isFocused }
@@ -300,24 +220,11 @@ fun FilterDialog(
     onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var filterExpanded by remember { mutableStateOf(false) }
 
     Box {
-//            IconButton(
-//                onClick = { expanded = !expanded },
-//                modifier = Modifier
-//                    .height(55.dp)
-//                    .clip(RoundedCornerShape(10.dp))
-//            ) {
-//                Icon(
-//                    painter = painterResource(R.drawable.filter_icon_v2),
-//                    contentDescription = "Favorite",
-//                    modifier = Modifier
-//                        .size(35.dp)
-//                )
-//            }
         Button(
-            onClick = { expanded = !expanded },
+            onClick = { filterExpanded = !filterExpanded },
             elevation = null,
             contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
             shape = RoundedCornerShape(12.dp),
@@ -333,8 +240,8 @@ fun FilterDialog(
             )
         }
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
+            expanded = filterExpanded,
+            onDismissRequest = { filterExpanded = false },
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.clip(RoundedCornerShape(10.dp))
         ) {
@@ -410,63 +317,4 @@ fun NotificationCardList(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ManagerScreenPreview() {
-    val notificationList = listOf(
-        Notification(
-            rowid = 0,
-            packageName = "com.preview.whatever",
-            title = "This is a title",
-            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                    "using the Divider composable, which is part of the Material design components. " +
-                    "The Divider composable allows you to draw a simple line that spans across the " +
-                    "width" + " of its parent container.",
-            bigText = null,
-            category = null,
-            timestamp = java.util.Date().time
-        ),
-
-        Notification(
-            rowid = 0,
-            packageName = "com.preview.whatever",
-            title = "This is a title",
-            text = "In Jetpack Compose, you can create a horizontal rule (a horizontal divider or line) " +
-                    "using the Divider composable, which is part of the Material design components. " +
-                    "The Divider composable allows you to draw a simple line that spans across the " +
-                    "width" + " of its parent container.",
-            bigText = null,
-            category = null,
-            timestamp = java.util.Date().time
-        ),
-    )
-
-    ManagerContent(
-        notificationList = notificationList,
-        onRefresh = {},
-        onTypingSearch = { _: String -> },
-        onEnterSearch = { _: String -> },
-        query = "",
-        onClickAppFilterButton = {},
-        appList = listOf(),
-        appFilterDialogIsShown = false,
-        onDismissAppFilterDialog = {},
-        onClickCategoryFilterButton = {},
-        categoryList = listOf(),
-        categoryFilterDialogIsShown = false,
-        onDismissCategoryFilterDialog = {},
-        updateCategoryFilterSelections = {},
-        onConfirmCategoryFilter = {},
-        onCancelCategoryFilter = {},
-        onClickDateFilterButton = {},
-        dateFilterDialogIsShown = false,
-        onDismissDateFilterDialog = {},
-        updateAppFilterSelections = {},
-        onConfirmAppFilter = {},
-        onCancelAppFilter = {},
-        onDateRangeSelected = {},
-        isRefreshing = false,
-    )
 }
