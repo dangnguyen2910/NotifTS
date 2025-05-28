@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
 import usth.intern.notifts.ui.manager.uistate.AppFilterUiState
+import usth.intern.notifts.ui.manager.uistate.CategoryFilterUiState
 import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.manager.uistate.ManagerUiState
@@ -41,6 +42,15 @@ class ManagerViewModel @Inject constructor(
         onCancelAppFilter = { onCancelAppFilter() }
     ))
     val appFilterUiState = _appFilterUiState.asStateFlow()
+
+    private val _categoryFilterUiState = MutableStateFlow(CategoryFilterUiState(
+        onClickCategoryFilterButton = { onClickCategoryFilterButton() },
+        onDismissCategoryFilterDialog = { onDismissCategoryFilterDialog() },
+        updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
+        onConfirmCategoryFilter = { onConfirmCategoryFilter() },
+        onCancelCategoryFilter = { onCancelCategoryFilter() }
+    ))
+    val categoryFilterUiState = _categoryFilterUiState.asStateFlow()
     
     private val _dateFilterUiState = MutableStateFlow(DateFilterUiState(
         onClickDateFilterButton = { onClickDateFilterButton() },
@@ -147,9 +157,9 @@ class ManagerViewModel @Inject constructor(
         _appFilterUiState.value.appSelectionList.clear()
     }
 
-    fun onClickCategoryFilterButton() {
+    private fun onClickCategoryFilterButton() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { currentState ->
+            _categoryFilterUiState.update { currentState ->
                 currentState.copy(
                     categoryFilterDialogIsShown = true,
                     categoryList = databaseRepository.loadUniqueCategories()
@@ -158,8 +168,8 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onDismissCategoryFilterDialog() {
-        _uiState.update { currentState ->
+    private fun onDismissCategoryFilterDialog() {
+        _categoryFilterUiState.update { currentState ->
             currentState.copy(categoryFilterDialogIsShown = false)
         }
     }
@@ -181,22 +191,22 @@ class ManagerViewModel @Inject constructor(
      * ui state.
      * @param category: The name of category whose checkbox is checked
      */
-    fun updateCategoryFilterSelections(category: String?) {
+    private fun updateCategoryFilterSelections(category: String?) {
         // Dealing with null category
         if (category == null || category == "") {
             val newCategory = "Unknown"
-            if (newCategory !in _uiState.value.categorySelectionList) {
-                _uiState.value.categorySelectionList.add(newCategory)
+            if (newCategory !in _categoryFilterUiState.value.categorySelectionList) {
+                _categoryFilterUiState.value.categorySelectionList.add(newCategory)
             } else {
-                _uiState.value.categorySelectionList.remove(newCategory)
+                _categoryFilterUiState.value.categorySelectionList.remove(newCategory)
             }
             return
         }
 
-        if (category !in _uiState.value.categorySelectionList) {
-            _uiState.value.categorySelectionList.add(category)
+        if (category !in _categoryFilterUiState.value.categorySelectionList) {
+            _categoryFilterUiState.value.categorySelectionList.add(category)
         } else {
-            _uiState.value.categorySelectionList.remove(category)
+            _categoryFilterUiState.value.categorySelectionList.remove(category)
         }
     }
 
@@ -205,9 +215,9 @@ class ManagerViewModel @Inject constructor(
      * in Category filter dialog. It will clear the category selection list
      * in ui state.
      */
-    fun onCancelCategoryFilter() {
-        _uiState.value.categorySelectionList.clear()
-        Log.d("FilterViewModel", "${_uiState.value.categorySelectionList.isEmpty()}")
+    private fun onCancelCategoryFilter() {
+        _categoryFilterUiState.value.categorySelectionList.clear()
+        Log.d("FilterViewModel", "${_categoryFilterUiState.value.categorySelectionList.isEmpty()}")
     }
 
     /**
@@ -216,17 +226,17 @@ class ManagerViewModel @Inject constructor(
      * list in manager screen that correspond to the categories user
      * chooses.
      */
-    fun onConfirmCategoryFilter() {
+    private fun onConfirmCategoryFilter() {
         // Do nothing if no option is selected
-        if (_uiState.value.categorySelectionList.isEmpty()) {
+        if (_categoryFilterUiState.value.categorySelectionList.isEmpty()) {
             return
         }
 
-        val containNull = _uiState.value.categorySelectionList.contains(null)
+        val containNull = _categoryFilterUiState.value.categorySelectionList.contains(null)
 
         viewModelScope.launch(Dispatchers.IO) {
             val notificationList = databaseRepository.loadNotificationByCategories(
-                categorySelectionList = _uiState.value.categorySelectionList.toList(),
+                categorySelectionList = _categoryFilterUiState.value.categorySelectionList.toList(),
                 containNull = containNull
             ).first()
             _uiState.update { currentState ->

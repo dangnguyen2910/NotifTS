@@ -60,6 +60,7 @@ import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
 import usth.intern.notifts.ui.manager.components.OptionFilterDialog
 import usth.intern.notifts.ui.manager.uistate.AppFilterUiState
+import usth.intern.notifts.ui.manager.uistate.CategoryFilterUiState
 import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.theme.anon
@@ -78,6 +79,7 @@ fun ManagerScreen(
     val uiState by managerViewModel.uiState.collectAsState()
     val keywordsSearchBarUiState by managerViewModel.keywordsSearchBarUiState.collectAsState()
     val appFilterUiState by managerViewModel.appFilterUiState.collectAsState()
+    val categoryFilterUiState by managerViewModel.categoryFilterUiState.collectAsState()
     val dateFilterUiState by managerViewModel.dateFilterUiState.collectAsState()
 
     val focusManager = LocalFocusManager.current
@@ -111,15 +113,7 @@ fun ManagerScreen(
 
             FilterDialog(
                 appFilterUiState = appFilterUiState,
-                // Category filter
-                onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
-                categoryList = uiState.categoryList,
-                categoryFilterDialogIsShown = uiState.categoryFilterDialogIsShown,
-                onDismissCategoryFilterDialog = { managerViewModel.onDismissCategoryFilterDialog() },
-                updateCategoryFilterSelections = { managerViewModel.updateCategoryFilterSelections(it) },
-                onConfirmCategoryFilter = { managerViewModel.onConfirmCategoryFilter() },
-                onCancelCategoryFilter = { managerViewModel.onCancelCategoryFilter() },
-                // Date filter
+                categoryFilterUiState = categoryFilterUiState,
                 dateFilterUiState = dateFilterUiState,
                 modifier = Modifier.weight(0.15f)
             )
@@ -191,15 +185,7 @@ fun KeywordsSearchBar(
 @Composable
 fun FilterDialog(
     appFilterUiState: AppFilterUiState,
-    // Category filter
-    onClickCategoryFilterButton: () -> Unit,
-    categoryList: List<String?>,
-    categoryFilterDialogIsShown: Boolean,
-    onDismissCategoryFilterDialog: () -> Unit,
-    updateCategoryFilterSelections: (String?) -> Unit,
-    onConfirmCategoryFilter: () -> Unit,
-    onCancelCategoryFilter: () -> Unit,
-    // Date filter
+    categoryFilterUiState: CategoryFilterUiState,
     dateFilterUiState: DateFilterUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -234,7 +220,7 @@ fun FilterDialog(
             )
             DropdownMenuItem(
                 text = { Text("Category") },
-                onClick = onClickCategoryFilterButton
+                onClick = categoryFilterUiState.onClickCategoryFilterButton
             )
             DropdownMenuItem(
                 text = { Text("Date") },
@@ -254,12 +240,12 @@ fun FilterDialog(
                 onCancel = { appFilterUiState.onCancelAppFilter() },
                 onConfirm = { appFilterUiState.onConfirmAppFilter() }
             )
-            categoryFilterDialogIsShown -> OptionFilterDialog(
-                optionList = categoryList,
-                onDismissRequest = onDismissCategoryFilterDialog,
-                updateSelection = { updateCategoryFilterSelections(it) },
-                onCancel = { onCancelCategoryFilter() },
-                onConfirm = { onConfirmCategoryFilter() }
+            categoryFilterUiState.categoryFilterDialogIsShown -> OptionFilterDialog(
+                optionList = categoryFilterUiState.categoryList,
+                onDismissRequest = categoryFilterUiState.onDismissCategoryFilterDialog,
+                updateSelection = { categoryFilterUiState.updateCategoryFilterSelections(it) },
+                onCancel = categoryFilterUiState.onCancelCategoryFilter,
+                onConfirm = categoryFilterUiState.onConfirmCategoryFilter
             )
             dateFilterUiState.dateFilterDialogIsShown -> Date(
                 onDateRangeSelected = { dateFilterUiState.onDateRangeSelected(it) },
