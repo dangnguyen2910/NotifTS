@@ -59,6 +59,7 @@ import usth.intern.notifts.data.db.Notification
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
 import usth.intern.notifts.ui.manager.components.OptionFilterDialog
+import usth.intern.notifts.ui.manager.uistate.AppFilterUiState
 import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.theme.anon
@@ -76,6 +77,7 @@ fun ManagerScreen(
 
     val uiState by managerViewModel.uiState.collectAsState()
     val keywordsSearchBarUiState by managerViewModel.keywordsSearchBarUiState.collectAsState()
+    val appFilterUiState by managerViewModel.appFilterUiState.collectAsState()
     val dateFilterUiState by managerViewModel.dateFilterUiState.collectAsState()
 
     val focusManager = LocalFocusManager.current
@@ -108,14 +110,7 @@ fun ManagerScreen(
             Spacer(modifier = Modifier.width(8.dp))
 
             FilterDialog(
-                // Apps filter
-                onClickAppFilterButton = { managerViewModel.onClickAppFilterButton() },
-                appList = uiState.appList,
-                appFilterDialogIsShown = uiState.appFilterDialogIsShown,
-                onDismissAppFilterDialog = { managerViewModel.onDismissAppFilterDialog() },
-                updateAppFilterSelections = { managerViewModel.updateAppFilterSelections(it) },
-                onConfirmAppFilter = { managerViewModel.onConfirmAppFilter() },
-                onCancelAppFilter = { managerViewModel.onCancelAppFilter() },
+                appFilterUiState = appFilterUiState,
                 // Category filter
                 onClickCategoryFilterButton = { managerViewModel.onClickCategoryFilterButton() },
                 categoryList = uiState.categoryList,
@@ -195,14 +190,7 @@ fun KeywordsSearchBar(
 
 @Composable
 fun FilterDialog(
-    // Apps filter
-    onClickAppFilterButton: () -> Unit,
-    appList: List<String?>,
-    appFilterDialogIsShown: Boolean,
-    onDismissAppFilterDialog: () -> Unit,
-    updateAppFilterSelections: (String?) -> Unit,
-    onConfirmAppFilter: () -> Unit,
-    onCancelAppFilter: () -> Unit,
+    appFilterUiState: AppFilterUiState,
     // Category filter
     onClickCategoryFilterButton: () -> Unit,
     categoryList: List<String?>,
@@ -242,7 +230,7 @@ fun FilterDialog(
         ) {
             DropdownMenuItem(
                 text = { Text("Apps") },
-                onClick = onClickAppFilterButton
+                onClick = appFilterUiState.onClickAppFilterButton
             )
             DropdownMenuItem(
                 text = { Text("Category") },
@@ -259,12 +247,12 @@ fun FilterDialog(
         }
 
         when {
-            appFilterDialogIsShown -> OptionFilterDialog(
-                optionList = appList,
-                onDismissRequest = onDismissAppFilterDialog,
-                updateSelection = { updateAppFilterSelections(it) },
-                onCancel = { onCancelAppFilter() },
-                onConfirm = { onConfirmAppFilter() }
+            appFilterUiState.appFilterDialogIsShown -> OptionFilterDialog(
+                optionList = appFilterUiState.appList,
+                onDismissRequest = appFilterUiState.onDismissAppFilterDialog,
+                updateSelection = { appFilterUiState.updateAppFilterSelections(it) },
+                onCancel = { appFilterUiState.onCancelAppFilter() },
+                onConfirm = { appFilterUiState.onConfirmAppFilter() }
             )
             categoryFilterDialogIsShown -> OptionFilterDialog(
                 optionList = categoryList,

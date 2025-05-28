@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import usth.intern.notifts.ui.manager.uistate.AppFilterUiState
 import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.manager.uistate.ManagerUiState
@@ -31,6 +32,15 @@ class ManagerViewModel @Inject constructor(
         onSearch = { onEnterSearch(it) }
     ))
     val keywordsSearchBarUiState = _keywordsSearchBarUiState.asStateFlow()
+
+    private val _appFilterUiState = MutableStateFlow(AppFilterUiState(
+        onClickAppFilterButton = { onClickAppFilterButton() },
+        onDismissAppFilterDialog = { onDismissAppFilterDialog() },
+        updateAppFilterSelections = { updateAppFilterSelections(it) },
+        onConfirmAppFilter = { onConfirmAppFilter() },
+        onCancelAppFilter = { onCancelAppFilter() }
+    ))
+    val appFilterUiState = _appFilterUiState.asStateFlow()
     
     private val _dateFilterUiState = MutableStateFlow(DateFilterUiState(
         onClickDateFilterButton = { onClickDateFilterButton() },
@@ -78,9 +88,9 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onClickAppFilterButton() {
+    private fun onClickAppFilterButton() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { currentState ->
+            _appFilterUiState.update { currentState ->
                 currentState.copy(
                     appFilterDialogIsShown = true,
                     appList = databaseRepository.loadUniquePackages()
@@ -89,10 +99,52 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onDismissAppFilterDialog() {
-        _uiState.update { currentState ->
+    private fun onDismissAppFilterDialog() {
+        _appFilterUiState.update { currentState ->
             currentState.copy(appFilterDialogIsShown = false)
         }
+    }
+
+    /**
+     * Similar to [updateCategoryFilterSelections] but for app instead
+     */
+    private fun updateAppFilterSelections(app: String?) {
+        if (app !in _appFilterUiState.value.appSelectionList) {
+            if (app != null) {
+                _appFilterUiState.value.appSelectionList.add(app)
+            }
+        } else {
+            _appFilterUiState.value.appSelectionList.remove(app)
+        }
+    }
+
+    /**
+     * Similar to [onConfirmCategoryFilter] but for app instead.
+     */
+    private fun onConfirmAppFilter() {
+        if (_appFilterUiState.value.appSelectionList.isEmpty()) {
+            return
+        }
+
+        viewModelScope.launch {
+            val notificationList = databaseRepository.loadNotificationByApps(
+                appSelectionList = _appFilterUiState.value.appSelectionList.toList()
+            ).first()
+            _uiState.update { currentState ->
+                currentState.copy(notificationList = notificationList)
+            }
+
+            // Delete app selection list
+            onCancelAppFilter()
+        }
+
+    }
+
+    /**
+     * Similar to [onCancelCategoryFilter] but for app instead.
+     */
+    private fun onCancelAppFilter() {
+        _appFilterUiState.value.appSelectionList.clear()
     }
 
     fun onClickCategoryFilterButton() {
@@ -186,49 +238,6 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Similar to [updateCategoryFilterSelections] but for app instead
-     */
-    fun updateAppFilterSelections(app: String?) {
-        if (app !in _uiState.value.categorySelectionList) {
-            if (app != null) {
-                _uiState.value.appSelectionList.add(app)
-            }
-        } else {
-            _uiState.value.appSelectionList.remove(app)
-        }
-        Log.d("ManagerViewModel", "updateAppFilterSelections is called")
-    }
-
-    /**
-     * Similar to [onConfirmCategoryFilter] but for app instead.
-     */
-    fun onConfirmAppFilter() {
-        if (_uiState.value.appSelectionList.isEmpty()) {
-            return
-        }
-
-        viewModelScope.launch {
-            val notificationList = databaseRepository.loadNotificationByApps(
-                appSelectionList = _uiState.value.appSelectionList.toList()
-            ).first()
-            _uiState.update { currentState ->
-                currentState.copy(notificationList = notificationList)
-            }
-
-            // Delete app selection list
-            onCancelAppFilter()
-        }
-        Log.d("ManagerViewModel", "onConfirmAppFilter is done")
-
-    }
-
-    /**
-     * Similar to [onCancelCategoryFilter] but for app instead.
-     */
-    fun onCancelAppFilter() {
-        _uiState.value.appSelectionList.clear()
-    }
 
     /**
      * This function is triggered when Confirm button of Date Filter Dialog is clicked.
