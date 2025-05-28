@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -13,10 +12,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import usth.intern.notifts.NotiftsScreen
 import usth.intern.notifts.R
 import usth.intern.notifts.ui.theme.annapolosBlue
 import usth.intern.notifts.ui.theme.cottonBall
@@ -65,24 +57,29 @@ fun TitlePreview() {
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController,
+    onClickSettingsButton: () -> Unit,
+    onClickSearchFilterButton: () -> Unit,
+    onClickDashboardButton: () -> Unit,
+    currentScreen: String,
     modifier: Modifier = Modifier
 ) {
-    var inSettingsScreen by remember { mutableStateOf(true) }
-    var inManagerScreen by remember { mutableStateOf(false) }
-    var inDashboardScreen by remember { mutableStateOf(false) }
+
+    var inSettingsScreen = false
+    var inManagerScreen = false
+    var inDashboardScreen = false
+
+    when (currentScreen) {
+        "Settings" -> inSettingsScreen = true
+        "Notification Manager" -> inManagerScreen = true
+        "Dashboard" -> inDashboardScreen = true
+    }
 
     NavigationBar(containerColor = cottonBall) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
             label = { Text("Settings") },
             selected = inSettingsScreen,
-            onClick = {
-                navController.navigate(NotiftsScreen.Settings.name)
-                inSettingsScreen = true
-                inManagerScreen = false
-                inDashboardScreen = false
-            },
+            onClick = onClickSettingsButton,
             colors = NavigationBarItemColors(
                 selectedIconColor = annapolosBlue,
                 selectedTextColor = Color.Unspecified,
@@ -102,12 +99,7 @@ fun BottomNavigationBar(
             },
             label = { Text("Search & Filter") },
             selected = inManagerScreen,
-            onClick = {
-                navController.navigate(NotiftsScreen.Manager.name)
-                inSettingsScreen = false
-                inManagerScreen = true
-                inDashboardScreen = false
-            },
+            onClick = onClickSearchFilterButton,
             colors = NavigationBarItemColors(
                 selectedIconColor = annapolosBlue,
                 selectedTextColor = Color.Unspecified,
@@ -127,12 +119,7 @@ fun BottomNavigationBar(
             },
             label = { Text("Dashboard") },
             selected = inDashboardScreen,
-            onClick = {
-                navController.navigate(NotiftsScreen.DashBoard.name)
-                inSettingsScreen = false
-                inManagerScreen = false
-                inDashboardScreen = true
-            },
+            onClick = onClickDashboardButton,
             colors = NavigationBarItemColors(
                 selectedIconColor = annapolosBlue,
                 selectedTextColor = Color.Unspecified,
@@ -150,6 +137,9 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationBarPreview() {
     BottomNavigationBar(
-        navController = rememberNavController(),
+        currentScreen = "Settings",
+        onClickSettingsButton = {},
+        onClickSearchFilterButton = {},
+        onClickDashboardButton = {},
     )
 }
