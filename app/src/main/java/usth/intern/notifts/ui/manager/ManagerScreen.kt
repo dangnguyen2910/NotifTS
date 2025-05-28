@@ -60,6 +60,7 @@ import usth.intern.notifts.ui.manager.components.Apps
 import usth.intern.notifts.ui.manager.components.Category
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
+import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.theme.anon
 import usth.intern.notifts.ui.theme.green
@@ -76,6 +77,7 @@ fun ManagerScreen(
 
     val uiState by managerViewModel.uiState.collectAsState()
     val keywordsSearchBarUiState by managerViewModel.keywordsSearchBarUiState.collectAsState()
+    val dateFilterUiState by managerViewModel.dateFilterUiState.collectAsState()
 
     val focusManager = LocalFocusManager.current
 
@@ -124,10 +126,7 @@ fun ManagerScreen(
                 onConfirmCategoryFilter = { managerViewModel.onConfirmCategoryFilter() },
                 onCancelCategoryFilter = { managerViewModel.onCancelCategoryFilter() },
                 // Date filter
-                onClickDateFilterButton = { managerViewModel.onClickDateFilterButton() },
-                dateFilterDialogIsShown = uiState.dateFilterDialogIsShown,
-                onDismissDateFilterDialog = { managerViewModel.onDismissDateFilterDialog() },
-                onDateRangeSelected = { managerViewModel.onDateRangeSelected(it) },
+                dateFilterUiState = dateFilterUiState,
                 modifier = Modifier.weight(0.15f)
             )
         }
@@ -214,10 +213,7 @@ fun FilterDialog(
     onConfirmCategoryFilter: () -> Unit,
     onCancelCategoryFilter: () -> Unit,
     // Date filter
-    onClickDateFilterButton: () -> Unit,
-    dateFilterDialogIsShown: Boolean,
-    onDismissDateFilterDialog: () -> Unit,
-    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
+    dateFilterUiState: DateFilterUiState,
     modifier: Modifier = Modifier,
 ) {
     var filterExpanded by remember { mutableStateOf(false) }
@@ -255,7 +251,7 @@ fun FilterDialog(
             )
             DropdownMenuItem(
                 text = { Text("Date") },
-                onClick = onClickDateFilterButton
+                onClick = dateFilterUiState.onClickDateFilterButton
             )
             DropdownMenuItem(
                 text = { Text("Clear") },
@@ -278,9 +274,9 @@ fun FilterDialog(
                 onCancelCategoryFilter = { onCancelCategoryFilter() },
                 onConfirmCategoryFilter = { onConfirmCategoryFilter() }
             )
-            dateFilterDialogIsShown -> Date(
-                onDateRangeSelected = { onDateRangeSelected(it) },
-                onDismiss= { onDismissDateFilterDialog() }
+            dateFilterUiState.dateFilterDialogIsShown -> Date(
+                onDateRangeSelected = { dateFilterUiState.onDateRangeSelected(it) },
+                onDismiss= { dateFilterUiState.onDismissDateFilterDialog() }
             )
         }
     }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import usth.intern.notifts.data.DatabaseRepository
+import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.manager.uistate.ManagerUiState
 import java.time.ZonedDateTime
@@ -30,6 +31,13 @@ class ManagerViewModel @Inject constructor(
         onSearch = { onEnterSearch(it) }
     ))
     val keywordsSearchBarUiState = _keywordsSearchBarUiState.asStateFlow()
+    
+    private val _dateFilterUiState = MutableStateFlow(DateFilterUiState(
+        onClickDateFilterButton = { onClickDateFilterButton() },
+        onDismissDateFilterDialog = { onDismissDateFilterDialog() },
+        onDateRangeSelected = { onDateRangeSelected(it) }
+    ))
+    val dateFilterUiState = _dateFilterUiState.asStateFlow()
 
     fun onReload() {
         _uiState.update { currentState ->
@@ -104,14 +112,14 @@ class ManagerViewModel @Inject constructor(
         }
     }
 
-    fun onClickDateFilterButton() {
-        _uiState.update { currentState ->
+    private fun onClickDateFilterButton() {
+        _dateFilterUiState.update { currentState ->
             currentState.copy(dateFilterDialogIsShown = true)
         }
     }
 
-    fun onDismissDateFilterDialog() {
-        _uiState.update { currentState ->
+    private fun onDismissDateFilterDialog() {
+        _dateFilterUiState.update { currentState ->
             currentState.copy(dateFilterDialogIsShown = false)
         }
     }
@@ -224,7 +232,7 @@ class ManagerViewModel @Inject constructor(
      * This function is triggered when Confirm button of Date Filter Dialog is clicked.
      * @param datePair: Pair of date chosen by user.
      */
-    fun onDateRangeSelected(datePair: Pair<Long?, Long?>) {
+    private fun onDateRangeSelected(datePair: Pair<Long?, Long?>) {
         // If first date is null -> Do nothing
         if (datePair.first == null) {
             return
