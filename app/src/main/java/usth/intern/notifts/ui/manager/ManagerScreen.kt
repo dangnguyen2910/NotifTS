@@ -56,10 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import usth.intern.notifts.R
 import usth.intern.notifts.data.db.Notification
-import usth.intern.notifts.ui.manager.components.Apps
-import usth.intern.notifts.ui.manager.components.Category
 import usth.intern.notifts.ui.manager.components.Date
 import usth.intern.notifts.ui.manager.components.NotificationCard
+import usth.intern.notifts.ui.manager.components.OptionFilterDialog
 import usth.intern.notifts.ui.manager.uistate.DateFilterUiState
 import usth.intern.notifts.ui.manager.uistate.KeywordsSearchBarUiState
 import usth.intern.notifts.ui.theme.anon
@@ -198,10 +197,10 @@ fun KeywordsSearchBar(
 fun FilterDialog(
     // Apps filter
     onClickAppFilterButton: () -> Unit,
-    appList: List<String>,
+    appList: List<String?>,
     appFilterDialogIsShown: Boolean,
     onDismissAppFilterDialog: () -> Unit,
-    updateAppFilterSelections: (String) -> Unit,
+    updateAppFilterSelections: (String?) -> Unit,
     onConfirmAppFilter: () -> Unit,
     onCancelAppFilter: () -> Unit,
     // Category filter
@@ -260,19 +259,19 @@ fun FilterDialog(
         }
 
         when {
-            appFilterDialogIsShown -> Apps(
-                appList = appList,
+            appFilterDialogIsShown -> OptionFilterDialog(
+                optionList = appList,
                 onDismissRequest = onDismissAppFilterDialog,
-                updateAppFilterSelections = { updateAppFilterSelections(it) },
-                onCancelAppFilter = { onCancelAppFilter() },
-                onConfirmAppFilter = { onConfirmAppFilter() }
+                updateSelection = { updateAppFilterSelections(it) },
+                onCancel = { onCancelAppFilter() },
+                onConfirm = { onConfirmAppFilter() }
             )
-            categoryFilterDialogIsShown -> Category(
-                categoryList = categoryList,
+            categoryFilterDialogIsShown -> OptionFilterDialog(
+                optionList = categoryList,
                 onDismissRequest = onDismissCategoryFilterDialog,
-                updateCategoryFilterSelections = { updateCategoryFilterSelections(it) },
-                onCancelCategoryFilter = { onCancelCategoryFilter() },
-                onConfirmCategoryFilter = { onConfirmCategoryFilter() }
+                updateSelection = { updateCategoryFilterSelections(it) },
+                onCancel = { onCancelCategoryFilter() },
+                onConfirm = { onConfirmCategoryFilter() }
             )
             dateFilterUiState.dateFilterDialogIsShown -> Date(
                 onDateRangeSelected = { dateFilterUiState.onDateRangeSelected(it) },

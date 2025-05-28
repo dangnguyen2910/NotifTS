@@ -189,9 +189,11 @@ class ManagerViewModel @Inject constructor(
     /**
      * Similar to [updateCategoryFilterSelections] but for app instead
      */
-    fun updateAppFilterSelections(app: String) {
+    fun updateAppFilterSelections(app: String?) {
         if (app !in _uiState.value.categorySelectionList) {
-            _uiState.value.appSelectionList.add(app)
+            if (app != null) {
+                _uiState.value.appSelectionList.add(app)
+            }
         } else {
             _uiState.value.appSelectionList.remove(app)
         }

@@ -30,94 +30,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun Apps(
-    appList: List<String>,
+fun OptionFilterDialog(
+    optionList: List<String?>,
     onDismissRequest: () -> Unit,
-    updateAppFilterSelections: (String) -> Unit,
-    onCancelAppFilter: () -> Unit,
-    onConfirmAppFilter: () -> Unit,
+    updateSelection: (String?) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val checkedList = remember(appList) { List(appList.size) { mutableStateOf(false) } }
-
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(475.dp),
-            shape = RoundedCornerShape(7.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                // Apps list
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    itemsIndexed(appList) { index, app ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(app)
-                            Spacer(modifier = modifier.weight(1f))
-                            Checkbox(
-                                checked = checkedList[index].value,
-                                onCheckedChange = {
-                                    updateAppFilterSelections(app)
-                                    checkedList[index].value = it
-                                }
-                            )
-                        }
-                        HorizontalDivider()
-                    }
-                }
-                // Confirm and Cancel buttons
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    TextButton(
-                        onClick = {
-                            onCancelAppFilter()
-                            onDismissRequest()
-                        },
-                        modifier = Modifier.padding(8.dp),
-                    ) {
-                        Text("Cancel")
-                    }
-                    TextButton(
-                        onClick = {
-                            onConfirmAppFilter()
-                            onDismissRequest()
-                        },
-                        modifier = Modifier.padding(8.dp),
-                    ) {
-                        Text("Confirm")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Category(
-    categoryList: List<String?>,
-    onDismissRequest: () -> Unit,
-    updateCategoryFilterSelections: (String?) -> Unit,
-    onCancelCategoryFilter: () -> Unit,
-    onConfirmCategoryFilter: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val checkedList = remember(categoryList) { List(categoryList.size) { mutableStateOf(false) } }
+    val checkedList = remember(optionList) { List(optionList.size) { mutableStateOf(false) } }
 
     Dialog(
         onDismissRequest = { onDismissRequest() },
@@ -132,7 +53,6 @@ fun Category(
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
-//                    .weight(1f)
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Option list
@@ -143,7 +63,7 @@ fun Category(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    itemsIndexed(categoryList) { index, category ->
+                    itemsIndexed(optionList) { index, category ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -157,7 +77,7 @@ fun Category(
                             Checkbox(
                                 checked = checkedList[index].value,
                                 onCheckedChange = {
-                                    updateCategoryFilterSelections(category)
+                                    updateSelection(category)
                                     checkedList[index].value = it
                                 }
                             )
@@ -173,7 +93,7 @@ fun Category(
                 ) {
                     TextButton(
                         onClick = {
-                            onCancelCategoryFilter()
+                            onCancel()
                             onDismissRequest()
                         },
                         modifier = Modifier.padding(8.dp),
@@ -182,7 +102,7 @@ fun Category(
                     }
                     TextButton(
                         onClick = {
-                            onConfirmCategoryFilter()
+                            onConfirm()
                             onDismissRequest()
                         },
                         modifier = Modifier.padding(8.dp),
@@ -244,27 +164,16 @@ fun Date(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AppPreview() {
-    Apps(
-        appList = listOf("App1", "App2", "App3", "App4"),
-        onDismissRequest = {},
-        updateAppFilterSelections = {},
-        onCancelAppFilter = {},
-        onConfirmAppFilter = {},
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
-fun CategoryPreview() {
-    Category(
-        categoryList = listOf("alarm", "msg","", "", "", "", "", "", ""),
+fun OptionFilterDialogPreview() {
+    OptionFilterDialog(
+        optionList = listOf("alarm", "msg", "", "", "", "", "", "", ""),
         onDismissRequest = {},
-        updateCategoryFilterSelections = {},
-        onCancelCategoryFilter = {},
-        onConfirmCategoryFilter = {},
+        updateSelection = {},
+        onCancel = {},
+        onConfirm = {},
     )
 }
 
