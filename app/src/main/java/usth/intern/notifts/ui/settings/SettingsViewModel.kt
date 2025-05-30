@@ -96,6 +96,7 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value on the "DND on" switch and update the value to dataStore
      */
+    @Deprecated("No longer used")
     fun onDndOnSwitchClicked() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -115,6 +116,7 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value on the "Display notification" switch and update the value to dataStore
      */
+    @Deprecated("No longer used")
     fun onNotificationOnSwitchClicked() {
         _uiState.update { currentState ->
             currentState.copy(

@@ -56,7 +56,6 @@ fun NotiftsScreen(
         ) {
             composable(route = NotiftsScreen.Settings.name) {
                 SettingsScreen(
-                    navController = navController,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
