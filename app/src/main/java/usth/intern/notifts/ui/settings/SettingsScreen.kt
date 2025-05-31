@@ -33,8 +33,8 @@ fun SettingsScreen(
     )
 
     val activateFunctionList: List<(Boolean) -> Unit> = listOf(
-        { settingsViewModel.onIsActivatedSwitchClicked() },
-        { settingsViewModel.onScreenOnSwitchClicked() },
+        { settingsViewModel.enableSpeaker() },
+        { settingsViewModel.enableSpeakerWhenScreenOn() },
     )
 
     SettingsContent(

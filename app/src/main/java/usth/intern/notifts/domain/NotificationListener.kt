@@ -83,6 +83,8 @@ class NotificationListener : NotificationListenerService() {
             }
         }
 
+        Log.d("NotificationListener", "isActivated: $isActivated")
+
         if (!isActivated) {
             return
         }
