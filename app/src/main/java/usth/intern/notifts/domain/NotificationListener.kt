@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import usth.intern.notifts.data.repository.DatabaseRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.tts.TtsEngine
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,7 +42,6 @@ class NotificationListener : NotificationListenerService() {
      * Initially used to know whether a notification is duplicated multiple times.
      */
     private var previousText: String = ""
-
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) {
@@ -97,7 +97,6 @@ class NotificationListener : NotificationListenerService() {
 
         runBlocking {
             launch {
-
                 /**
                  * If this value is true then whenever screen is on, the notification is spoken.
                  * Else the notification is spoken only when screen is off.
@@ -107,6 +106,7 @@ class NotificationListener : NotificationListenerService() {
                     .first()
 
                 val isAllowedToSpeak = isAllowedToSpeak(
+                    context = this@NotificationListener,
                     isActivated = isActivated,
                     isDuplicated = isDuplicated,
                     speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
@@ -114,23 +114,23 @@ class NotificationListener : NotificationListenerService() {
 
                 if (isAllowedToSpeak) {
                     if (isWifiConnected(this@NotificationListener)) {
-                        val mediaPlayer = MediaPlayer()
-                        mediaPlayer.setDataSource("http://192.168.1.51:5000/tts-service")
-                        mediaPlayer.prepareAsync()
-                        mediaPlayer.setOnPreparedListener {
-                            it.start()
+                        try {
+                            val mediaPlayer = MediaPlayer()
+                            mediaPlayer.setDataSource("http://192.168.1.51:5000/tts-service")
+                            mediaPlayer.prepareAsync()
+                            mediaPlayer.setOnPreparedListener {
+                                it.start()
+                            }
+                        } catch (e: IOException) {
+                            ttsEngine.run(title.toString(), text.toString())
                         }
 
+                    } else {
+                        ttsEngine.run(title.toString(), text.toString())
                     }
-                } else {
-                    ttsEngine.run(
-                        title.toString(),
-                        text.toString()
-                    )
                 }
             }
         }
-
     }
 
     fun isAllowedToSpeak(
