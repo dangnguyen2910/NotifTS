@@ -9,8 +9,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import usth.intern.notifts.data.DatabaseRepository
-import usth.intern.notifts.data.PreferenceRepository
+import usth.intern.notifts.data.repository.DatabaseRepository
+import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.tts.TtsEngine
 import java.text.SimpleDateFormat
 import java.util.Date

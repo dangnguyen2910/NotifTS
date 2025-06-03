@@ -1,4 +1,4 @@
-package usth.intern.notifts.data
+package usth.intern.notifts.data.repository
 
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
@@ -6,6 +6,11 @@ import androidx.datastore.preferences.core.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import usth.intern.notifts.data.IS_ACTIVATED
+import usth.intern.notifts.data.NOTIFICATION_IS_SHOWN
+import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_DND_ON
+import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_SCREEN_ON
+import usth.intern.notifts.data.dataStore
 import javax.inject.Inject
 
 class PreferenceRepository @Inject constructor(

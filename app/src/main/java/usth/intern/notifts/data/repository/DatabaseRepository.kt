@@ -1,4 +1,4 @@
-package usth.intern.notifts.data
+package usth.intern.notifts.data.repository
 
 import android.content.Context
 import androidx.room.Room
