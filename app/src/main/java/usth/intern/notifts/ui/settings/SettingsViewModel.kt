@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import usth.intern.notifts.data.DatabaseRepository
-import usth.intern.notifts.data.PreferenceRepository
+import usth.intern.notifts.data.repository.DatabaseRepository
+import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.data.db.Notification
 import javax.inject.Inject
 
