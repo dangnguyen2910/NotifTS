@@ -1,5 +1,6 @@
 package usth.intern.notifts.domain
 
+import android.content.Context
 import android.media.MediaPlayer
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -26,9 +27,6 @@ class NotificationListener : NotificationListenerService() {
 
     @Inject
     lateinit var preferenceRepository: PreferenceRepository
-
-    @Inject
-    lateinit var settings: Settings
 
     @Inject
     lateinit var databaseRepository: DatabaseRepository
@@ -136,6 +134,7 @@ class NotificationListener : NotificationListenerService() {
     }
 
     fun isAllowedToSpeak(
+        context: Context,
         isActivated: Boolean,
         isDuplicated: Boolean,
         speakerIsActivatedWhenScreenOn: Boolean
@@ -145,7 +144,7 @@ class NotificationListener : NotificationListenerService() {
             return false
         }
 
-        if (!settings.isScreenOn() || speakerIsActivatedWhenScreenOn) {
+        if (!isScreenOn(context) || speakerIsActivatedWhenScreenOn) {
             return true
         }
 
