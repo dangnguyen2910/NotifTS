@@ -113,21 +113,7 @@ class NotificationListener : NotificationListenerService() {
                 )
 
                 if (isAllowedToSpeak) {
-                    if (isWifiConnected(this@NotificationListener)) {
-                        try {
-                            val mediaPlayer = MediaPlayer()
-                            mediaPlayer.setDataSource("http://192.168.1.51:5000/tts-service")
-                            mediaPlayer.prepareAsync()
-                            mediaPlayer.setOnPreparedListener {
-                                it.start()
-                            }
-                        } catch (e: IOException) {
-                            ttsEngine.run(title.toString(), text.toString())
-                        }
-
-                    } else {
-                        ttsEngine.run(title.toString(), text.toString())
-                    }
+                    ttsEngine.run(title.toString(), text.toString())
                 }
             }
         }
