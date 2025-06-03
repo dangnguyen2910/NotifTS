@@ -2,6 +2,7 @@ package usth.intern.notifts.ui.settings
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,14 +62,14 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value of "Enable Speaker" switch and update to the data store.
      */
-    fun onIsActivatedSwitchClicked() {
+    fun enableSpeaker() {
         _uiState.update { currentState ->
             currentState.copy(isActivated = !_uiState.value.isActivated)
         }
 
-        runBlocking {
+        viewModelScope.launch {
             launch {
-                Log.d(TAG, "Calling updateActivateState in HomeViewModel")
+                Log.d(TAG, "Calling enableSpeaker in HomeViewModel")
                 preferenceRepository.updateActivationState(_uiState.value.isActivated)
             }
         }
@@ -77,7 +78,7 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value on the "Screen On" switch and update the value to dataStore
      */
-    fun onScreenOnSwitchClicked() {
+    fun enableSpeakerWhenScreenOn() {
         _uiState.update { currentState ->
             currentState.copy(
                 speakerIsEnabledWhenScreenOn = !_uiState.value.speakerIsEnabledWhenScreenOn
@@ -96,6 +97,7 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value on the "DND on" switch and update the value to dataStore
      */
+    @Deprecated("No longer used")
     fun onDndOnSwitchClicked() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -115,6 +117,7 @@ class SettingsViewModel @Inject constructor(
     /**
      * Change the value on the "Display notification" switch and update the value to dataStore
      */
+    @Deprecated("No longer used")
     fun onNotificationOnSwitchClicked() {
         _uiState.update { currentState ->
             currentState.copy(

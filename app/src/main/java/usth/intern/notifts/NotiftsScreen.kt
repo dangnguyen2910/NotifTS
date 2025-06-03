@@ -41,7 +41,10 @@ fun NotiftsScreen(
     Scaffold(
         topBar = { Title(title = currentScreen.title) },
         bottomBar = { BottomNavigationBar(
-            navController = navController,
+            currentScreen = currentScreen.title,
+            onClickSettingsButton = { navController.navigate(NotiftsScreen.Settings.name) },
+            onClickSearchFilterButton = { navController.navigate(NotiftsScreen.Manager.name) },
+            onClickDashboardButton = { navController.navigate(NotiftsScreen.DashBoard.name) },
         ) }
     ) { innerPadding ->
         NavHost(
@@ -53,7 +56,6 @@ fun NotiftsScreen(
         ) {
             composable(route = NotiftsScreen.Settings.name) {
                 SettingsScreen(
-                    navController = navController,
                     modifier = Modifier.padding(innerPadding)
                 )
             }

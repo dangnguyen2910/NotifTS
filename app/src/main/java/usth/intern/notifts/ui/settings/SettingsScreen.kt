@@ -2,7 +2,6 @@ package usth.intern.notifts.ui.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
@@ -16,13 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import usth.intern.notifts.NotiftsScreen
 
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
 
@@ -37,16 +33,13 @@ fun SettingsScreen(
     )
 
     val activateFunctionList: List<(Boolean) -> Unit> = listOf(
-        { settingsViewModel.onIsActivatedSwitchClicked() },
-        { settingsViewModel.onScreenOnSwitchClicked() },
-        { settingsViewModel.onDndOnSwitchClicked() },
-        { settingsViewModel.onNotificationOnSwitchClicked() }
+        { settingsViewModel.enableSpeaker() },
+        { settingsViewModel.enableSpeakerWhenScreenOn() },
     )
 
     SettingsContent(
         activationStateList = activationStateList,
         activateFunction = activateFunctionList,
-        onPressButtonClicked = { navController.navigate(NotiftsScreen.Manager.name)},
         modifier = modifier
     )
 
@@ -56,7 +49,6 @@ fun SettingsScreen(
 fun SettingsContent(
     activationStateList: List<Boolean>,
     activateFunction: List<(Boolean) -> Unit>,
-    onPressButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -75,18 +67,6 @@ fun SettingsContent(
             isActivated = activationStateList[1],
             activateFunction = activateFunction[1],
         )
-
-        Option(
-            optionText = "Enable speaker when Do Not Disturb\nmode is on",
-            isActivated = activationStateList[2],
-            activateFunction = activateFunction[2],
-        )
-
-        Option(
-            optionText = "Display a non-swipeable notification\nwhen the speaker is enabled",
-            isActivated = activationStateList[3],
-            activateFunction = activateFunction[3],
-        )
     }
 }
 
@@ -103,10 +83,10 @@ fun Option(
         Text(
             text = optionText,
             fontSize = 17.sp,
-            modifier = modifier.padding(start = 6.dp)
+            modifier = modifier
+                .padding(start = 6.dp)
+                .weight(0.9f)
         )
-
-        Spacer(modifier = modifier.weight(1f))
 
         Switch(
             checked = isActivated,
@@ -122,6 +102,5 @@ fun SettingsScreenPreview() {
     SettingsContent(
         activationStateList = listOf(true, true, true, true),
         activateFunction = listOf({}, {}, {}, {}),
-        onPressButtonClicked = {}
     )
 }
