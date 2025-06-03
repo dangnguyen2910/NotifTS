@@ -1,7 +1,6 @@
 package usth.intern.notifts.domain
 
-import android.content.Context
-import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -114,7 +113,18 @@ class NotificationListener : NotificationListenerService() {
                     isDuplicated = isDuplicated,
                     speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
                 )
+
                 if (isAllowedToSpeak) {
+                    if (isWifiConnected(this@NotificationListener)) {
+                        val mediaPlayer = MediaPlayer()
+                        mediaPlayer.setDataSource("http://192.168.1.51:5000/tts-service")
+                        mediaPlayer.prepareAsync()
+                        mediaPlayer.setOnPreparedListener {
+                            it.start()
+                        }
+
+                    }
+                } else {
                     ttsEngine.run(
                         title.toString(),
                         text.toString()
@@ -161,16 +171,5 @@ class NotificationListener : NotificationListenerService() {
             Locale.getDefault()).format(Date(date))}"
         )
 
-    }
-
-    private fun getAppName(context: Context, packageName: String): String? {
-        return try {
-            val packageManager = context.packageManager
-            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-            packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.e("AppName", "Package not found: ${packageName}")
-            null // Package not found
-        }
     }
 }
