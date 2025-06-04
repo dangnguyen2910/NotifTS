@@ -16,5 +16,5 @@ local.properties
 .idea
 *.onnx
 *.pkl
-server/0.wav
+server/*.wav
 server/__pycache__
