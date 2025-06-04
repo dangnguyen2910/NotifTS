@@ -25,32 +25,6 @@ fun SettingsScreen(
     val settingsViewModel: SettingsViewModel = hiltViewModel<SettingsViewModel>()
     val uiState by settingsViewModel.uiState.collectAsState()
 
-    val activationStateList: List<Boolean> = listOf(
-        uiState.isActivated,
-        uiState.speakerIsEnabledWhenScreenOn,
-        uiState.speakerIsEnabledWhenDndOn,
-        uiState.notificationIsShown,
-    )
-
-    val activateFunctionList: List<(Boolean) -> Unit> = listOf(
-        { settingsViewModel.enableSpeaker() },
-        { settingsViewModel.enableSpeakerWhenScreenOn() },
-    )
-
-    SettingsContent(
-        activationStateList = activationStateList,
-        activateFunction = activateFunctionList,
-        modifier = modifier
-    )
-
-}
-
-@Composable
-fun SettingsContent(
-    activationStateList: List<Boolean>,
-    activateFunction: List<(Boolean) -> Unit>,
-    modifier: Modifier = Modifier
-) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -58,16 +32,17 @@ fun SettingsContent(
 
         Option(
             optionText = "Enable speaker",
-            isActivated = activationStateList[0],
-            activateFunction = activateFunction[0],
+            isActivated = uiState.isActivated,
+            activateFunction = { settingsViewModel.enableSpeaker() },
         )
 
         Option(
             optionText = "Enable speaker when screen is on",
-            isActivated = activationStateList[1],
-            activateFunction = activateFunction[1],
+            isActivated = uiState.speakerIsEnabledWhenScreenOn,
+            activateFunction = { settingsViewModel.enableSpeakerWhenScreenOn() }
         )
     }
+
 }
 
 @Composable
@@ -98,9 +73,5 @@ fun Option(
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsScreenPreview() {
-    SettingsContent(
-        activationStateList = listOf(true, true, true, true),
-        activateFunction = listOf({}, {}, {}, {}),
     )
 }
