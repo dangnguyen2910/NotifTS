@@ -1,5 +1,7 @@
 [versions]
 agp = "8.8.2"
+converterGson = "2.9.0"
+converterScalars = "2.9.0"
 datastorePreferences = "1.1.4"
 hiltAndroid = "2.56.1"
 hiltNavigationCompose = "1.2.0"
@@ -15,6 +17,7 @@ composeBom = "2025.03.01"
 lingua = "1.2.2"
 mockkVersion = "1.14.0"
 navigationCompose = "2.8.9"
+retrofit = "2.9.0"
 robolectric = "4.14"
 roomRuntime = "2.7.0"
 coreKtxVersion = "1.6.1"
@@ -30,6 +33,8 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+converter-gson-vlatestversion = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroid" }
@@ -50,6 +55,7 @@ leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", ve
 lingua = { module = "com.github.pemistahl:lingua", version.ref = "lingua" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockkVersion" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }

@@ -5,7 +5,15 @@ import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import usth.intern.notifts.data.remote.WavApiService
+import usth.intern.notifts.domain.NotificationContent
 import usth.intern.notifts.domain.isWifiConnected
+import java.io.File
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -22,15 +30,11 @@ class TtsEngine @Inject constructor(
         "FRENCH" to null,
     )
 
-    fun run(title: String, text: String) {
+    fun run(app: String, title: String, text: String) {
+        val notification = NotificationContent(app, title, text)
         if (isWifiConnected(context)) {
             try {
-                val mediaPlayer = MediaPlayer()
-                mediaPlayer.setDataSource("http://192.168.1.51:5000/tts-service")
-                mediaPlayer.prepareAsync()
-                mediaPlayer.setOnPreparedListener {
-                    it.start()
-                }
+                playWav(context, notification)
             } catch (e: IOException) {
                 useLocalTts(title, text)
             }
@@ -81,6 +85,46 @@ class TtsEngine @Inject constructor(
                 Log.e("TtsEngine", "Initialize TTS engine fail")
             }
         }, "com.google.android.tts")
+    }
+
+    private fun playWav(
+        context: Context,
+        notification: NotificationContent
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val retrofit = Retrofit.Builder()
+                .baseUrl("http://192.168.1.51:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val api = retrofit.create(WavApiService::class.java)
+            val response = api.downloadWav(notification)
+
+            if (response.isSuccessful && response.body() != null) {
+                val tempFile = File.createTempFile("temp_audio", ".wav", context.cacheDir)
+                val inputStream = response.body()!!.byteStream()
+                val outputStream = tempFile.outputStream()
+
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                val mediaPlayer = MediaPlayer().apply {
+                    setDataSource(tempFile.absolutePath)
+                    prepare()
+                    start()
+                }
+
+                mediaPlayer.setOnCompletionListener {
+                    tempFile.delete()
+                    mediaPlayer.release()
+                }
+            } else {
+                Log.e("TtsEngine", "Failed to download audio: ${response.code()}")
+            }
+        }
     }
 }
 

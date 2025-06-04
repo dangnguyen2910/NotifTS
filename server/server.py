@@ -1,4 +1,4 @@
-from flask import Flask, send_file 
+from flask import Flask, send_file, request
 import torch 
 import soundfile as sf
 from kokoro import KPipeline
@@ -10,14 +10,16 @@ french_pipeline = KPipeline(lang_code='f', device=device)
 
 app = Flask(__name__)
 
-@app.route("/tts-service")
+@app.route("/tts-service", methods=['POST'])
 def tts_service(): 
     # Notification comes: app name, title, text, language, voice. 
+    data = request.get_json()
     language = "english"
     voice = "af_heart"
 
     # Preprocess if necessary 
-    text = "Reddit summonerswar: Is this the most outdated event?"
+    text = f"{data['app']}. {data['title']}. {data['text']}"
+    print(text)
 
     match language: 
         case "english": 

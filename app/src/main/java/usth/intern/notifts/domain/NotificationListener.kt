@@ -1,7 +1,6 @@
 package usth.intern.notifts.domain
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -12,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import usth.intern.notifts.data.repository.DatabaseRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.tts.TtsEngine
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -113,7 +111,7 @@ class NotificationListener : NotificationListenerService() {
                 )
 
                 if (isAllowedToSpeak) {
-                    ttsEngine.run(title.toString(), text.toString())
+                    ttsEngine.run(appName, title.toString(), text.toString())
                 }
             }
         }
@@ -157,4 +155,5 @@ class NotificationListener : NotificationListenerService() {
         )
 
     }
+
 }

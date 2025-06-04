@@ -63,6 +63,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
+    implementation(libs.retrofit)
+    implementation(libs.converter.scalars)
+    implementation(libs.converter.gson.vlatestversion)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

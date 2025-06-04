@@ -22,7 +22,7 @@ fun getAppName(context: Context, packageName: String): String? {
         val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
         packageManager.getApplicationLabel(applicationInfo).toString()
     } catch (e: PackageManager.NameNotFoundException) {
-        Log.e("AppName", "Package not found: ${packageName}")
+        Log.e("AppName", "Package not found: $packageName")
         null // Package not found
     }
 }
