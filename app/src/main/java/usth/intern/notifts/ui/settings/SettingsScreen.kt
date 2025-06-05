@@ -21,17 +21,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.compose.runtime.getValue
 
 @Composable
 fun SettingsScreen(
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val settingsViewModel: SettingsViewModel = hiltViewModel<SettingsViewModel>()
     val uiState by settingsViewModel.uiState.collectAsState()
 
     Column(
@@ -57,7 +59,7 @@ fun SettingsScreen(
         OptionBlock("TTS CONFIG") {
             Option(
                 optionName = "Choose local TTS model",
-                functionality = {/*TODO*/}
+                functionality = { settingsViewModel.chooseLocalTtsModel() }
             )
             HorizontalDivider()
             Option(

@@ -1,6 +1,8 @@
 package usth.intern.notifts.ui.settings
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,9 +13,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import usth.intern.notifts.data.db.Notification
 import usth.intern.notifts.data.repository.DatabaseRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
-import usth.intern.notifts.data.db.Notification
 import javax.inject.Inject
 
 private const val TAG = "HomeViewModel"
@@ -23,6 +25,9 @@ class SettingsViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel(){
+
+    private val _openTtsSetting = MutableLiveData<Unit>()
+    val openTtsSetting: LiveData<Unit> = _openTtsSetting
 
     private var isActivated: Boolean = false
     private var speakerIsEnabledWhenScreenOn: Boolean = false
@@ -132,6 +137,11 @@ class SettingsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun chooseLocalTtsModel() {
+        Log.d("settingsVM", "ChooseLocalModel is triggered")
+        _openTtsSetting.value = Unit
     }
 
 }

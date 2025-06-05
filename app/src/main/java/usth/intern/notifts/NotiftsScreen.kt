@@ -17,6 +17,7 @@ import usth.intern.notifts.ui.dashboard.DashboardScreen
 import usth.intern.notifts.ui.settings.SettingsScreen
 import usth.intern.notifts.ui.Title
 import usth.intern.notifts.ui.manager.ManagerScreen
+import usth.intern.notifts.ui.settings.SettingsViewModel
 
 enum class NotiftsScreen(val title: String) {
     Settings(title = "Settings"),
@@ -26,6 +27,7 @@ enum class NotiftsScreen(val title: String) {
 
 @Composable
 fun NotiftsScreen(
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -56,6 +58,7 @@ fun NotiftsScreen(
         ) {
             composable(route = NotiftsScreen.Settings.name) {
                 SettingsScreen(
+                    settingsViewModel = settingsViewModel,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
