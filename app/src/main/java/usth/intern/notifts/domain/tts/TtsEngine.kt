@@ -7,11 +7,14 @@ import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import usth.intern.notifts.data.remote.WavApiService
-import usth.intern.notifts.domain.NotificationContent
+import usth.intern.notifts.data.repository.PreferenceRepository
+import usth.intern.notifts.domain.NotificationPackage
 import usth.intern.notifts.domain.isWifiConnected
 import java.io.File
 import java.io.IOException
@@ -22,6 +25,7 @@ import javax.inject.Inject
 class TtsEngine @Inject constructor(
     @ApplicationContext private val context: Context,
     private val languageIdentifier: LanguageIdentifier,
+    private val preferenceRepository: PreferenceRepository,
 ) {
     private lateinit var tts: TextToSpeech
 
@@ -32,16 +36,58 @@ class TtsEngine @Inject constructor(
     )
 
     fun run(app: String, title: String, text: String) {
-        val notification = NotificationContent(app, title, text)
-        if (isWifiConnected(context)) {
+        val language = languageIdentifier.predict(text)
+        Log.d("TtsEngine", "Language: $language")
+
+        var englishVoice = ""
+        val frenchVoice = ""
+        runBlocking {
+            launch {
+                englishVoice = preferenceRepository.englishVoice.first()
+            }
+        }
+
+        val notification = when (language) {
+            "ENGLISH" -> NotificationPackage(app, title, text, language, englishVoice)
+            "FRENCH" -> NotificationPackage(app, title, text, language, frenchVoice)
+            else -> NotificationPackage(app, title, text, language, "")
+        }
+
+        if (isWifiConnected(context) && (language == "ENGLISH" || language == "FRENCH")) {
             try {
-                playWav(context, notification)
+                speak(context, notification)
             } catch (e: IOException) {
-                useLocalTts(app, title, text)
+                useLocalTts(notification)
             }
         } else {
-            useLocalTts(app, title, text)
+            useLocalTts(notification)
         }
+    }
+
+    private fun useLocalTts(notification: NotificationPackage) {
+        tts = TextToSpeech(context, { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                Log.d("TtsEngine", "Initialize TTS engine success")
+
+                val availableLocale = tts.availableLanguages
+                if (availableLocale != null) {
+                    for (locale in availableLocale) {
+                        when (locale.displayLanguage) {
+                            "Vietnamese" -> localeMap["VIETNAMESE"] = locale
+                            "English" -> localeMap["ENGLISH"] = locale
+                        }
+                    }
+                }
+
+
+                val finalText = "${notification.app}. ${notification.title}. ${notification.text}"
+
+                speak(finalText, notification.language)
+
+            } else {
+                Log.e("TtsEngine", "Initialize TTS engine fail")
+            }
+        }, "com.google.android.tts")
     }
 
     private fun speak(text: String, language: String) : Int {
@@ -61,37 +107,10 @@ class TtsEngine @Inject constructor(
 
     }
 
-    private fun useLocalTts(app: String, title: String, text: String) {
-        tts = TextToSpeech(context, { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                Log.d("TtsEngine", "Initialize TTS engine success")
 
-                val availableLocale = tts.availableLanguages
-                if (availableLocale != null) {
-                    for (locale in availableLocale) {
-                        when (locale.displayLanguage) {
-                            "Vietnamese" -> localeMap["VIETNAMESE"] = locale
-                            "English" -> localeMap["ENGLISH"] = locale
-                        }
-                    }
-                }
-
-                val language = languageIdentifier.predict(text)
-                Log.d("TtsEngine", "Language: $language")
-
-                val finalText = "${app}. ${title}. $text"
-
-                speak(finalText, language)
-
-            } else {
-                Log.e("TtsEngine", "Initialize TTS engine fail")
-            }
-        }, "com.google.android.tts")
-    }
-
-    private fun playWav(
+    private fun speak(
         context: Context,
-        notification: NotificationContent
+        notification: NotificationPackage
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -128,7 +147,7 @@ class TtsEngine @Inject constructor(
                     Log.e("TtsEngine", "Failed to download audio: ${response.code()}")
                 }
             } catch (e: ConnectException) {
-                useLocalTts(notification.app, notification.title, notification.text)
+                useLocalTts(notification)
             }
         }
     }

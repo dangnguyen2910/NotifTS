@@ -14,8 +14,8 @@ app = Flask(__name__)
 def tts_service(): 
     # Notification comes: app name, title, text, language, voice. 
     data = request.get_json()
-    language = "english"
-    voice = "af_heart"
+    language = data["language"].lower()
+    voice = format_voice(data["voice"])
 
     # Preprocess if necessary 
     text = f"{data['app']}. {data['title']}. {data['text']}"
@@ -34,6 +34,12 @@ def tts_service():
         sf.write(f'output.wav', audio*2, 24000)
 
     return send_file("output.wav", mimetype="audio/wav")
+
+def format_voice(voice: str): 
+    if ("(F)" in voice): 
+        return f"af_{voice.lower()[:-4]}"
+    else:
+        return f"am_{voice.lower()[:-4]}"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port = 5000)
