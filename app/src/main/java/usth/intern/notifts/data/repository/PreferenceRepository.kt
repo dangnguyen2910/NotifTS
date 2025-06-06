@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import usth.intern.notifts.data.ENGLISH_VOICE
 import usth.intern.notifts.data.IS_ACTIVATED
 import usth.intern.notifts.data.NOTIFICATION_IS_SHOWN
 import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_DND_ON
@@ -37,6 +38,10 @@ class PreferenceRepository @Inject constructor(
             value[NOTIFICATION_IS_SHOWN] ?: true
         }
 
+    val englishVoice: Flow<String> = dataStore.data.map {
+        it[ENGLISH_VOICE] ?: "Heart (F)"
+    }
+
     suspend fun updateActivationState(isActivated: Boolean) {
         dataStore.edit { preferences ->
             preferences[IS_ACTIVATED] = isActivated
@@ -59,5 +64,9 @@ class PreferenceRepository @Inject constructor(
         dataStore.edit { preferences ->
             preferences[NOTIFICATION_IS_SHOWN] = notificationIsShown
         }
+    }
+
+    suspend fun updateEnglishVoice(voice: String) {
+        dataStore.edit { it[ENGLISH_VOICE] = voice }
     }
 }

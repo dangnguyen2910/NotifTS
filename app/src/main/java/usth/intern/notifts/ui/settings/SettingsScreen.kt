@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +24,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun SettingsScreen(
@@ -63,8 +64,8 @@ fun SettingsScreen(
             )
             HorizontalDivider()
             Option(
-                optionName = "Select voices",
-                functionality = {/*TODO*/}
+                optionName = "Select voices for external model",
+                functionality = { settingsViewModel.onClickVoiceSelection() }
             )
         }
 
@@ -89,6 +90,15 @@ fun SettingsScreen(
             Option(
                 optionName = "Test remote TTS model",
                 functionality = {/*TODO*/}
+            )
+        }
+
+        if (uiState.showVoiceDialog) {
+            VoiceSelectionDialog(
+                onDismissRequest = { settingsViewModel.onDismissVoiceSelection() },
+                englishVoiceList = uiState.englishVoiceList,
+                currentEnglishVoice = uiState.currentEnglishVoice, 
+                onEnglishVoiceSelected = { settingsViewModel.onEnglishVoiceSelected(it) }
             )
         }
     }
@@ -183,8 +193,8 @@ fun OptionBlockPreview() {
 @Composable
 fun Option(
     optionName: String,
-    functionality: () -> Unit,
     modifier: Modifier = Modifier,
+    functionality: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -196,7 +206,6 @@ fun Option(
             text = optionName,
             fontSize = 17.sp,
         )
-
     }
 }
 
@@ -206,5 +215,92 @@ fun OptionPreview() {
     Option(
         optionName = "Select apps",
         functionality = {},
+    )
+}
+
+@Composable
+fun VoiceSelectionDialog(
+    englishVoiceList: List<String>, 
+    currentEnglishVoice: String, 
+    onEnglishVoiceSelected: (String) -> Unit, 
+    onDismissRequest: () -> Unit,
+) {
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(475.dp),
+            shape = RoundedCornerShape(7.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                VoiceSelectionBlock(
+                    voiceList = englishVoiceList,
+                    currentVoice = currentEnglishVoice,
+                    onVoiceSelected = onEnglishVoiceSelected 
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("French")
+            }
+        }
+    }
+}
+
+@Composable
+fun VoiceSelectionBlock(
+    voiceList: List<String>,
+    currentVoice: String,
+    onVoiceSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+//    val englishVoice = listOf("Heart (F)", "Bella (F)")
+//    val (selectedOption, onOptionSelected) = remember { mutableStateOf(englishVoice[0]) }
+
+    Text("English")
+    voiceList.forEach { voice ->
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .selectable(
+                    selected = (voice == currentVoice),
+                    onClick = { onVoiceSelected(voice) },
+                    role = Role.RadioButton
+                )
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                selected = (voice == currentVoice),
+                onClick = null
+            )
+            Text(
+                text = voice,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+@Composable
+@Preview(showBackground = true)
+fun VoiceSelectionDialogPreview() {
+    VoiceSelectionDialog(
+        onDismissRequest = {},
+        englishVoiceList = listOf("one", "two"),
+        currentEnglishVoice = "one",
+        onEnglishVoiceSelected = {}
     )
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,13 +34,12 @@ class SettingsViewModel @Inject constructor(
     private var speakerIsEnabledWhenScreenOn: Boolean = false
     private var speakerIsEnabledWhenDndOn: Boolean = false
     private var notificationIsShown: Boolean = false
-    private var notification: Notification? = null
+    private lateinit var currentEnglishVoice: String
 
     // Use the old data in dataStore
     init {
         runBlocking {
             launch {
-                notification = databaseRepository.newestNotification.first()
                 isActivated = preferenceRepository.isActivatedFlow.first()
                 speakerIsEnabledWhenScreenOn = preferenceRepository
                     .speakerIsEnabledWhenScreenOnFlow
@@ -50,18 +50,20 @@ class SettingsViewModel @Inject constructor(
                 notificationIsShown = preferenceRepository
                     .notificationIsShownFlow
                     .first()
+                currentEnglishVoice = preferenceRepository.englishVoice.first()
             }
         }
     }
 
     // Create the UI state
-    private val homeUiState: SettingsUiState = SettingsUiState(
+    private val settingsUiState: SettingsUiState = SettingsUiState(
         isActivated = isActivated,
         speakerIsEnabledWhenScreenOn = speakerIsEnabledWhenScreenOn,
         speakerIsEnabledWhenDndOn = speakerIsEnabledWhenDndOn,
         notificationIsShown = notificationIsShown,
+        currentEnglishVoice = currentEnglishVoice,
     )
-    private val _uiState = MutableStateFlow(homeUiState)
+    private val _uiState = MutableStateFlow(settingsUiState)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     /**
@@ -144,4 +146,24 @@ class SettingsViewModel @Inject constructor(
         _openTtsSetting.value = Unit
     }
 
+    fun onClickVoiceSelection() {
+        Log.d("settingsVM", "Click voice selection")
+        _uiState.update {
+            it.copy(showVoiceDialog = true)
+        }
+    }
+
+    fun onDismissVoiceSelection() {
+        _uiState.update {
+            it.copy(showVoiceDialog = false)
+        }
+    }
+
+    fun onEnglishVoiceSelected(voice: String) {
+        Log.d("settingsVM", "Select english voice: $voice")
+        _uiState.update { it.copy(currentEnglishVoice = voice) }
+         viewModelScope.launch {
+             preferenceRepository.updateEnglishVoice(voice)
+         }
+    }
 }
