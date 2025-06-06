@@ -146,7 +146,7 @@ class TtsEngine @Inject constructor(
                 } else {
                     Log.e("TtsEngine", "Failed to download audio: ${response.code()}")
                 }
-            } catch (e: ConnectException) {
+            } catch (e: Exception) {
                 useLocalTts(notification)
             }
         }
