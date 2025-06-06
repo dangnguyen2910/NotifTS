@@ -35,6 +35,7 @@ class SettingsViewModel @Inject constructor(
     private var speakerIsEnabledWhenDndOn: Boolean = false
     private var notificationIsShown: Boolean = false
     private lateinit var currentEnglishVoice: String
+    private lateinit var currentFrenchVoice: String
 
     // Use the old data in dataStore
     init {
@@ -51,6 +52,7 @@ class SettingsViewModel @Inject constructor(
                     .notificationIsShownFlow
                     .first()
                 currentEnglishVoice = preferenceRepository.englishVoice.first()
+                currentFrenchVoice = preferenceRepository.frenchVoice.first()
             }
         }
     }
@@ -62,6 +64,7 @@ class SettingsViewModel @Inject constructor(
         speakerIsEnabledWhenDndOn = speakerIsEnabledWhenDndOn,
         notificationIsShown = notificationIsShown,
         currentEnglishVoice = currentEnglishVoice,
+        currentFrenchVoice = currentFrenchVoice
     )
     private val _uiState = MutableStateFlow(settingsUiState)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()

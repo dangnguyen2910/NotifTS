@@ -8,4 +8,6 @@ data class SettingsUiState(
     val showVoiceDialog: Boolean = false,
     val englishVoiceList: List<String> = listOf("Heart (F)", "Bella (F)"),
     val currentEnglishVoice: String,
+    val frenchVoiceList: List<String> = listOf("Siwis (F)"),
+    val currentFrenchVoice: String,
 )

@@ -97,8 +97,11 @@ fun SettingsScreen(
             VoiceSelectionDialog(
                 onDismissRequest = { settingsViewModel.onDismissVoiceSelection() },
                 englishVoiceList = uiState.englishVoiceList,
-                currentEnglishVoice = uiState.currentEnglishVoice, 
-                onEnglishVoiceSelected = { settingsViewModel.onEnglishVoiceSelected(it) }
+                currentEnglishVoice = uiState.currentEnglishVoice,
+                onEnglishVoiceSelected = { settingsViewModel.onEnglishVoiceSelected(it) },
+                frenchVoiceList = uiState.frenchVoiceList,
+                currentFrenchVoice = uiState.currentFrenchVoice,
+                onFrenchVoiceSelected = {/*TODO: do this when there is more french voice*/}
             )
         }
     }
@@ -222,7 +225,10 @@ fun OptionPreview() {
 fun VoiceSelectionDialog(
     englishVoiceList: List<String>, 
     currentEnglishVoice: String, 
-    onEnglishVoiceSelected: (String) -> Unit, 
+    onEnglishVoiceSelected: (String) -> Unit,
+    frenchVoiceList: List<String>,
+    currentFrenchVoice: String,
+    onFrenchVoiceSelected: (String) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
 
@@ -241,26 +247,34 @@ fun VoiceSelectionDialog(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 VoiceSelectionBlock(
+                    language = "English",
                     voiceList = englishVoiceList,
                     currentVoice = currentEnglishVoice,
                     onVoiceSelected = onEnglishVoiceSelected 
                 )
+                VoiceSelectionBlock(
+                    language = "French",
+                    voiceList = frenchVoiceList,
+                    currentVoice = currentFrenchVoice,
+                    onVoiceSelected = onFrenchVoiceSelected,
+                )
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .selectableGroup(),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text("French")
-            }
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .selectableGroup(),
+//                verticalArrangement = Arrangement.SpaceBetween,
+//            ) {
+//                Text("French")
+//            }
         }
     }
 }
 
 @Composable
 fun VoiceSelectionBlock(
+    language: String,
     voiceList: List<String>,
     currentVoice: String,
     onVoiceSelected: (String) -> Unit,
@@ -269,7 +283,7 @@ fun VoiceSelectionBlock(
 //    val englishVoice = listOf("Heart (F)", "Bella (F)")
 //    val (selectedOption, onOptionSelected) = remember { mutableStateOf(englishVoice[0]) }
 
-    Text("English")
+    Text(language)
     voiceList.forEach { voice ->
         Row(
             Modifier
@@ -301,6 +315,9 @@ fun VoiceSelectionDialogPreview() {
         onDismissRequest = {},
         englishVoiceList = listOf("one", "two"),
         currentEnglishVoice = "one",
-        onEnglishVoiceSelected = {}
+        onEnglishVoiceSelected = {},
+        frenchVoiceList = listOf("French voice"),
+        currentFrenchVoice = "French voice",
+        onFrenchVoiceSelected = {}
     )
 }

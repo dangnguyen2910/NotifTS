@@ -4,6 +4,7 @@ import soundfile as sf
 from kokoro import KPipeline
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using {device}")
 
 english_pipeline = KPipeline(lang_code='a', device=device)
 french_pipeline = KPipeline(lang_code='f', device=device)
@@ -15,7 +16,7 @@ def tts_service():
     # Notification comes: app name, title, text, language, voice. 
     data = request.get_json()
     language = data["language"].lower()
-    voice = format_voice(data["voice"])
+    voice = format_voice(data["voice"], language)
 
     # Preprocess if necessary 
     text = f"{data['app']}. {data['title']}. {data['text']}"
@@ -35,11 +36,19 @@ def tts_service():
 
     return send_file("output.wav", mimetype="audio/wav")
 
-def format_voice(voice: str): 
+def format_voice(voice: str, language: str): 
+    match language: 
+        case "english": 
+            language_code = "a"
+        case "french":
+            language_code = "f"
+
     if ("(F)" in voice): 
-        return f"af_{voice.lower()[:-4]}"
+        gender = "f"
     else:
-        return f"am_{voice.lower()[:-4]}"
+        gender = "m"
+    
+    return language_code + gender + "_" + voice.lower()[:-4]
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port = 5000)

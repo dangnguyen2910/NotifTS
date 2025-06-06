@@ -40,10 +40,11 @@ class TtsEngine @Inject constructor(
         Log.d("TtsEngine", "Language: $language")
 
         var englishVoice = ""
-        val frenchVoice = ""
+        var frenchVoice = ""
         runBlocking {
             launch {
                 englishVoice = preferenceRepository.englishVoice.first()
+                frenchVoice = preferenceRepository.frenchVoice.first()
             }
         }
 
