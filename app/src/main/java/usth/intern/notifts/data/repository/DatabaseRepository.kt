@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
-import usth.intern.notifts.data.db.NotificationCountByApp
-import usth.intern.notifts.data.db.NotificationCountByDate
+import usth.intern.notifts.domain.NotificationCountByApp
+import usth.intern.notifts.domain.NotificationCountByDate
 import java.util.Calendar
 import javax.inject.Inject
 

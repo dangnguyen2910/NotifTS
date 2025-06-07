@@ -1,4 +1,4 @@
-package usth.intern.notifts.data.db
+package usth.intern.notifts.domain
 
 data class NotificationCountByApp(
     val app: String,

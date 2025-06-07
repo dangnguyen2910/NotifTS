@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import usth.intern.notifts.domain.NotificationCountByApp
+import usth.intern.notifts.domain.NotificationCountByDate
 
 @Dao
 interface NotificationDao {

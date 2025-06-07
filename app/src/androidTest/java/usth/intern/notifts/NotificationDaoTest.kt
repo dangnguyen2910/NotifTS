@@ -14,8 +14,8 @@ import org.junit.Ignore
 import org.junit.Test
 import usth.intern.notifts.data.db.AppDatabase
 import usth.intern.notifts.data.db.Notification
-import usth.intern.notifts.data.db.NotificationCountByApp
-import usth.intern.notifts.data.db.NotificationCountByDate
+import usth.intern.notifts.domain.NotificationCountByApp
+import usth.intern.notifts.domain.NotificationCountByDate
 import usth.intern.notifts.data.db.NotificationDao
 import java.io.IOException
 import java.text.SimpleDateFormat
