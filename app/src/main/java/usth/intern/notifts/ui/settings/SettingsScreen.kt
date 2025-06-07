@@ -32,6 +32,7 @@ import androidx.compose.ui.window.Dialog
 
 @Composable
 fun SettingsScreen(
+    onClickAppList: () -> Unit, 
     settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -72,7 +73,7 @@ fun SettingsScreen(
         OptionBlock("FILTERING") {
             Option(
                 optionName = "Select apps",
-                functionality = {/*TODO*/}
+                functionality = { onClickAppList() }
             )
             HorizontalDivider()
             Option(

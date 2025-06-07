@@ -15,14 +15,17 @@ import androidx.navigation.compose.rememberNavController
 import usth.intern.notifts.ui.BottomNavigationBar
 import usth.intern.notifts.ui.dashboard.DashboardScreen
 import usth.intern.notifts.ui.settings.SettingsScreen
-import usth.intern.notifts.ui.Title
+import usth.intern.notifts.ui.TopAppBar
+import usth.intern.notifts.ui.TopAppBarWithBack
 import usth.intern.notifts.ui.manager.ManagerScreen
+import usth.intern.notifts.ui.settings.AppListScreen
 import usth.intern.notifts.ui.settings.SettingsViewModel
 
 enum class NotiftsScreen(val title: String) {
     Settings(title = "Settings"),
     Manager(title = "Notification Manager"),
     DashBoard(title = "Dashboard"),
+    AppList(title = "App List"),
 }
 
 @Composable
@@ -41,13 +44,26 @@ fun NotiftsScreen(
 
 
     Scaffold(
-        topBar = { Title(title = currentScreen.title) },
-        bottomBar = { BottomNavigationBar(
-            currentScreen = currentScreen.title,
-            onClickSettingsButton = { navController.navigate(NotiftsScreen.Settings.name) },
-            onClickSearchFilterButton = { navController.navigate(NotiftsScreen.Manager.name) },
-            onClickDashboardButton = { navController.navigate(NotiftsScreen.DashBoard.name) },
-        ) }
+        topBar = {
+            if (currentScreen.title == "App List") {
+                TopAppBarWithBack(
+                    title = "App List",
+                    onClickBack = { navController.navigate(NotiftsScreen.Settings.name) }
+                )
+            } else {
+                TopAppBar(title = currentScreen.title)
+            }
+        },
+        bottomBar = {
+            if (currentScreen.title != "App List") {
+                BottomNavigationBar(
+                    currentScreen = currentScreen.title,
+                    onClickSettingsButton = { navController.navigate(NotiftsScreen.Settings.name) },
+                    onClickSearchFilterButton = { navController.navigate(NotiftsScreen.Manager.name) },
+                    onClickDashboardButton = { navController.navigate(NotiftsScreen.DashBoard.name) },
+                )
+            }
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -58,19 +74,19 @@ fun NotiftsScreen(
         ) {
             composable(route = NotiftsScreen.Settings.name) {
                 SettingsScreen(
+                    onClickAppList = { navController.navigate(NotiftsScreen.AppList.name)},
                     settingsViewModel = settingsViewModel,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
             composable(route = NotiftsScreen.Manager.name) {
-                ManagerScreen(
-                    modifier = Modifier.padding(innerPadding)
-                )
+                ManagerScreen(modifier = Modifier.padding(innerPadding))
             }
             composable(route = NotiftsScreen.DashBoard.name) {
-                DashboardScreen(
-                    modifier = Modifier.padding(innerPadding)
-                )
+                DashboardScreen(modifier = Modifier.padding(innerPadding))
+            }
+            composable(route = NotiftsScreen.AppList.name) {
+                AppListScreen(modifier = Modifier.padding(innerPadding))
             }
         }
     }

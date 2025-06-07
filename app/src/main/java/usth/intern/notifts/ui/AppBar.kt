@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
@@ -28,7 +31,7 @@ import usth.intern.notifts.ui.theme.eveningGlory
 import usth.intern.notifts.ui.theme.lightSilver
 
 @Composable
-fun Title(
+fun TopAppBar(
     title: String,
     modifier: Modifier = Modifier
 ) {
@@ -49,11 +52,46 @@ fun Title(
     }
 }
 
+
+@Composable
+fun TopAppBarWithBack(
+    title: String,
+    onClickBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onClickBack
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+        }
+        Text(
+            text = title,
+            color = eveningGlory,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            fontSize = 20.sp,
+        )
+    }
+}
+
 @Composable
 @Preview(showBackground = true)
-fun TitlePreview() {
-    Title("Settings")
+fun TopAppBarPreview() {
+    TopAppBar("Settings")
 }
+
+@Composable
+@Preview(showBackground = true)
+fun TopAppBarWithBackPreview() {
+    TopAppBarWithBack("Settings", {})
+}
+
 
 @Composable
 fun BottomNavigationBar(

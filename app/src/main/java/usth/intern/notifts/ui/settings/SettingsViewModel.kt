@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import usth.intern.notifts.data.db.Notification
-import usth.intern.notifts.data.repository.DatabaseRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
 import javax.inject.Inject
 
@@ -23,8 +20,7 @@ private const val TAG = "HomeViewModel"
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val preferenceRepository: PreferenceRepository,
-    private val databaseRepository: DatabaseRepository
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel(){
 
     private val _openTtsSetting = MutableLiveData<Unit>()
