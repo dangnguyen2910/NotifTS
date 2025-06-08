@@ -14,3 +14,4 @@ val SPEAKER_IS_ENABLED_WHEN_DND_ON = booleanPreferencesKey("speaker_is_enabled_w
 val NOTIFICATION_IS_SHOWN = booleanPreferencesKey("notification_is_shown")
 val ENGLISH_VOICE = stringPreferencesKey("english_voice")
 val FRENCH_VOICE = stringPreferencesKey("french_voice")
+val IS_FIRST_TIME = booleanPreferencesKey("is_first_time")

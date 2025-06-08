@@ -22,7 +22,6 @@ class DatabaseRepository @Inject constructor(
     ).fallbackToDestructiveMigration(dropAllTables = true).build()
 
     private val notificationDao = db.notificationDao()
-    val newestNotification = notificationDao.loadNewestNotification()
 
     suspend fun insertNotification(
         packageName: String,

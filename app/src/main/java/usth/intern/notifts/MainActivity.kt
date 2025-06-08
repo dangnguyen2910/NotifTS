@@ -14,16 +14,28 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import usth.intern.notifts.data.repository.AppStatusRepository
+import usth.intern.notifts.data.repository.PreferenceRepository
+import usth.intern.notifts.domain.AppStatus
 import usth.intern.notifts.domain.NotificationListener
 import usth.intern.notifts.ui.settings.SettingsViewModel
 import usth.intern.notifts.ui.theme.NotiftsTheme
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    @Inject
+    lateinit var preferenceRepository: PreferenceRepository
+
+    @Inject
+    lateinit var appStatusRepository: AppStatusRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +69,34 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        CoroutineScope(Dispatchers.IO).launch {
+            if (preferenceRepository.isFirstTime.first()) {
+                val appList = getAppList()
+                appList.forEach { app ->
+                    appStatusRepository.insertAppStatus(AppStatus(appName = app, status = true))
+                }
+                preferenceRepository.updateIsFirstTime()
+            }
+        }
+
+    }
+
+    private fun getAppList(): MutableList<String> {
+        val appList: MutableList<String> = mutableListOf()
+
+        val packageManager = this@MainActivity.packageManager
+        val packages = packageManager.getInstalledPackages(0)
+
+        for (packageInfo in packages) {
+            val appName = packageInfo.applicationInfo?.let {
+                packageManager.getApplicationLabel(it).toString()
+            }
+            if (appName != null) {
+                appList.add(appName)
+            }
+        }
+        appList.sort()
+        return appList
     }
 
 }

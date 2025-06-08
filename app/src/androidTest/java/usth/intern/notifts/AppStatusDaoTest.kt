@@ -57,4 +57,30 @@ class AppStatusDaoTest {
             }
         }
     }
+
+    @Test
+    fun getStatusListTest() {
+        val expect = listOf(true, true)
+        runBlocking {
+            launch {
+                val statusList = appStatusDao.getStatusList()
+                assertEquals(expect, statusList)
+            }
+        }
+    }
+
+
+    @Test
+    fun getInactiveAppTest() {
+        val newAppStatus1 = AppStatusEntity(1, "Messenger", false)
+        val expect = listOf(newAppStatus1)
+
+        runBlocking {
+            launch {
+                appStatusDao.updateAppStatus(newAppStatus1)
+                val inactiveApp = appStatusDao.getInactiveApp()
+                assertEquals(expect, inactiveApp)
+            }
+        }
+    }
 }
