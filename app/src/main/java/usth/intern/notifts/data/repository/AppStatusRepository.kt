@@ -53,11 +53,11 @@ class AppStatusRepository @Inject constructor(
         return appStatusDao.getStatusList()
     }
 
-    fun getInactiveApp() : List<AppStatus> {
-        val inactiveAppEntityList = appStatusDao.getInactiveApp()
-        val inactiveAppList = inactiveAppEntityList.map { appStatusEntity ->
+    fun getIgnoredApp() : List<AppStatus> {
+        val ignoredAppEntityList = appStatusDao.getIgnoredApp()
+        val ignoredAppList = ignoredAppEntityList.map { appStatusEntity ->
             appStatusEntity.toDomainObject()
         }
-        return inactiveAppList
+        return ignoredAppList
     }
 }

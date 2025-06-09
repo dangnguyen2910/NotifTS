@@ -78,8 +78,8 @@ class AppStatusDaoTest {
         runBlocking {
             launch {
                 appStatusDao.updateAppStatus(newAppStatus1)
-                val inactiveApp = appStatusDao.getInactiveApp()
-                assertEquals(expect, inactiveApp)
+                val ignoredApp = appStatusDao.getIgnoredApp()
+                assertEquals(expect, ignoredApp)
             }
         }
     }
