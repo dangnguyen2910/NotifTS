@@ -11,6 +11,7 @@ import usth.intern.notifts.data.FRENCH_VOICE
 import usth.intern.notifts.data.IS_ACTIVATED
 import usth.intern.notifts.data.IS_FIRST_TIME
 import usth.intern.notifts.data.NOTIFICATION_IS_SHOWN
+import usth.intern.notifts.data.PREVIOUS_NOTIFICATION_TEXT
 import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_DND_ON
 import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_SCREEN_ON
 import usth.intern.notifts.data.dataStore
@@ -48,6 +49,10 @@ class PreferenceRepository @Inject constructor(
     val englishVoice: Flow<String> = dataStore.data.map { it[ENGLISH_VOICE] ?: "Heart (F)" }
     val frenchVoice: Flow<String> = dataStore.data.map { it[FRENCH_VOICE] ?: "Siwis (F)" }
 
+    val previousNotificationText: Flow<String> = dataStore.data.map {
+        it[PREVIOUS_NOTIFICATION_TEXT] ?: ""
+    }
+
     suspend fun updateActivationState(isActivated: Boolean) {
         dataStore.edit { preferences ->
             preferences[IS_ACTIVATED] = isActivated
@@ -78,5 +83,9 @@ class PreferenceRepository @Inject constructor(
 
     suspend fun updateIsFirstTime() {
         dataStore.edit { it[IS_FIRST_TIME] = false }
+    }
+
+    suspend fun updatePreviousNotificationText(text: String) {
+        dataStore.edit { it[PREVIOUS_NOTIFICATION_TEXT] = text}
     }
 }

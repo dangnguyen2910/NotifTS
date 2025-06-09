@@ -35,10 +35,7 @@ class TtsEngine @Inject constructor(
         "FRENCH" to null,
     )
 
-    fun run(app: String, title: String, text: String) {
-        val language = languageIdentifier.predict(text)
-        Log.d("TtsEngine", "Language: $language")
-
+    fun run(app: String, title: String, text: String, language: String) {
         var englishVoice = ""
         var frenchVoice = ""
         runBlocking {

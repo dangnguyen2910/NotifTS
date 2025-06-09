@@ -5,11 +5,16 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import usth.intern.notifts.data.db.Notification
+import usth.intern.notifts.data.repository.AppStatusRepository
 import usth.intern.notifts.data.repository.DatabaseRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
+import usth.intern.notifts.domain.tts.LanguageIdentifier
 import usth.intern.notifts.domain.tts.TtsEngine
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,72 +34,74 @@ class NotificationListener : NotificationListenerService() {
 
     @Inject
     lateinit var databaseRepository: DatabaseRepository
+    @Inject lateinit var appStatusRepository: AppStatusRepository
 
-    /**
-     * If this value is false -> Notifications will not be spoken
-     */
-    private var isActivated: Boolean = false
+    @Inject lateinit var languageIdentifier: LanguageIdentifier
+    private lateinit var notificationFilter: NotificationFilter
+    private lateinit var ignoredAppList: List<String>
 
-    /**
-     * To track the content of the newest notification.
-     * Initially used to know whether a notification is duplicated multiple times.
-     */
-    private var previousText: String = ""
+    override fun onCreate() {
+        super.onCreate()
+        CoroutineScope(Dispatchers.IO).launch {
+            ignoredAppList = appStatusRepository.getIgnoredApp()
+            notificationFilter = NotificationFilter(
+                ignoredAppList = ignoredAppList,
+                preferenceRepository = preferenceRepository
+            )
+        }
+    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (sbn == null) {
-            return
-        }
         super.onNotificationPosted(sbn)
 
-        val category = sbn.notification.category ?: ""
+        if (sbn == null)
+            return
+
+        // Retrieve some basic content of notification
+        val category = sbn.notification.category ?: "Unknown"
         val title = sbn.notification.extras.getCharSequence("android.title") ?: ""
         val text = sbn.notification.extras.getCharSequence("android.text") ?: ""
         val bigText = sbn.notification.extras.getCharSequence("android.bigText")?: ""
-        val date = sbn.postTime
-
-        // Some apps push multiple same notifications for no reason, so we need to ignore them
-        val isDuplicated = (text.toString() == previousText)
-        if (isDuplicated) {
-            return
-        }
-
-        previousText = text.toString()
-
+        val timestamp = sbn.postTime
         val appName = getAppName(this, packageName = sbn.packageName) ?: "Unknown"
 
-        runBlocking {
-            launch { isActivated = preferenceRepository.isActivatedFlow.first() }
-            launch {
-                databaseRepository.insertNotification(
-                    packageName = appName,
-                    title = title.toString(),
-                    text = text.toString(),
-                    bigText = bigText.toString(),
-                    category = category,
-                    date = date
-                )
-                Log.d(TAG, "Save notification complete")
-            }
-        }
-
-        Log.d("NotificationListener", "isActivated: $isActivated")
-
-        if (!isActivated) {
-            return
-        }
-
-        logNewNotification(
-            packageName = packageName,
-            category = category,
+        val notification = Notification(
+            packageName = appName,
             title = title.toString(),
             text = text.toString(),
             bigText = bigText.toString(),
-            date = date
+            category = category,
+            timestamp = timestamp
         )
+
+        logNewNotification(notification)
+
+        // Ignore duplicated notifications
+        if (notificationFilter.filter(notification)) {
+            Log.d(TAG, "This notification is blocked")
+            return
+        }
+        else {
+            CoroutineScope(Dispatchers.IO).launch {
+                preferenceRepository.updatePreviousNotificationText(text.toString())
+            }
+        }
+
+        // Detect language
+        val language = languageIdentifier.predict(text.toString())
+        Log.d("TtsEngine", "Language: $language")
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            databaseRepository.insertNotification(notification)
+            Log.d(TAG, "Save notification complete")
+        }
 
         runBlocking {
             launch {
+                val isActivated = preferenceRepository.isActivatedFlow.first()
+                Log.d("NotificationListener", "isActivated: $isActivated")
+
                 /**
                  * If this value is true then whenever screen is on, the notification is spoken.
                  * Else the notification is spoken only when screen is off.
@@ -106,12 +113,11 @@ class NotificationListener : NotificationListenerService() {
                 val isAllowedToSpeak = isAllowedToSpeak(
                     context = this@NotificationListener,
                     isActivated = isActivated,
-                    isDuplicated = isDuplicated,
                     speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
                 )
 
                 if (isAllowedToSpeak) {
-                    ttsEngine.run(appName, title.toString(), text.toString())
+                    ttsEngine.run(appName, title.toString(), text.toString(), language)
                 }
             }
         }
@@ -120,11 +126,10 @@ class NotificationListener : NotificationListenerService() {
     fun isAllowedToSpeak(
         context: Context,
         isActivated: Boolean,
-        isDuplicated: Boolean,
         speakerIsActivatedWhenScreenOn: Boolean
     ) : Boolean {
 
-        if (!isActivated || isDuplicated) {
+        if (!isActivated) {
             return false
         }
 
@@ -135,23 +140,16 @@ class NotificationListener : NotificationListenerService() {
         return false
     }
 
-    private fun logNewNotification(
-        packageName: String,
-        category: String?,
-        title: String,
-        text: String?,
-        bigText: String?,
-        date: Long,
-    ) {
+    private fun logNewNotification(notification: Notification) {
         Log.d(TAG, "-----------------------------------------------------")
-        Log.d(TAG, "Package name $packageName")
-        Log.d(TAG, "Category: $category")
-        Log.d(TAG, "Title: $title")
-        Log.d(TAG, "Text: $text")
-        Log.d(TAG, "Big Text: $bigText")
+        Log.d(TAG, "Package name: ${notification.packageName}")
+        Log.d(TAG, "Category: ${notification.category}")
+        Log.d(TAG, "Title: ${notification.title}")
+        Log.d(TAG, "Text: ${notification.text}")
+        Log.d(TAG, "Big Text: ${notification.bigText}")
         Log.d(TAG, "Date: ${SimpleDateFormat(
             "dd-MM-yyyy HH:mm",
-            Locale.getDefault()).format(Date(date))}"
+            Locale.getDefault()).format(Date(notification.timestamp))}"
         )
 
     }

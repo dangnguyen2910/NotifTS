@@ -73,7 +73,7 @@ class AppStatusDaoTest {
     @Test
     fun getInactiveAppTest() {
         val newAppStatus1 = AppStatusEntity(1, "Messenger", false)
-        val expect = listOf(newAppStatus1)
+        val expect = listOf("Messenger")
 
         runBlocking {
             launch {

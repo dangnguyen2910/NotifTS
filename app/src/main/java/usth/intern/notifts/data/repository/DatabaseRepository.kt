@@ -23,23 +23,7 @@ class DatabaseRepository @Inject constructor(
 
     private val notificationDao = db.notificationDao()
 
-    suspend fun insertNotification(
-        packageName: String,
-        title: String,
-        text: String,
-        bigText: String?,
-        category: String?,
-        date: Long
-    ) : Long{
-        val notification = Notification(
-            packageName = packageName,
-            title = title,
-            text = text,
-            bigText = bigText,
-            category = category,
-            timestamp = date
-        )
-
+    suspend fun insertNotification(notification: Notification) : Long{
         val id = notificationDao.insertNotification(notification)
         return id
     }

@@ -12,7 +12,8 @@ class LanguageIdentifier @Inject constructor() {
     private val detector: LanguageDetector = LanguageDetectorBuilder.fromLanguages(
         Language.ENGLISH,
         Language.VIETNAMESE,
-        Language.FRENCH
+        Language.FRENCH,
+        Language.UNKNOWN
     ).build()
 
     fun predict(text: String) : String {
