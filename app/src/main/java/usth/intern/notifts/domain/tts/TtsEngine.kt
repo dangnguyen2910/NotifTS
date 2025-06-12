@@ -18,22 +18,13 @@ import usth.intern.notifts.domain.NotificationPackage
 import usth.intern.notifts.domain.isWifiConnected
 import java.io.File
 import java.io.IOException
-import java.net.ConnectException
-import java.util.Locale
 import javax.inject.Inject
 
 class TtsEngine @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val languageIdentifier: LanguageIdentifier,
     private val preferenceRepository: PreferenceRepository,
 ) {
     private lateinit var tts: TextToSpeech
-
-    private val localeMap: MutableMap<String, Locale?> = mutableMapOf(
-        "ENGLISH" to null,
-        "VIETNAMESE" to null,
-        "FRENCH" to null,
-    )
 
     fun run(app: String, title: String, text: String, language: String) {
         var englishVoice = ""
@@ -67,20 +58,9 @@ class TtsEngine @Inject constructor(
             if (status == TextToSpeech.SUCCESS) {
                 Log.d("TtsEngine", "Initialize TTS engine success")
 
-                val availableLocale = tts.availableLanguages
-                if (availableLocale != null) {
-                    for (locale in availableLocale) {
-                        when (locale.displayLanguage) {
-                            "Vietnamese" -> localeMap["VIETNAMESE"] = locale
-                            "English" -> localeMap["ENGLISH"] = locale
-                        }
-                    }
-                }
-
-
                 val finalText = "${notification.app}. ${notification.title}. ${notification.text}"
 
-                speak(finalText, notification.language)
+                speak(finalText)
 
             } else {
                 Log.e("TtsEngine", "Initialize TTS engine fail")
@@ -88,23 +68,11 @@ class TtsEngine @Inject constructor(
         }, "com.google.android.tts")
     }
 
-    private fun speak(text: String, language: String) : Int {
-        if (language == "UNKNOWN") {
-            return TextToSpeech.ERROR
-        }
-
-        val result = tts.setLanguage(localeMap[language])
-
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            Log.e("TtsEngine", "Language is not supported or missing data")
-            return TextToSpeech.ERROR
-        }
-
+    private fun speak(text: String) : Int {
         val speakResult = tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
         return speakResult
 
     }
-
 
     private fun speak(
         context: Context,
