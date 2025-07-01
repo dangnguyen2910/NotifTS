@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import usth.intern.notifts.data.remote.WavApiService
 import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.NotificationPackage
+import usth.intern.notifts.domain.hasInternetConnection
 import usth.intern.notifts.domain.isWifiConnected
 import java.io.File
 import java.io.IOException
@@ -42,13 +43,16 @@ class TtsEngine @Inject constructor(
             else -> NotificationPackage(app, title, text, language, "")
         }
 
-        if (isWifiConnected(context) && (language == "ENGLISH" || language == "FRENCH")) {
+        if (hasInternetConnection(context) && (language == "ENGLISH" || language == "FRENCH")) {
             try {
+                Log.d("TtsEngine", "Use remote model")
                 speak(context, notification)
             } catch (e: IOException) {
+                Log.e("TtsEngine", e.toString())
                 useLocalTts(notification)
             }
         } else {
+            Log.e("TtsEngine", "No internet connection or language is not supported")
             useLocalTts(notification)
         }
     }
@@ -81,7 +85,7 @@ class TtsEngine @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val retrofit = Retrofit.Builder()
-                    .baseUrl("http://192.168.1.51:5000/")
+                    .baseUrl("http://192.168.176.229:5000/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
 
@@ -113,6 +117,7 @@ class TtsEngine @Inject constructor(
                     Log.e("TtsEngine", "Failed to download audio: ${response.code()}")
                 }
             } catch (e: Exception) {
+                Log.e("TtsEngine", e.toString())
                 useLocalTts(notification)
             }
         }
