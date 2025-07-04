@@ -25,7 +25,9 @@ class DashboardViewModel @Inject constructor(
     fun getNotificationCountByDay() {
         viewModelScope.launch(Dispatchers.IO) {
             val countList = databaseRepository.countNotificationLast7Days()
-            val countDateMap = countList.associate { LocalDate.parse(it.notificationDate, formatter) to it.notificationCount }
+            val countDateMap = countList.associate {
+                LocalDate.parse(it.notificationDate, formatter) to it.notificationCount
+            }
 
             _uiState.update {
                 it.copy(notificationCountByDate = countDateMap)

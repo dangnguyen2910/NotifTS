@@ -19,3 +19,4 @@ local.properties
 server/*.wav
 server/__pycache__
 app/release
+server/test.py
