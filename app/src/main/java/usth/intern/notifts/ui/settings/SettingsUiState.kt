@@ -10,4 +10,7 @@ data class SettingsUiState(
     val currentEnglishVoice: String,
     val frenchVoiceList: List<String> = listOf("Siwis (F)"),
     val currentFrenchVoice: String,
+    val isTestDialogShown: Boolean = false,
+    val testNotificationTitle: String = "",
+    val testNotificationText: String = "",
 )

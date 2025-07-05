@@ -26,6 +26,9 @@ class SettingsViewModel @Inject constructor(
     private val _openTtsSetting = MutableLiveData<Unit>()
     val openTtsSetting: LiveData<Unit> = _openTtsSetting
 
+    private val _shouldPushNotification = MutableLiveData<Unit>()
+    val shouldPushNotification: LiveData<Unit> = _shouldPushNotification
+
     private var isActivated: Boolean = false
     private var speakerIsEnabledWhenScreenOn: Boolean = false
     private var speakerIsEnabledWhenDndOn: Boolean = false
@@ -164,5 +167,18 @@ class SettingsViewModel @Inject constructor(
          viewModelScope.launch {
              preferenceRepository.updateEnglishVoice(voice)
          }
+    }
+
+    fun onClickTest() {
+        _uiState.update { it.copy(isTestDialogShown = true) }
+    }
+
+    fun onDismissTestDialog() {
+        _uiState.update { it.copy(isTestDialogShown = false) }
+    }
+
+    fun onConfirmTest(content: Pair<String, String>) {
+        _uiState.update { it.copy(testNotificationTitle = content.first, testNotificationText = content.second) }
+        _shouldPushNotification.value = Unit
     }
 }
