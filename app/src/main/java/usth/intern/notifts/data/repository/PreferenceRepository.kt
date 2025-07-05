@@ -10,6 +10,7 @@ import usth.intern.notifts.data.ENGLISH_VOICE
 import usth.intern.notifts.data.FRENCH_VOICE
 import usth.intern.notifts.data.IS_ACTIVATED
 import usth.intern.notifts.data.IS_FIRST_TIME
+import usth.intern.notifts.data.IS_REMOTE_MODEL_ALLOWED
 import usth.intern.notifts.data.NOTIFICATION_IS_SHOWN
 import usth.intern.notifts.data.PREVIOUS_NOTIFICATION_TEXT
 import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_DND_ON
@@ -40,6 +41,10 @@ class PreferenceRepository @Inject constructor(
         .map { value: Preferences ->
             value[NOTIFICATION_IS_SHOWN] ?: true
         }
+
+    val isRemoteModelAllowed: Flow<Boolean> = dataStore.data.map {
+        it[IS_REMOTE_MODEL_ALLOWED] ?: false
+    }
 
     val isFirstTime: Flow<Boolean> = dataStore.data.map {
         it[IS_FIRST_TIME] ?: true
@@ -87,5 +92,9 @@ class PreferenceRepository @Inject constructor(
 
     suspend fun updatePreviousNotificationText(text: String) {
         dataStore.edit { it[PREVIOUS_NOTIFICATION_TEXT] = text}
+    }
+
+    suspend fun setRemoteModelAllowed(value: Boolean) {
+        dataStore.edit { it[IS_REMOTE_MODEL_ALLOWED] = value }
     }
 }
