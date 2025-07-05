@@ -7,9 +7,7 @@ import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import usth.intern.notifts.data.db.Notification
 import usth.intern.notifts.data.repository.AppStatusRepository
 import usth.intern.notifts.data.repository.DatabaseRepository
@@ -84,60 +82,12 @@ class NotificationListener : NotificationListenerService() {
         else {
             CoroutineScope(Dispatchers.IO).launch {
                 preferenceRepository.updatePreviousNotificationText(text.toString())
+                databaseRepository.insertNotification(notification)
+                Log.d(TAG, "Save notification complete")
+
+                ttsEngine.run(appName, title.toString(), text.toString())
             }
         }
-
-        // Detect language
-        val language = languageIdentifier.predict(text.toString())
-        Log.d("TtsEngine", "Language: $language")
-
-
-        CoroutineScope(Dispatchers.IO).launch {
-            databaseRepository.insertNotification(notification)
-            Log.d(TAG, "Save notification complete")
-        }
-
-        runBlocking {
-            launch {
-                val isActivated = preferenceRepository.isActivatedFlow.first()
-                Log.d("NotificationListener", "isActivated: $isActivated")
-
-                /**
-                 * If this value is true then whenever screen is on, the notification is spoken.
-                 * Else the notification is spoken only when screen is off.
-                 */
-                val speakerIsActivatedWhenScreenOn = preferenceRepository
-                    .speakerIsEnabledWhenScreenOnFlow
-                    .first()
-
-                val isAllowedToSpeak = isAllowedToSpeak(
-                    context = this@NotificationListener,
-                    isActivated = isActivated,
-                    speakerIsActivatedWhenScreenOn = speakerIsActivatedWhenScreenOn
-                )
-
-                if (isAllowedToSpeak) {
-                    ttsEngine.run(appName, title.toString(), text.toString(), language)
-                }
-            }
-        }
-    }
-
-    fun isAllowedToSpeak(
-        context: Context,
-        isActivated: Boolean,
-        speakerIsActivatedWhenScreenOn: Boolean
-    ) : Boolean {
-
-        if (!isActivated) {
-            return false
-        }
-
-        if (!isScreenOn(context) || speakerIsActivatedWhenScreenOn) {
-            return true
-        }
-
-        return false
     }
 
     private fun logNewNotification(notification: Notification) {
@@ -151,7 +101,5 @@ class NotificationListener : NotificationListenerService() {
             "dd-MM-yyyy HH:mm",
             Locale.getDefault()).format(Date(notification.timestamp))}"
         )
-
     }
-
 }

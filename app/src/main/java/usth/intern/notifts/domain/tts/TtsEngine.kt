@@ -14,9 +14,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import usth.intern.notifts.data.remote.WavApiService
 import usth.intern.notifts.data.repository.PreferenceRepository
+import usth.intern.notifts.domain.Controller
 import usth.intern.notifts.domain.NotificationPackage
 import usth.intern.notifts.domain.hasInternetConnection
-import usth.intern.notifts.domain.isWifiConnected
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -24,18 +24,26 @@ import javax.inject.Inject
 class TtsEngine @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferenceRepository: PreferenceRepository,
+    private val languageIdentifier: LanguageIdentifier,
+    private val controller: Controller
 ) {
     private lateinit var tts: TextToSpeech
 
-    fun run(app: String, title: String, text: String, language: String) {
-        var englishVoice = ""
-        var frenchVoice = ""
-        runBlocking {
-            launch {
-                englishVoice = preferenceRepository.englishVoice.first()
-                frenchVoice = preferenceRepository.frenchVoice.first()
-            }
-        }
+    suspend fun run(app: String, title: String, text: String) {
+        // Detect language
+        val language = languageIdentifier.predict(text)
+        Log.d("TtsEngine", "Language: $language")
+
+        val modelDecision = controller.getModelDecision(language)
+        val shouldSpeak = controller.shouldSpeak()
+
+        // Terminate if the controller doesn't allow to speak.
+        if (!shouldSpeak)
+            return
+
+        // Create notification object.
+        val englishVoice = preferenceRepository.englishVoice.first()
+        val frenchVoice = preferenceRepository.frenchVoice.first()
 
         val notification = when (language) {
             "ENGLISH" -> NotificationPackage(app, title, text, language, englishVoice)
@@ -43,16 +51,18 @@ class TtsEngine @Inject constructor(
             else -> NotificationPackage(app, title, text, language, "")
         }
 
-        if (hasInternetConnection(context) && (language == "ENGLISH" || language == "FRENCH")) {
-            try {
-                Log.d("TtsEngine", "Use remote model")
-                speak(context, notification)
-            } catch (e: IOException) {
-                Log.e("TtsEngine", e.toString())
-                useLocalTts(notification)
-            }
-        } else {
-            Log.e("TtsEngine", "No internet connection or language is not supported")
+        // Use local model if the controller says so.
+        if (modelDecision == "local") {
+            useLocalTts(notification)
+            return
+        }
+
+        // Use remote model, roll back to local if any error happens.
+        try {
+            Log.d("TtsEngine", "Use remote model")
+            useRemoteTts(context, notification)
+        } catch (e: IOException) {
+            Log.e("TtsEngine", e.toString())
             useLocalTts(notification)
         }
     }
@@ -64,7 +74,7 @@ class TtsEngine @Inject constructor(
 
                 val finalText = "${notification.app}. ${notification.title}. ${notification.text}"
 
-                speak(finalText)
+                tts.speak(finalText, TextToSpeech.QUEUE_ADD, null, null)
 
             } else {
                 Log.e("TtsEngine", "Initialize TTS engine fail")
@@ -72,13 +82,7 @@ class TtsEngine @Inject constructor(
         }, "com.google.android.tts")
     }
 
-    private fun speak(text: String) : Int {
-        val speakResult = tts.speak(text, TextToSpeech.QUEUE_ADD, null, null)
-        return speakResult
-
-    }
-
-    private fun speak(
+    private fun useRemoteTts(
         context: Context,
         notification: NotificationPackage
     ) {
