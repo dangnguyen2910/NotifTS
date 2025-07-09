@@ -57,4 +57,8 @@ class AppStatusRepository @Inject constructor(
         val ignoredAppList = appStatusDao.getIgnoredApp()
         return ignoredAppList
     }
+
+    fun getAppList(): List<String> {
+        return appStatusDao.getAppList()
+    }
 }

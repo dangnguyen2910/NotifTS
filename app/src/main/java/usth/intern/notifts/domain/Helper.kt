@@ -41,3 +41,21 @@ fun isScreenOn(context: Context) : Boolean {
     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     return powerManager.isInteractive
 }
+
+fun getNewApps(
+    deviceAppList: List<String>,
+    databaseAppList: List<String>,
+) : List<String> {
+    val databaseAppCountMap = databaseAppList.groupingBy{ it }.eachCount().toMutableMap()
+    val newAppList = mutableListOf<String>()
+
+    deviceAppList.forEach { app ->
+        val count = databaseAppCountMap[app] ?: 0
+        if (count > 0) {
+            databaseAppCountMap[app] = count - 1
+        } else {
+            newAppList.add(app)
+        }
+    }
+    return newAppList
+}

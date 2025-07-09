@@ -21,4 +21,7 @@ interface AppStatusDao {
 
     @Query("select app_name from app_status_entity where status = false order by app_name")
     fun getIgnoredApp(): List<String>
+
+    @Query("select app_name from app_status_entity")
+    fun getAppList(): List<String>
 }

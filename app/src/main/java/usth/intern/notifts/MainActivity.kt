@@ -30,6 +30,7 @@ import usth.intern.notifts.data.repository.AppStatusRepository
 import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.AppStatus
 import usth.intern.notifts.domain.NotificationListener
+import usth.intern.notifts.domain.getNewApps
 import usth.intern.notifts.ui.settings.SettingsViewModel
 import usth.intern.notifts.ui.theme.NotiftsTheme
 import javax.inject.Inject
@@ -58,13 +59,13 @@ class MainActivity : ComponentActivity() {
         }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
 
         val notificationIsAccessed = notificationManager.isNotificationListenerAccessGranted(
             ComponentName(this, NotificationListener::class.java)
         )
 
         if (!notificationIsAccessed) {
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
             startActivity(intent)
         }
 
@@ -91,19 +92,26 @@ class MainActivity : ComponentActivity() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
+            val deviceAppList = getDeviceAppList()
+            
             if (preferenceRepository.isFirstTime.first()) {
-                val appList = getAppList()
-                appList.forEach { app ->
+                deviceAppList.forEach { app ->
                     appStatusRepository.insertAppStatus(AppStatus(appName = app, status = true))
                 }
                 preferenceRepository.updateIsFirstTime()
+            } else {
+                val databaseAppList = appStatusRepository.getAppList()
+                val newAppList = getNewApps(deviceAppList, databaseAppList)
+                newAppList.forEach { app ->
+                    appStatusRepository.insertAppStatus(AppStatus(appName = app, status = true))
+                }
             }
         }
 
 
     }
 
-    private fun getAppList(): MutableList<String> {
+    private fun getDeviceAppList(): MutableList<String> {
         val appList: MutableList<String> = mutableListOf()
 
         val packageManager = this@MainActivity.packageManager

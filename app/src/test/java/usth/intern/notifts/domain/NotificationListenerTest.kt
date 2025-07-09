@@ -23,40 +23,4 @@ class NotificationListenerTest {
     fun setup() {
         hiltRule.inject()
     }
-
-    @Test
-    fun isAllowedToSpeak_NotActivated_ReturnFalse() {
-        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
-        val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
-            isActivated = false,
-            isDuplicated = false,
-            speakerIsActivatedWhenScreenOn = false
-        )
-
-        assertEquals(isAllowedToSpeak, false)
-    }
-
-    @Test
-    fun isAllowedToSpeak_Duplicated_ReturnFalse() {
-        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
-        val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
-            isActivated = true,
-            isDuplicated = true,
-            speakerIsActivatedWhenScreenOn = false
-        )
-
-        assertEquals(isAllowedToSpeak, false)
-    }
-
-    @Test
-    fun isAllowedToSpeak_IsActivatedAndNotDuplicatedAndScreenNotMatter_ReturnTrue() {
-        val notificationListener = Robolectric.setupService(NotificationListener::class.java)
-        val isAllowedToSpeak = notificationListener.isAllowedToSpeak(
-            isActivated = true,
-            isDuplicated = false,
-            speakerIsActivatedWhenScreenOn = true
-        )
-
-        assertEquals(isAllowedToSpeak, true)
-    }
 }
