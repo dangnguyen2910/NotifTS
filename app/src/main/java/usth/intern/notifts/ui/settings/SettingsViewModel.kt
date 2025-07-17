@@ -97,12 +97,10 @@ class SettingsViewModel @Inject constructor(
             )
         }
 
-        runBlocking {
-            launch {
-                preferenceRepository.updateScreenOnActivationState(
-                    _uiState.value.speakerIsEnabledWhenScreenOn
-                )
-            }
+        viewModelScope.launch {
+            preferenceRepository.updateScreenOnActivationState(
+                _uiState.value.speakerIsEnabledWhenScreenOn
+            )
         }
     }
 
