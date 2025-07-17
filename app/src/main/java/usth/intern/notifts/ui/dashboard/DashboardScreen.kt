@@ -20,6 +20,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import usth.intern.notifts.R
 import usth.intern.notifts.ui.dashboard.component.JetpackComposeBasicColumnChart
 import usth.intern.notifts.ui.dashboard.component.JetpackComposeBasicLineChart
@@ -43,6 +46,11 @@ fun DashboardScreen(
 ) {
     val dashboardViewModel: DashboardViewModel = hiltViewModel<DashboardViewModel>()
     val uiState by dashboardViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getNotificationCountByDay()
+        dashboardViewModel.getNotificationCountByApp()
+    }
 
     Column (
         modifier = modifier
