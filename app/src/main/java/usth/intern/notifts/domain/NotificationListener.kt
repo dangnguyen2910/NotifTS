@@ -1,6 +1,5 @@
 package usth.intern.notifts.domain
 
-import android.content.Context
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -35,17 +34,12 @@ class NotificationListener : NotificationListenerService() {
     @Inject lateinit var appStatusRepository: AppStatusRepository
 
     @Inject lateinit var languageIdentifier: LanguageIdentifier
-    private lateinit var notificationFilter: NotificationFilter
-    private lateinit var ignoredAppList: List<String>
 
     override fun onCreate() {
+        Log.i("NotificationListener", "Create notification listener service.")
         super.onCreate()
+
         CoroutineScope(Dispatchers.IO).launch {
-            ignoredAppList = appStatusRepository.getIgnoredApp()
-            notificationFilter = NotificationFilter(
-                ignoredAppList = ignoredAppList,
-                preferenceRepository = preferenceRepository
-            )
         }
     }
 
@@ -74,14 +68,25 @@ class NotificationListener : NotificationListenerService() {
 
         logNewNotification(notification)
 
-        // Ignore duplicated notifications
-        if (notificationFilter.filter(notification)) {
-            Log.d(TAG, "This notification is blocked")
-            return
-        }
-        else {
-            CoroutineScope(Dispatchers.IO).launch {
-                preferenceRepository.updatePreviousNotificationText(text.toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            val ignoredAppList = appStatusRepository.getIgnoredApp()
+
+            for (app in ignoredAppList) {
+                Log.i("NotificationListener", app)
+            }
+
+            val previousNotification = databaseRepository.loadNewestNotification()
+            if (previousNotification != null) {
+                Log.d("NotificationListener",
+                    "Previous notification: ${previousNotification.text}")
+            }
+
+            val notificationFilter = NotificationFilter(
+                ignoredAppList = ignoredAppList,
+                previousNotification = previousNotification
+            )
+
+            if (!notificationFilter.filter(notification)) {
                 databaseRepository.insertNotification(notification)
                 Log.d(TAG, "Save notification complete")
 

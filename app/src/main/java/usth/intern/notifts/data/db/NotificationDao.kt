@@ -18,7 +18,7 @@ interface NotificationDao {
         "order by rowid desc " +
         "limit 1"
     )
-    fun loadNewestNotification(): Flow<Notification?>
+    fun loadNewestNotification(): Notification?
 
     @Query(
         "select rowid, * " +

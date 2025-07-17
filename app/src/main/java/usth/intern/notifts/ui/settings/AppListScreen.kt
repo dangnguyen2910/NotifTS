@@ -33,6 +33,7 @@ fun AppListScreen(
 
     if (appList.isNotEmpty() && statusList.isNotEmpty() && appList.size == statusList.size) {
         val checkedList = remember(statusList) { statusList.map { mutableStateOf(it) }}
+
         LazyColumn(modifier = modifier.fillMaxSize().padding(16.dp)) {
             itemsIndexed(appList) { index, appStatus ->
                 Row(

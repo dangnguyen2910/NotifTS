@@ -103,4 +103,8 @@ class DatabaseRepository @Inject constructor(
         val sevenDaysAgo = calendar.timeInMillis
         return notificationDao.countNotificationByAppLast7Days(today, sevenDaysAgo)
     }
+
+    fun loadNewestNotification(): Notification? {
+        return notificationDao.loadNewestNotification()
+    }
 }
