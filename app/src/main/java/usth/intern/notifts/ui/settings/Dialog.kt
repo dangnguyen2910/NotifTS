@@ -48,7 +48,8 @@ fun VoiceSelectionDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .selectableGroup(),
+                    .selectableGroup()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 VoiceSelectionBlock(

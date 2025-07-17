@@ -79,11 +79,12 @@ fun SettingsScreen(
                 optionName = "Application filter",
                 functionality = { onClickAppList() }
             )
-            HorizontalDivider()
-            Option(
-                optionName = "Ignore prohibited words",
-                functionality = {/*TODO*/}
-            )
+            //TODO: Implement ignoring words
+//            HorizontalDivider()
+//            Option(
+//                optionName = "Ignore prohibited words",
+//                functionality = {/*TODO*/}
+//            )
         }
 
         OptionBlock("OTHER") {
