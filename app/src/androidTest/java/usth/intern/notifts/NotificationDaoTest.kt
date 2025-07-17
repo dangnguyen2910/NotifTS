@@ -114,7 +114,7 @@ class NotificationDaoTest {
 
         runBlocking {
             launch {
-                val newestNotification = notificationDao.loadNewestNotification().first()
+                val newestNotification = notificationDao.loadNewestNotification()
                 assertEquals(newestNotification, expected)
             }
         }
@@ -128,7 +128,7 @@ class NotificationDaoTest {
 
         runBlocking {
             launch {
-                val newestNotification = notificationDao.loadNewestNotification().first()
+                val newestNotification = notificationDao.loadNewestNotification()
                 assertEquals(newestNotification, expected)
             }
         }
