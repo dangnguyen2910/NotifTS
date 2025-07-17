@@ -7,6 +7,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import usth.intern.notifts.data.db.Notification
 import usth.intern.notifts.data.repository.AppStatusRepository
 import usth.intern.notifts.data.repository.DatabaseRepository
@@ -34,6 +36,8 @@ class NotificationListener : NotificationListenerService() {
     @Inject lateinit var appStatusRepository: AppStatusRepository
 
     @Inject lateinit var languageIdentifier: LanguageIdentifier
+
+    private val mutex = Mutex()
 
     override fun onCreate() {
         Log.i("NotificationListener", "Create notification listener service.")
@@ -69,28 +73,28 @@ class NotificationListener : NotificationListenerService() {
         logNewNotification(notification)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val ignoredAppList = appStatusRepository.getIgnoredApp()
+            mutex.withLock {
+                val ignoredAppList = appStatusRepository.getIgnoredApp()
 
-            for (app in ignoredAppList) {
-                Log.i("NotificationListener", app)
-            }
+                val previousNotification = databaseRepository.loadNewestNotification()
+                if (previousNotification != null) {
+                    Log.d("NotificationListener",
+                        "Previous notification: ${previousNotification.text}")
+                }
 
-            val previousNotification = databaseRepository.loadNewestNotification()
-            if (previousNotification != null) {
-                Log.d("NotificationListener",
-                    "Previous notification: ${previousNotification.text}")
-            }
+                val notificationFilter = NotificationFilter(
+                    ignoredAppList = ignoredAppList,
+                    previousNotification = previousNotification
+                )
 
-            val notificationFilter = NotificationFilter(
-                ignoredAppList = ignoredAppList,
-                previousNotification = previousNotification
-            )
+                if (!notificationFilter.filter(notification)) {
+                    Log.d("NotificationListener", "This notification will be spoken. ")
+                    databaseRepository.insertNotification(notification)
+                    Log.d(TAG, "Save notification complete")
 
-            if (!notificationFilter.filter(notification)) {
-                databaseRepository.insertNotification(notification)
-                Log.d(TAG, "Save notification complete")
+                    ttsEngine.run(appName, title.toString(), text.toString())
 
-                ttsEngine.run(appName, title.toString(), text.toString())
+                }
             }
         }
     }
