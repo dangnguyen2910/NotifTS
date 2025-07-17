@@ -2,11 +2,14 @@ package usth.intern.notifts.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,9 +68,7 @@ fun TopAppBarWithBack(
             .padding(top = 40.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onClickBack
-        ) {
+        IconButton(onClick = onClickBack) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
         Text(
@@ -77,6 +78,23 @@ fun TopAppBarWithBack(
             textAlign = TextAlign.Center,
             fontSize = 20.sp,
         )
+        Spacer(modifier = modifier.weight(1f))
+        IconButton(onClick = { /*TODO*/}) {
+            Icon(Icons.Filled.Search, contentDescription = "Search")
+        }
+        IconButton(onClick = { /*TODO*/}) {
+            Icon(
+                painterResource(R.drawable.checkbox),
+                contentDescription = "Checkbox",
+                modifier = Modifier.size(32.dp))
+        }
+        IconButton(onClick = { /*TODO*/}) {
+            Icon(
+                painterResource(R.drawable.unchecked),
+                contentDescription = "Unchecked",
+                modifier = Modifier.size(32.dp),
+            )
+        }
     }
 }
 
