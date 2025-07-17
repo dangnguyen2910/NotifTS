@@ -2,6 +2,7 @@ package usth.intern.notifts.domain
 
 import android.content.Context
 import android.util.Log
+import com.github.pemistahl.lingua.api.Language
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import usth.intern.notifts.data.repository.PreferenceRepository
@@ -11,25 +12,25 @@ class Controller @Inject constructor(
     private val preferenceRepository: PreferenceRepository,
     @ApplicationContext private val context: Context,
 ) {
-    suspend fun getModelDecision(language: String) : String {
+    suspend fun getModelDecision(language: Language) : ModelDecision {
         val isRemoteModelAllowed = preferenceRepository.isRemoteModelAllowed.first()
         val hasInternetConnection = hasInternetConnection(context)
-        val isLanguageSupported = language == "ENGLISH" || language == "FRENCH"
+        val isLanguageSupported = language == Language.ENGLISH || language == Language.FRENCH
 
         if (!isRemoteModelAllowed) {
             Log.e("Controller", "Remote model is not allowed by user.")
-            return "local"
+            return ModelDecision.LOCAL
         }
         if (!hasInternetConnection) {
             Log.e("Controller", "There is no internet connection.")
-            return "local"
+            return ModelDecision.LOCAL
         }
         if (!isLanguageSupported) {
             Log.e("Controller", "Language $language is not supported, yet.")
-            return "local"
+            return ModelDecision.LOCAL
         }
 
-        return "remote"
+        return ModelDecision.REMOTE
     }
 
     suspend fun shouldSpeak() : Boolean {

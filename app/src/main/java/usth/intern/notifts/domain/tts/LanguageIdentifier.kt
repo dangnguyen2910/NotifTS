@@ -16,8 +16,8 @@ class LanguageIdentifier @Inject constructor() {
         Language.UNKNOWN
     ).build()
 
-    fun predict(text: String) : String {
+    fun predict(text: String) : Language {
         val detectedLanguageOfText: Language = detector.detectLanguageOf(text)
-        return detectedLanguageOfText.name
+        return detectedLanguageOfText
     }
 }

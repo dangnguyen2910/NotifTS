@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import com.github.pemistahl.lingua.api.Language
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import usth.intern.notifts.data.remote.WavApiService
 import usth.intern.notifts.data.repository.PreferenceRepository
 import usth.intern.notifts.domain.Controller
+import usth.intern.notifts.domain.ModelDecision
 import usth.intern.notifts.domain.NotificationPackage
 import usth.intern.notifts.domain.hasInternetConnection
 import java.io.File
@@ -46,13 +48,13 @@ class TtsEngine @Inject constructor(
         val frenchVoice = preferenceRepository.frenchVoice.first()
 
         val notification = when (language) {
-            "ENGLISH" -> NotificationPackage(app, title, text, language, englishVoice)
-            "FRENCH" -> NotificationPackage(app, title, text, language, frenchVoice)
-            else -> NotificationPackage(app, title, text, language, "")
+            Language.ENGLISH -> NotificationPackage(app, title, text, language.name, englishVoice)
+            Language.FRENCH -> NotificationPackage(app, title, text, language.name, frenchVoice)
+            else -> NotificationPackage(app, title, text, language.name, "")
         }
 
         // Use local model if the controller says so.
-        if (modelDecision == "local") {
+        if (modelDecision == ModelDecision.LOCAL) {
             useLocalTts(notification)
             return
         }
