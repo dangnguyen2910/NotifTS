@@ -74,14 +74,14 @@ class TtsEngine @Inject constructor(
             if (status == TextToSpeech.SUCCESS) {
                 Log.d("TtsEngine", "Initialize TTS engine success")
 
-                val finalText = "${notification.app}. ${notification.title}. ${notification.text}"
-
-                tts.speak(finalText, TextToSpeech.QUEUE_ADD, null, null)
+                tts.speak(notification.app, TextToSpeech.QUEUE_ADD, null, null)
+                tts.speak(notification.title, TextToSpeech.QUEUE_ADD, null, null)
+                tts.speak(notification.text, TextToSpeech.QUEUE_ADD, null, null)
 
             } else {
                 Log.e("TtsEngine", "Initialize TTS engine fail")
             }
-        }, "com.google.android.tts")
+        })
     }
 
     private fun useRemoteTts(
