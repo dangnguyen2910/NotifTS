@@ -58,19 +58,25 @@ fun SettingsScreen(
 
         OptionBlock("TTS CONFIG") {
             Option(
-                optionName = "Choose local TTS model",
+                optionName = "Configure local TTS model",
                 functionality = { settingsViewModel.chooseLocalTtsModel() }
             )
             HorizontalDivider()
+            OptionWithSwitch(
+                optionName = "Enable remote model",
+                isActivated = uiState.isRemoteModelEnabled,
+                activateFunction = { settingsViewModel.onEnableRemoteModelSwitchToggled() }
+            )
+            HorizontalDivider()
             Option(
-                optionName = "Select voices for external model",
+                optionName = "Select voices for remote model",
                 functionality = { settingsViewModel.onClickVoiceSelection() }
             )
         }
 
         OptionBlock("FILTERING") {
             Option(
-                optionName = "Select apps",
+                optionName = "Application filter",
                 functionality = { onClickAppList() }
             )
             HorizontalDivider()

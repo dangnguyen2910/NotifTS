@@ -33,6 +33,7 @@ class SettingsViewModel @Inject constructor(
     private var speakerIsEnabledWhenScreenOn: Boolean = false
     private var speakerIsEnabledWhenDndOn: Boolean = false
     private var notificationIsShown: Boolean = false
+    private var isRemoteModelEnabled = false
     private lateinit var currentEnglishVoice: String
     private lateinit var currentFrenchVoice: String
 
@@ -52,6 +53,7 @@ class SettingsViewModel @Inject constructor(
                     .first()
                 currentEnglishVoice = preferenceRepository.englishVoice.first()
                 currentFrenchVoice = preferenceRepository.frenchVoice.first()
+                isRemoteModelEnabled = preferenceRepository.isRemoteModelEnabled.first()
             }
         }
     }
@@ -61,9 +63,10 @@ class SettingsViewModel @Inject constructor(
         isActivated = isActivated,
         speakerIsEnabledWhenScreenOn = speakerIsEnabledWhenScreenOn,
         speakerIsEnabledWhenDndOn = speakerIsEnabledWhenDndOn,
+        isRemoteModelEnabled = isRemoteModelEnabled,
         notificationIsShown = notificationIsShown,
         currentEnglishVoice = currentEnglishVoice,
-        currentFrenchVoice = currentFrenchVoice
+        currentFrenchVoice = currentFrenchVoice,
     )
     private val _uiState = MutableStateFlow(settingsUiState)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -180,5 +183,13 @@ class SettingsViewModel @Inject constructor(
     fun onConfirmTest(content: Pair<String, String>) {
         _uiState.update { it.copy(testNotificationTitle = content.first, testNotificationText = content.second) }
         _shouldPushNotification.value = Unit
+    }
+
+    fun onEnableRemoteModelSwitchToggled() {
+        Log.d("SettingsViewModel", "Toggle the Enable Remote Model Switch.")
+        _uiState.update { it.copy(isRemoteModelEnabled = !_uiState.value.isRemoteModelEnabled)}
+        viewModelScope.launch {
+            preferenceRepository.setRemoteModelEnabled(_uiState.value.isRemoteModelEnabled)
+        }
     }
 }

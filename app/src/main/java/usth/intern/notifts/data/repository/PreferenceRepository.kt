@@ -10,7 +10,7 @@ import usth.intern.notifts.data.ENGLISH_VOICE
 import usth.intern.notifts.data.FRENCH_VOICE
 import usth.intern.notifts.data.IS_ACTIVATED
 import usth.intern.notifts.data.IS_FIRST_TIME
-import usth.intern.notifts.data.IS_REMOTE_MODEL_ALLOWED
+import usth.intern.notifts.data.IS_REMOTE_MODEL_ENABLED
 import usth.intern.notifts.data.NOTIFICATION_IS_SHOWN
 import usth.intern.notifts.data.PREVIOUS_NOTIFICATION_TEXT
 import usth.intern.notifts.data.SPEAKER_IS_ENABLED_WHEN_DND_ON
@@ -42,21 +42,16 @@ class PreferenceRepository @Inject constructor(
             value[NOTIFICATION_IS_SHOWN] ?: true
         }
 
-    val isRemoteModelAllowed: Flow<Boolean> = dataStore.data.map {
-        it[IS_REMOTE_MODEL_ALLOWED] ?: false
+    val isRemoteModelEnabled: Flow<Boolean> = dataStore.data.map {
+        it[IS_REMOTE_MODEL_ENABLED] ?: false
     }
 
     val isFirstTime: Flow<Boolean> = dataStore.data.map {
         it[IS_FIRST_TIME] ?: true
     }
 
-
     val englishVoice: Flow<String> = dataStore.data.map { it[ENGLISH_VOICE] ?: "Heart (F)" }
     val frenchVoice: Flow<String> = dataStore.data.map { it[FRENCH_VOICE] ?: "Siwis (F)" }
-
-    val previousNotificationText: Flow<String> = dataStore.data.map {
-        it[PREVIOUS_NOTIFICATION_TEXT] ?: ""
-    }
 
     suspend fun updateActivationState(isActivated: Boolean) {
         dataStore.edit { preferences ->
@@ -90,11 +85,7 @@ class PreferenceRepository @Inject constructor(
         dataStore.edit { it[IS_FIRST_TIME] = false }
     }
 
-    suspend fun updatePreviousNotificationText(text: String) {
-        dataStore.edit { it[PREVIOUS_NOTIFICATION_TEXT] = text}
-    }
-
-    suspend fun setRemoteModelAllowed(value: Boolean) {
-        dataStore.edit { it[IS_REMOTE_MODEL_ALLOWED] = value }
+    suspend fun setRemoteModelEnabled(value: Boolean) {
+        dataStore.edit { it[IS_REMOTE_MODEL_ENABLED] = value }
     }
 }

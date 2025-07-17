@@ -13,7 +13,7 @@ class Controller @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     suspend fun getModelDecision(language: Language) : ModelDecision {
-        val isRemoteModelAllowed = preferenceRepository.isRemoteModelAllowed.first()
+        val isRemoteModelAllowed = preferenceRepository.isRemoteModelEnabled.first()
         val hasInternetConnection = hasInternetConnection(context)
         val isLanguageSupported = language == Language.ENGLISH || language == Language.FRENCH
 
